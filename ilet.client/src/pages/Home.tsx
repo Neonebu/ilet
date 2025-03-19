@@ -1,11 +1,22 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import logo from '../assets/msn-logo.png';
 import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [remember, setRemember] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const savedEmail = localStorage.getItem('remembered_email');
+        const savedPassword = localStorage.getItem('remembered_password');
+        if (savedEmail && savedPassword) {
+            setEmail(savedEmail);
+            setPassword(savedPassword);
+            setRemember(true);
+        }
+    }, []);
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -24,6 +35,13 @@ export default function Home() {
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
+                if (remember) {
+                    localStorage.setItem('remembered_email', email);
+                    localStorage.setItem('remembered_password', password);
+                } else {
+                    localStorage.removeItem('remembered_email');
+                    localStorage.removeItem('remembered_password');
+                }
                 navigate('/dashboard');
             } else {
                 alert(data.message || 'Login failed.');
@@ -81,6 +99,15 @@ export default function Home() {
                         border: '1px solid #ccc'
                     }}
                 />
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <input
+                        type="checkbox"
+                        checked={remember}
+                        onChange={() => setRemember(!remember)}
+                        style={{ marginRight: '5px' }}
+                    />
+                    <label style={{ fontSize: '14px' }}>Beni hatırla</label>
+                </div>
                 <button
                     style={{
                         width: '100%',

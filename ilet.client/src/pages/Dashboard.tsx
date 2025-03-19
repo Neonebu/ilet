@@ -1,8 +1,29 @@
-﻿import { BsEnvelopeFill } from "react-icons/bs";
+﻿import { useEffect, useState } from "react";
+import { BsEnvelopeFill } from "react-icons/bs";
 import profilePic from "../assets/msn-logo-small.png";
 import "./dashboard.css";
 
-const Dashboard = () => {
+export default function Dashboard() {
+    const [nickname, setNickname] = useState<string>("");
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+
+        fetch("https://iletapi.onrender.com/user", {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("API Response:", data); // buraya bakmamız lazım
+                // Aşağıdaki satırı API yapısına göre değiştir:
+                setNickname(data.nickname || data.user?.nickname || "No Nickname");
+            })
+            .catch((err) => console.error(err));
+    }, []);
+
+
     return (
         <div className="dashboard-container">
             <div className="top-bar"></div>
@@ -11,7 +32,7 @@ const Dashboard = () => {
                     <img src={profilePic} alt="profile" className="profile-icon" />
                     <div className="right-block">
                         <div className="nickname-line">
-                            <h2 className="nickname">YourNickname</h2>
+                            <h2 className="nickname">{nickname || "Loading..."}</h2>
                             <span className="status-text">(Online)</span>
                             <span className="down-arrow">▼</span>
                         </div>
@@ -40,6 +61,4 @@ const Dashboard = () => {
             </div>
         </div>
     );
-};
-
-export default Dashboard;
+}
