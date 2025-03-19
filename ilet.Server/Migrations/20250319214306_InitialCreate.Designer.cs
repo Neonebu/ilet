@@ -11,7 +11,7 @@ using ilet.Server.Context;
 namespace ilet.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250319201215_InitialCreate")]
+    [Migration("20250319214306_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
