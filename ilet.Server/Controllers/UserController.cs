@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using IletApi.Services;
 using ilet.Server.Models;
+using ilet.Server.Interfaces;
 
 namespace IletApi.Controllers
 {
@@ -15,7 +16,7 @@ namespace IletApi.Controllers
             _userService = userService;
         }
         [HttpPost]
-        public IActionResult CreateOrGetUser([FromBody] User user)
+        public IActionResult CreateOrGetUsers([FromBody] User user)
         {
             var (success, token, nickname) = _userService.CreateOrGetUser(user);
 
@@ -24,5 +25,23 @@ namespace IletApi.Controllers
 
             return Ok(new { token, nickname });
         }
+        [HttpGet("getUser")]
+        public IActionResult GetUser()
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (authHeader == null || !authHeader.StartsWith("Bearer "))
+                return Unauthorized();
+
+            var token = authHeader.Substring("Bearer ".Length);
+
+            var result = _userService.GetUser(token);
+
+            if (!result.success)
+                return Unauthorized();
+
+            return Ok(new { nickname = result.user.Nickname, email = result.user.Email });
+        }
+
+
     }
 }

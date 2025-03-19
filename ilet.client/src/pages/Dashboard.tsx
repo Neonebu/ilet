@@ -9,7 +9,7 @@ export default function Dashboard() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch("https://iletapi.onrender.com/user", {
+        fetch("https://iletapi.onrender.com/getUser", {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

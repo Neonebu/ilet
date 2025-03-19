@@ -1,14 +1,9 @@
 ﻿using ilet.Server.Context;
+using ilet.Server.Interfaces;
 using ilet.Server.Models;
 
 namespace IletApi.Services
 {
-    public interface IUserService
-    {
-        (bool success, string token, string nickname) CreateOrGetUser(User user);
-        List<User> GetAll();
-    }
-
     public class UserService : IUserService
     {
         private readonly AppDbContext _db;
@@ -46,6 +41,16 @@ namespace IletApi.Services
             _db.SaveChanges();
             return (true, "dummy-token", user.Nickname);
         }
+        public (bool success, User user) GetUser(string token)
+        {
+            if (token != "dummy-token")
+                return (false, null);
 
+            var user = _db.Users.FirstOrDefault(); // burası token'a göre userId çözümüne döner normalde
+            if (user == null)
+                return (false, null);
+
+            return (true, user);
+        }
     }
 }

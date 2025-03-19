@@ -1,5 +1,6 @@
 using System;
 using ilet.Server.Context;
+using ilet.Server.Interfaces;
 using IletApi.Services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
