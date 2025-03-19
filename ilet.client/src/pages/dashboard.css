@@ -1,0 +1,163 @@
+﻿body, html, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.dashboard-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(circle, #f0f0f0 0%, #ffffff 100%);
+}
+
+.top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(to bottom, #0b5394, #084a8d);
+    border-bottom: 1px solid #063970;
+}
+
+.content-panel {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    height: auto;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Üst satır */
+.top-row {
+    display: flex;
+    padding: 10px 10px 0 10px;
+}
+
+/* avatar */
+.profile-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+/* avatar sağındaki blok */
+.right-block {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5px;
+    width: 100%;
+}
+
+/* nickname ve status */
+.nickname-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: -5px;
+    margin-bottom: 0px;
+}
+
+.nickname {
+    font-weight: bold;
+    font-size: 15px;
+    color: #003399;
+    font-family: Tahoma, sans-serif;
+}
+
+.status-text {
+    font-size: 11px;
+    color: #339933;
+    font-family: Tahoma, sans-serif;
+}
+
+.down-arrow {
+    font-size: 10px;
+    color: black;
+    cursor: pointer;
+    margin-left: 2px;
+}
+
+/* personal message */
+
+.personal-message {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    margin-top: -10px; /* nickname’e yapışsın */
+    margin-bottom: 10px; /* mail bar ile 2px aralık */
+}
+
+    .personal-message input {
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+        border: 1px solid #ccc;
+        padding: 2px 5px;
+        width: 100%;
+        height: 20px;
+        border-radius: 2px;
+        outline: none;
+    }
+
+        .personal-message input::placeholder {
+            color: #888;
+            font-size: 11px;
+        }
+
+/* mail bar */
+.mail-bar {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    height: 26px;
+    background: linear-gradient(to bottom, #f5f5f5, #ebebeb);
+    border-top: 1px solid #dcdcdc;
+    padding: 0 10px;
+    gap: 10px;
+}
+
+.mail-icon {
+    font-size: 14px;
+    color: #333;
+    transition: 0.2s ease;
+}
+
+    .mail-icon:hover {
+        color: #0b5394;
+    }
+
+.mail-bar span {
+    font-size: 10px;
+    color: #333;
+    font-family: Tahoma, sans-serif;
+}
+
+.groups-bar {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 10px;
+    gap: 3px;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+.group-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.group-toggle {
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: 2px;
+}
