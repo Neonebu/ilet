@@ -28,6 +28,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 app.UseCors("AllowAll");
 
+// Migration otomatik uygula
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration skipped or failed gracefully: {ex.Message}");
+    }
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
