@@ -4,11 +4,11 @@ namespace ilet.Server.Interfaces
 {
     public interface IUserService
     {
-        List<User> GetAll();
-        bool UpdateProfilePicture(string userId, string fileName);
-        (bool success, string token, string nickname) CreateOrGetUser(User user);
-        (bool success, User user) GetUser(string token);
+        Task<List<User>> GetAll();
+        Task<bool> UpdateProfilePicture(string userId, string fileName);
+        Task<(bool success, string token, string nickname)> CreateOrGetUser(User user);
+        Task<(bool success, User? user)> GetUser(string token);
         string GenerateToken(User user);
-        User GetUserById(string userId);
+        Task<User?> GetUserById(string userId);
     }
 }

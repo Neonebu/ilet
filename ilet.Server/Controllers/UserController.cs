@@ -25,9 +25,9 @@ namespace IletApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult CreateOrGetUsers([FromBody] User user)
+        public async Task<IActionResult> CreateOrGetUsers([FromBody] User user)
         {
-            var (success, token, nickname) = _userService.CreateOrGetUser(user);
+            var (success, token, nickname) = await _userService.CreateOrGetUser(user);
 
             if (!success)
                 return Unauthorized(new { message = "Incorrect password." });
@@ -37,14 +37,14 @@ namespace IletApi.Controllers
 
         [HttpGet("getUser")]
         [Authorize]
-        public IActionResult GetUser()
+        public async Task<IActionResult> GetUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var user = _userService.GetUserById(userId);
+            var user = await _userService.GetUserById(userId);
 
             if (user == null)
                 return NotFound();
@@ -75,7 +75,7 @@ namespace IletApi.Controllers
                 await profilePicture.CopyToAsync(stream);
             }
 
-            var success = _userService.UpdateProfilePicture(userId, fileName);
+            var success = await _userService.UpdateProfilePicture(userId, fileName);
             if (!success)
                 return NotFound(new { message = "Kullanıcı bulunamadı." });
 

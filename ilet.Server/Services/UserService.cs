@@ -1,30 +1,30 @@
-﻿using ilet.Server.Context;
-using ilet.Server.Interfaces;
+﻿using ilet.Server.Interfaces;
 using ilet.Server.Models;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.EntityFrameworkCore;
+
 namespace IletApi.Services
 {
     public class UserService : IUserService
     {
-        private readonly AppDbContext _db;
+        private readonly IRepo<User> _userRepo;
 
-        public UserService(AppDbContext db)
+        public UserService(IRepo<User> userRepo)
         {
-            _db = db;
+            _userRepo = userRepo;
         }
 
-        public List<User> GetAll()
+        public async Task<List<User>> GetAll()
         {
-            return _db.Users.ToList();
+            var users = await _userRepo.GetAllAsync();
+            return users.ToList();
         }
 
-        public (bool success, string token, string nickname) CreateOrGetUser(User user)
+        public async Task<(bool success, string token, string nickname)> CreateOrGetUser(User user)
         {
-            var existingUser = _db.Users.FirstOrDefault(u => u.Email == user.Email);
+            var existingUser = (await _userRepo.GetAllAsync()).FirstOrDefault(u => u.Email == user.Email);
 
             if (existingUser != null)
             {
@@ -33,7 +33,8 @@ namespace IletApi.Services
                     if (string.IsNullOrEmpty(existingUser.Nickname))
                     {
                         existingUser.Nickname = existingUser.Email;
-                        _db.SaveChanges();
+                        _userRepo.Update(existingUser);
+                        await _userRepo.SaveAsync();
                     }
                     var token = GenerateToken(existingUser);
                     return (true, token, existingUser.Nickname);
@@ -42,11 +43,13 @@ namespace IletApi.Services
             }
 
             user.Nickname = user.Email;
-            _db.Users.Add(user);
-            _db.SaveChanges();
-            return (true, "dummy-token", user.Nickname);
+            await _userRepo.AddAsync(user);
+            await _userRepo.SaveAsync();
+            var newToken = GenerateToken(user);
+            return (true, newToken, user.Nickname);
         }
-        public (bool success, User user) GetUser(string token)
+
+        public async Task<(bool success, User? user)> GetUser(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes("super_secret_key_123");
@@ -65,13 +68,11 @@ namespace IletApi.Services
                 }, out SecurityToken validatedToken);
 
                 var userId = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                var user = _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
-
-                if (user == null)
+                if (string.IsNullOrEmpty(userId))
                     return (false, null);
 
-                return (true, user);
+                var user = await _userRepo.GetByIdAsync(userId);
+                return user != null ? (true, user) : (false, null);
             }
             catch
             {
@@ -83,11 +84,11 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"));// bu secret appsettings'e gider normalde
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -100,18 +101,21 @@ namespace IletApi.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public User GetUserById(string userId)
+
+        public async Task<User?> GetUserById(string userId)
         {
-            return _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
+            return await _userRepo.GetByIdAsync(userId);
         }
-        public bool UpdateProfilePicture(string userId, string fileName)
+
+        public async Task<bool> UpdateProfilePicture(string userId, string fileName)
         {
-            var user = _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
+            var user = await _userRepo.GetByIdAsync(userId);
             if (user == null)
                 return false;
 
             user.ProfilePicturePath = fileName;
-            _db.SaveChanges();
+            _userRepo.Update(user);
+            await _userRepo.SaveAsync();
             return true;
         }
     }
