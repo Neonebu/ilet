@@ -58,8 +58,8 @@ namespace IletApi.Controllers
             if (profilePicture == null || profilePicture.Length == 0)
                 return BadRequest(new { message = "Dosya seçilmedi." });
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
             var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
@@ -82,5 +82,6 @@ namespace IletApi.Controllers
             var fileUrl = $"/uploads/{fileName}";
             return Ok(new { message = "Yükleme başarılı.", url = fileUrl });
         }
+
     }
 }

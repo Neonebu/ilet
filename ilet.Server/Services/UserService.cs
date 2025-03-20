@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 
 namespace IletApi.Services
 {
@@ -68,8 +69,9 @@ namespace IletApi.Services
                     ValidateLifetime = true
                 }, out SecurityToken validatedToken);
 
-                var userId = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                var userIdStr = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!int.TryParse(userIdStr, out var userId))
                     return (false, null);
 
                 var user = await _userRepo.GetByIdAsync(userId);
@@ -80,6 +82,7 @@ namespace IletApi.Services
                 return (false, null);
             }
         }
+
 
         public string GenerateToken(User user)
         {
@@ -105,10 +108,14 @@ namespace IletApi.Services
 
         public async Task<User?> GetUserById(string userId)
         {
-            return await _userRepo.GetByIdAsync(userId);
+            if (!int.TryParse(userId, out var idInt))
+                return null;
+
+            return await _userRepo.Query().FirstOrDefaultAsync(u => u.Id == idInt);
         }
 
-        public async Task<bool> UpdateProfilePicture(string userId, string fileName)
+
+        public async Task<bool> UpdateProfilePicture(int userId, string fileName)
         {
             var user = await _userRepo.GetByIdAsync(userId);
             if (user == null)

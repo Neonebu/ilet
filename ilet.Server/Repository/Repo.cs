@@ -20,11 +20,6 @@ namespace IletApi.Repo
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(string id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
-
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
@@ -44,5 +39,16 @@ namespace IletApi.Repo
         {
             await _context.SaveChangesAsync();
         }
+
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsQueryable();
+        }
+
+        public async Task<T?> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
     }
 }
