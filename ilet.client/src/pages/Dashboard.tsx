@@ -9,16 +9,19 @@ export default function Dashboard() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch("https://iletapi.onrender.com/getUser", {
+        fetch("https://iletapi.onrender.com/user/getUser", {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log("API Response:", data); // buraya bakmamız lazım
-                // Aşağıdaki satırı API yapısına göre değiştir:
-                setNickname(data.nickname || data.user?.nickname || "No Nickname");
+            .then(async (res) => {
+                if (!res.ok) {
+                    console.error("API Hata:", res.status);
+                    return;
+                }
+                const data = await res.json();
+                console.log("API Response:", data);
+                setNickname(data.nickname || "No Nickname");
             })
             .catch((err) => console.error(err));
     }, []);

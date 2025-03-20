@@ -1,0 +1,41 @@
+﻿# Base .NET Runtime Image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+# SDK + Node.js (React Build için)
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+# Node 20 kurulumu
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -sL https://deb.nodesource.com/setup_20.x | bash && \
+    apt-get install -y nodejs && \
+    apt-get clean
+
+WORKDIR /src
+
+# .NET Restore
+COPY ["ilet.Server/ilet.Server.csproj", "ilet.Server/"]
+RUN dotnet restore "./ilet.Server/ilet.Server.csproj"
+
+# React Build
+COPY ilet.client/ ilet.client/
+WORKDIR /src/ilet.client
+RUN npm install && npm run build
+
+# Backend Build
+WORKDIR /src
+COPY . .
+WORKDIR "/src/ilet.Server"
+RUN dotnet publish "./ilet.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Final Image
+FROM base AS final
+WORKDIR /app
+
+# Backend publish + Frontend dist
+COPY --from=build-env /app/publish .
+COPY --from=build-env /src/ilet.client/dist ./wwwroot
+
+ENTRYPOINT ["dotnet", "ilet.Server.dll"]
