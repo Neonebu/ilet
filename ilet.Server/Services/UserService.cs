@@ -1,7 +1,10 @@
 ﻿using ilet.Server.Context;
 using ilet.Server.Interfaces;
 using ilet.Server.Models;
-
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 namespace IletApi.Services
 {
     public class UserService : IUserService
@@ -31,7 +34,8 @@ namespace IletApi.Services
                         existingUser.Nickname = existingUser.Email;
                         _db.SaveChanges();
                     }
-                    return (true, "dummy-token", existingUser.Nickname);
+                    var token = GenerateToken(existingUser);
+                    return (true, token, existingUser.Nickname);
                 }
                 return (false, "", "");
             }
@@ -43,14 +47,62 @@ namespace IletApi.Services
         }
         public (bool success, User user) GetUser(string token)
         {
-            if (token != "dummy-token")
-                return (false, null);
+            var handler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes("super_secret_key_123");
 
-            var user = _db.Users.FirstOrDefault(); // burası token'a göre userId çözümüne döner normalde
-            if (user == null)
-                return (false, null);
+            try
+            {
+                var claims = handler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = "yourapp",
+                    ValidAudience = "yourapp",
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateLifetime = true
+                }, out SecurityToken validatedToken);
 
-            return (true, user);
+                var userId = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var user = _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
+
+                if (user == null)
+                    return (false, null);
+
+                return (true, user);
+            }
+            catch
+            {
+                return (false, null);
+            }
         }
+
+        public string GenerateToken(User user)
+        {
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key_123")); // bu secret appsettings'e gider normalde
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "yourapp",
+                audience: "yourapp",
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public User GetUserById(string userId)
+        {
+            return _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
+        }
+
     }
 }

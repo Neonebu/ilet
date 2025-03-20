@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using IletApi.Services;
 using ilet.Server.Models;
 using ilet.Server.Interfaces;
+using System.Security.Claims;
 
 namespace IletApi.Controllers
 {
@@ -15,7 +17,8 @@ namespace IletApi.Controllers
         {
             _userService = userService;
         }
-        [HttpPost]
+
+        [HttpPost("login")]
         public IActionResult CreateOrGetUsers([FromBody] User user)
         {
             var (success, token, nickname) = _userService.CreateOrGetUser(user);
@@ -25,23 +28,22 @@ namespace IletApi.Controllers
 
             return Ok(new { token, nickname });
         }
+
         [HttpGet("getUser")]
+        [Authorize]
         public IActionResult GetUser()
         {
-            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            if (authHeader == null || !authHeader.StartsWith("Bearer "))
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var token = authHeader.Substring("Bearer ".Length);
+            var user = _userService.GetUserById(userId);
 
-            var result = _userService.GetUser(token);
+            if (user == null)
+                return NotFound();
 
-            if (!result.success)
-                return Unauthorized();
-
-            return Ok(new { nickname = result.user.Nickname, email = result.user.Email });
+            return Ok(new { nickname = user.Nickname, email = user.Email });
         }
-
-
     }
 }
