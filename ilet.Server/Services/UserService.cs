@@ -5,16 +5,20 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using ilet.Server.Dtos;
 
 namespace IletApi.Services
 {
     public class UserService : IUserService
     {
         private readonly IRepo<User> _userRepo;
+        private readonly IMapper _mapper;
 
-        public UserService(IRepo<User> userRepo)
+        public UserService(IRepo<User> userRepo,IMapper mapper)
         {
             _userRepo = userRepo;
+            _mapper = mapper;
         }
 
         public async Task<List<User>> GetAll()
@@ -106,15 +110,11 @@ namespace IletApi.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<User?> GetUserById(string userId)
+        public async Task<User?> GetUserById(int userId)
         {
-            if (!int.TryParse(userId, out var idInt))
-                return null;
-
-            return await _userRepo.Query().FirstOrDefaultAsync(u => u.Id == idInt);
+            return await _userRepo.Query()
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
-
-
         public async Task<bool> UpdateProfilePicture(int userId, string fileName)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -122,6 +122,46 @@ namespace IletApi.Services
                 return false;
 
             user.ProfilePicturePath = fileName;
+            _userRepo.Update(user);
+            await _userRepo.SaveAsync();
+            return true;
+        }
+        public async Task<bool> CreateUserAsync(CreateUserDto dto)
+        {
+            // Email kontrolü
+            var existingUser = await _userRepo.Query()
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (existingUser != null)
+                throw new Exception("Bu email zaten kayıtlı.");
+
+            var user = _mapper.Map<User>(dto);
+
+            // Password hashing (opsiyonel)
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            user.Status = "Hey there!";
+
+            await _userRepo.AddAsync(user);
+            await _userRepo.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            if (dto.Nickname != null)
+                user.Nickname = dto.Nickname;
+
+            if (dto.Status != null)
+                user.Status = dto.Status;
+
+            if (dto.ProfilePicturePath != null)
+                user.ProfilePicturePath = dto.ProfilePicturePath;
+
             _userRepo.Update(user);
             await _userRepo.SaveAsync();
             return true;

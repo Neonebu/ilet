@@ -4,6 +4,8 @@ using IletApi.Services;
 using ilet.Server.Models;
 using ilet.Server.Interfaces;
 using System.Security.Claims;
+using AutoMapper;
+using ilet.Server.Dtos;
 
 namespace IletApi.Controllers
 {
@@ -13,10 +15,12 @@ namespace IletApi.Controllers
     {
         private readonly IUserService _userService;
         private readonly IWebHostEnvironment _env;
-        public UserController(IUserService userService, IWebHostEnvironment env)
+        private readonly IMapper _mapper;
+        public UserController(IUserService userService, IWebHostEnvironment env,IMapper mapper)
         {
             _userService = userService;
             _env = env;
+            _mapper = mapper;
         }
         [HttpGet("/")]
         public IActionResult Index()
@@ -34,22 +38,29 @@ namespace IletApi.Controllers
 
             return Ok(new { token, nickname });
         }
-
         [HttpGet("getUser")]
         [Authorize]
         public async Task<IActionResult> GetUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userId))
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
             var user = await _userService.GetUserById(userId);
-
             if (user == null)
-                return NotFound();
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
 
-            return Ok(new { nickname = user.Nickname, email = user.Email });
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            // AutoMapper ile User => UserDto mapleme
+            var userDto = _mapper.Map<UserDto>(user);
+
+            // DTO içinde URL'yi tamamlıyoruz
+            userDto.ProfilePictureUrl = user.ProfilePicturePath != null
+                ? $"{baseUrl}/uploads/{user.ProfilePicturePath}"
+                : null;
+
+            return Ok(userDto);
         }
         [HttpPost("uploadProfilePic")]
         [Authorize]
@@ -84,7 +95,37 @@ namespace IletApi.Controllers
 
             return Ok(new { message = "Yükleme başarılı.", profilePictureUrl = fileUrl });
         }
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            try
+            {
+                await _userService.CreateUserAsync(dto);
+                return Ok(new { message = "Kayıt başarılı." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized();
+
+            var result = await _userService.UpdateUserAsync(userId, dto);
+            if (!result)
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
+
+            return Ok(new { message = "Kullanıcı güncellendi." });
+        }
 
 
     }

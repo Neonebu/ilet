@@ -1,4 +1,5 @@
-﻿using ilet.Server.Models;
+﻿using ilet.Server.Dtos;
+using ilet.Server.Models;
 
 namespace ilet.Server.Interfaces
 {
@@ -9,6 +10,8 @@ namespace ilet.Server.Interfaces
         Task<(bool success, string token, string nickname)> CreateOrGetUser(User user);
         Task<(bool success, User? user)> GetUser(string token);
         string GenerateToken(User user);
-        Task<User?> GetUserById(string userId);
+        Task<User?> GetUserById(int userId);
+        Task<bool> CreateUserAsync(CreateUserDto dto);
+        Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
     }
 }
