@@ -6,7 +6,6 @@ EXPOSE 8081
 
 # SDK + Node.js (React Build için)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-# Node 20 kurulumu
 RUN apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_20.x | bash && \
@@ -15,9 +14,13 @@ RUN apt-get update && \
 
 WORKDIR /src
 
-# .NET Restore
+# .NET solution ve projeleri kopyala (özellikle .sln ve tüm csproj'ler için)
+COPY ["ilet.sln", "./"]
 COPY ["ilet.Server/ilet.Server.csproj", "ilet.Server/"]
-RUN dotnet restore "./ilet.Server/ilet.Server.csproj"
+COPY ["ilet.client/ilet.client.csproj", "ilet.client/"]
+
+# dotnet restore yap
+RUN dotnet restore
 
 # React Build
 COPY ilet.client/ ilet.client/
@@ -34,7 +37,6 @@ RUN dotnet publish "./ilet.Server.csproj" -c Release -o /app/publish /p:UseAppHo
 FROM base AS final
 WORKDIR /app
 
-# Backend publish + Frontend dist
 COPY --from=build-env /app/publish .
 COPY --from=build-env /src/ilet.client/dist ./wwwroot
 
