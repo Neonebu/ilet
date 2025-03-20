@@ -17,7 +17,6 @@ WORKDIR /src
 # .NET solution ve projeleri kopyala (özellikle .sln ve tüm csproj'ler için)
 COPY ["ilet.sln", "./"]
 COPY ["ilet.Server/ilet.Server.csproj", "ilet.Server/"]
-COPY ["ilet.client/ilet.client.csproj", "ilet.client/"]
 
 # dotnet restore yap
 RUN dotnet restore
