@@ -10,21 +10,27 @@ export default function Dashboard() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch("https://iletapi.onrender.com/user/getUser", {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-            .then(async (res) => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch("https://iletapi.onrender.com/user/getUser", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
                 if (!res.ok) {
                     console.error("API Hata:", res.status);
                     return;
                 }
+
                 const data = await res.json();
                 console.log("API Response:", data);
                 setNickname(data.nickname || "No Nickname");
-            })
-            .catch((err) => console.error(err));
+
+            } catch (err) {
+                console.error("Network hata:", err);
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const handleProfileClick = () => {
@@ -44,16 +50,10 @@ export default function Dashboard() {
                 method: "POST",
                 headers: {
                     'Authorization': `Bearer ${token}`
-                    // Content-Type belirtmiyoruz! fetch kendisi ayarlıyor (boundary ekliyor)
                 },
                 body: formData,
-            }).catch((error) => {
-                if (error.response) {
-                    console.error("Backend hata:", error.response.data);
-                } else {
-                    console.error("Network hata:", error.message);
-                }
             });
+
             if (!response.ok) {
                 console.error("Yükleme hatası:", response.status);
                 return;
@@ -61,10 +61,9 @@ export default function Dashboard() {
 
             const data = await response.json();
             console.log("Yükleme başarılı:", data);
-            // Burada yüklenen resmin URL'sini dönerse img src'sini güncelleyebilirsin.
 
-        } catch (error) {
-            console.error("Yükleme sırasında hata:", error);
+        } catch (error: any) {
+            console.error("Yükleme sırasında hata:", error.message);
         }
     };
 
