@@ -23,7 +23,6 @@ export default function Home() {
             alert("Please fill all fields.");
             return;
         }
-
         try {
             const response = await fetch("https://iletapi.onrender.com/user/login", {
                 method: "POST",
@@ -31,11 +30,13 @@ export default function Home() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ email, password })
-            })
+            });
 
-            const data = await response.json();
+            let data: any = null;
+            let errorText = '';
 
             if (response.ok) {
+                data = await response.json();
                 localStorage.setItem('token', data.token);
                 if (remember) {
                     localStorage.setItem('remembered_email', email);
@@ -46,11 +47,20 @@ export default function Home() {
                 }
                 navigate('/dashboard');
             } else {
-                alert(data.message || 'Login failed.');
+                const contentType = response.headers.get("Content-Type") || "";
+                if (contentType.includes("application/json")) {
+                    data = await response.json();
+                    alert(data.message || 'Login failed.');
+                } else {
+                    errorText = await response.text();
+                    alert(errorText || 'Login failed (plain error).');
+                }
             }
-        } catch (error) {
-            alert('Network error: ' + error);
+        } catch (error: any) {
+            alert('Network error: ' + error.message);
         }
+
+
     };
 
     return (
