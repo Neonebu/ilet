@@ -23,6 +23,8 @@ namespace ilet.Server.Models
 
         [Column("status")]
         public string? Status { get; set; }
+        public string Language { get; set; } = "en"; // Default 'en'
+
     }
 
 }

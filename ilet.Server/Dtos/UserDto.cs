@@ -7,6 +7,7 @@
         public required string Email { get; set; }
         public string? Status { get; set; }
         public string? ProfilePictureUrl { get; set; }
+        public string Language { get; set; }
     }
 
 

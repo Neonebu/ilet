@@ -13,14 +13,57 @@
 }
 
 .top-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 30px;
-    background: linear-gradient(to bottom, #0b5394, #084a8d);
-    border-bottom: 1px solid #063970;
+    background-color: #1c3e75;
+    height: 40px;
+    display: flex;
+    align-items: flex-start;
+    padding: 5px 16px 0 5px;
+    color: white;
+    position: relative;
+    z-index: 100;
 }
+
+.top-bar-content {
+    display: flex;
+    align-items: flex-start;
+}
+
+.settings-dropdown {
+    position: relative;
+}
+
+.settings-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    min-width: 120px;
+    z-index: 9999;
+}
+
+.settings-dropdown.open .settings-menu {
+    display: block;
+}
+
+.menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+    .menu-item:hover {
+        background: #f0f0f0;
+    }
 
 .content-panel {
     position: absolute;
@@ -33,13 +76,15 @@
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
+    z-index: 1;
 }
 
 /* Üst satır */
 .top-row {
     display: flex;
-    padding: 10px 10px 0 10px;
+    padding: 20px 10px 0 10px; /* üstten boşluk verdik */
 }
+
 
 /* avatar */
 .profile-icon {
@@ -49,7 +94,6 @@
     object-fit: cover;
 }
 
-
 /* avatar sağındaki blok */
 .right-block {
     display: flex;
@@ -58,20 +102,30 @@
     width: 100%;
 }
 
-/* nickname ve status */
 .nickname-line {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 5px;
-    margin-top: -5px;
-    margin-bottom: 0px;
 }
 
+.nickname-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+
+.status-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 .nickname {
     font-weight: bold;
     font-size: 15px;
     color: #003399;
     font-family: Tahoma, sans-serif;
+    width: 170px; /* <<< sabit genişlik */
 }
 
 .status-text {
@@ -94,8 +148,8 @@
     align-items: center;
     gap: 5px;
     padding: 0;
-    margin-top: -10px; /* nickname’e yapışsın */
-    margin-bottom: 10px; /* mail bar ile 2px aralık */
+    margin-top: 0px;
+    margin-bottom: 10px;
 }
 
     .personal-message input {
@@ -162,4 +216,24 @@
     font-weight: bold;
     font-size: 12px;
     margin-right: 2px;
+}
+
+.nickname-input {
+    font-family: Tahoma, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px 4px;
+    height: 22px;
+    box-sizing: content-box;
+}
+.ghost-span {
+    visibility: hidden;
+    position: absolute;
+    white-space: pre;
+    font-family: Tahoma, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 2px 4px;
 }
