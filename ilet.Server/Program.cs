@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using ilet.Server.Context;
 using ilet.Server.Interfaces;
 using IletApi.Services;
@@ -15,15 +15,18 @@ var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
 
+// CORS tüm dünyaya açık
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
+
+// JWT Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -37,21 +40,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
-// Add services to the container.
+// Servisler
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
-app.UseCors("AllowAll");
 
-// Migration otomatik uygula
+// Middleware pipeline
+app.UseCors(); // DefaultPolicy çalışır
+app.UseDeveloperExceptionPage();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -64,7 +67,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Migration skipped or failed gracefully: {ex.Message}");
     }
 }
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -72,8 +75,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();

@@ -47,8 +47,13 @@ export default function Dashboard() {
                     // Content-Type belirtmiyoruz! fetch kendisi ayarlıyor (boundary ekliyor)
                 },
                 body: formData,
+            }).catch((error) => {
+                if (error.response) {
+                    console.error("Backend hata:", error.response.data);
+                } else {
+                    console.error("Network hata:", error.message);
+                }
             });
-
             if (!response.ok) {
                 console.error("Yükleme hatası:", response.status);
                 return;
