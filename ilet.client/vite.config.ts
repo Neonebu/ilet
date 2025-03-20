@@ -6,10 +6,11 @@ import path from 'path';
 import child_process from 'child_process';
 import { env } from 'process';
 
-// Render ortamında SSL gerekmeyecek
+// Render ortamında SSL kullanılmayacaksa bu değişken true olacak
 const isRender = !!process.env.RENDER;
 
-let httpsConfig = false;
+// https yapılandırması: Başlangıçta false olarak ayarlanır, sonra gerekirse doldurulur
+let httpsConfig: { key: Buffer; cert: Buffer } | undefined = undefined;
 
 if (!isRender) {
     const baseFolder =
@@ -26,7 +27,7 @@ if (!isRender) {
     }
 
     if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-        if (0 !== child_process.spawnSync('dotnet', [
+        const result = child_process.spawnSync('dotnet', [
             'dev-certs',
             'https',
             '--export-path',
@@ -34,8 +35,10 @@ if (!isRender) {
             '--format',
             'Pem',
             '--no-password',
-        ], { stdio: 'inherit' }).status) {
-            throw new Error("Could not create certificate.");
+        ], { stdio: 'inherit' });
+
+        if (result.status !== 0) {
+            throw new Error("Sertifika oluşturulamadı.");
         }
     }
 
@@ -51,22 +54,23 @@ const target = env.ASPNETCORE_HTTPS_PORT
         ? env.ASPNETCORE_URLS.split(';')[0]
         : 'https://localhost:7147';
 
-// https://vitejs.dev/config/
+// Vite yapılandırması
 export default defineConfig({
     plugins: [plugin()],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+        },
     },
     server: {
         proxy: {
             '^/weatherforecast': {
                 target,
-                secure: false
-            }
+                secure: false,
+            },
         },
         port: parseInt(env.DEV_SERVER_PORT || '54550'),
-        https: httpsConfig
-    }
+        // sadece httpsConfig tanımlandıysa ekle
+        ...(httpsConfig ? { https: httpsConfig } : {}),
+    },
 });
