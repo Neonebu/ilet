@@ -6,5 +6,6 @@
         public string? Nickname { get; set; } // nullable olabilir
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public string? ProfilePicturePath { get; set; } // yeni alan
     }
 }

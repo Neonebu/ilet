@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 namespace IletApi.Services
 {
     public class UserService : IUserService
@@ -103,6 +104,15 @@ namespace IletApi.Services
         {
             return _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
         }
+        public bool UpdateProfilePicture(string userId, string fileName)
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Id.ToString() == userId);
+            if (user == null)
+                return false;
 
+            user.ProfilePicturePath = fileName;
+            _db.SaveChanges();
+            return true;
+        }
     }
 }

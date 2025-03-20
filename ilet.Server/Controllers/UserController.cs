@@ -12,10 +12,11 @@ namespace IletApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
-        public UserController(IUserService userService)
+        private readonly IWebHostEnvironment _env;
+        public UserController(IUserService userService, IWebHostEnvironment env)
         {
             _userService = userService;
+            _env = env;
         }
         [HttpGet("/")]
         public IActionResult Index()
@@ -49,6 +50,37 @@ namespace IletApi.Controllers
                 return NotFound();
 
             return Ok(new { nickname = user.Nickname, email = user.Email });
+        }
+        [HttpPost("uploadProfilePic")]
+        [Authorize]
+        public async Task<IActionResult> UploadProfilePic([FromForm] IFormFile profilePicture)
+        {
+            if (profilePicture == null || profilePicture.Length == 0)
+                return BadRequest(new { message = "Dosya seçilmedi." });
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
+
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{userId}_{Path.GetFileName(profilePicture.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await profilePicture.CopyToAsync(stream);
+            }
+
+            var success = _userService.UpdateProfilePicture(userId, fileName);
+            if (!success)
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
+
+            var fileUrl = $"/uploads/{fileName}";
+            return Ok(new { message = "Yükleme başarılı.", url = fileUrl });
         }
     }
 }

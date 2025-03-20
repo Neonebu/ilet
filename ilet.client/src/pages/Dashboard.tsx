@@ -1,10 +1,11 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { BsEnvelopeFill } from "react-icons/bs";
 import profilePic from "../assets/msn-logo-small.png";
 import "./dashboard.css";
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState<string>("");
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -26,13 +27,61 @@ export default function Dashboard() {
             .catch((err) => console.error(err));
     }, []);
 
+    const handleProfileClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+
+        try {
+            const response = await fetch("https://iletapi.onrender.com/user/uploadProfilePic", {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                    // Content-Type belirtmiyoruz! fetch kendisi ayarlıyor (boundary ekliyor)
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.error("Yükleme hatası:", response.status);
+                return;
+            }
+
+            const data = await response.json();
+            console.log("Yükleme başarılı:", data);
+            // Burada yüklenen resmin URL'sini dönerse img src'sini güncelleyebilirsin.
+
+        } catch (error) {
+            console.error("Yükleme sırasında hata:", error);
+        }
+    };
 
     return (
         <div className="dashboard-container">
             <div className="top-bar"></div>
             <div className="content-panel">
                 <div className="top-row">
-                    <img src={profilePic} alt="profile" className="profile-icon" />
+                    <img
+                        src={profilePic}
+                        alt="profile"
+                        className="profile-icon"
+                        onClick={handleProfileClick}
+                        style={{ cursor: 'pointer' }}
+                    />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                    />
                     <div className="right-block">
                         <div className="nickname-line">
                             <h2 className="nickname">{nickname || "Loading..."}</h2>
