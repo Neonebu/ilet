@@ -14,12 +14,10 @@ RUN apt-get update && \
 
 WORKDIR /src
 
-# .NET solution ve projeleri kopyala (özellikle .sln ve tüm csproj'ler için)
-COPY ["ilet.sln", "./"]
+# .NET backend project restore
 COPY ["ilet.Server/ilet.Server.csproj", "ilet.Server/"]
-
-# dotnet restore yap
-RUN dotnet restore
+COPY ["ilet.sln", "./"]
+RUN dotnet restore "./ilet.Server/ilet.Server.csproj"
 
 # React Build
 COPY ilet.client/ ilet.client/
