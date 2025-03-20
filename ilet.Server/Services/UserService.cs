@@ -43,6 +43,7 @@ namespace IletApi.Services
             }
 
             user.Nickname = user.Email;
+            user.Status = "Online"; // veya "Offline"
             await _userRepo.AddAsync(user);
             await _userRepo.SaveAsync();
             var newToken = GenerateToken(user);

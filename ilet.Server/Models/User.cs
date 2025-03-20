@@ -7,5 +7,7 @@
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string? ProfilePicturePath { get; set; } // yeni alan
+        public string? Status { get; set; } = "Offline"; // default status
+
     }
 }
