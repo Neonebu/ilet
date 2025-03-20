@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
 
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");

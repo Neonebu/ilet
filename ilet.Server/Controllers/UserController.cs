@@ -17,6 +17,11 @@ namespace IletApi.Controllers
         {
             _userService = userService;
         }
+        [HttpGet("/")]
+        public IActionResult Index()
+        {
+            return Ok("API is working!");
+        }
 
         [HttpPost("login")]
         public IActionResult CreateOrGetUsers([FromBody] User user)
