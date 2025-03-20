@@ -1,10 +1,11 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { BsEnvelopeFill } from "react-icons/bs";
-import profilePic from "../assets/msn-logo-small.png";
+import defaultProfilePic from "../assets/msn-logo-small.png";
 import "./dashboard.css";
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState<string>("");
+    const [profilePicUrl, setProfilePicUrl] = useState<string>(defaultProfilePic);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
@@ -24,6 +25,10 @@ export default function Dashboard() {
                 const data = await res.json();
                 console.log("API Response:", data);
                 setNickname(data.nickname || "No Nickname");
+
+                if (data.profilePictureUrl) {
+                    setProfilePicUrl(`${data.profilePictureUrl}?t=${Date.now()}`);
+                }
 
             } catch (err) {
                 console.error("Network hata:", err);
@@ -62,6 +67,11 @@ export default function Dashboard() {
             const data = await response.json();
             console.log("Yükleme başarılı:", data);
 
+            // Resmi güncelle ve cache kır
+            if (data.profilePictureUrl) {
+                setProfilePicUrl(`${data.profilePictureUrl}?t=${Date.now()}`);
+            }
+
         } catch (error: any) {
             console.error("Yükleme sırasında hata:", error.message);
         }
@@ -73,7 +83,7 @@ export default function Dashboard() {
             <div className="content-panel">
                 <div className="top-row">
                     <img
-                        src={profilePic}
+                        src={profilePicUrl}
                         alt="profile"
                         className="profile-icon"
                         onClick={handleProfileClick}

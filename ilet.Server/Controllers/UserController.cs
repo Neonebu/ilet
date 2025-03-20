@@ -67,10 +67,10 @@ namespace IletApi.Controllers
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            var fileName = $"{userId}_{Path.GetFileName(profilePicture.FileName)}";
+            var fileName = $"{userId}_{Guid.NewGuid()}{Path.GetExtension(profilePicture.FileName)}";
             var filePath = Path.Combine(uploadsFolder, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            await using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await profilePicture.CopyToAsync(stream);
             }
@@ -79,9 +79,12 @@ namespace IletApi.Controllers
             if (!success)
                 return NotFound(new { message = "Kullanıcı bulunamadı." });
 
-            var fileUrl = $"/uploads/{fileName}";
-            return Ok(new { message = "Yükleme başarılı.", url = fileUrl });
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var fileUrl = $"{baseUrl}/uploads/{fileName}";
+
+            return Ok(new { message = "Yükleme başarılı.", profilePictureUrl = fileUrl });
         }
+
 
     }
 }
