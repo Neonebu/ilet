@@ -183,6 +183,17 @@ namespace IletApi.Services
             await _userRepo.SaveAsync();
             return true;
         }
+        public async Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId)
+        {
+            var pp = await _ppRepo.GetByUserIdAsync(userId);
+            if (pp == null || pp.Image == null)
+                return null;
 
+            return new UserProfilePictureDto
+            {
+                Image = pp.Image,
+                ContentType = "image/jpeg"
+            };
+        }
     }
 }

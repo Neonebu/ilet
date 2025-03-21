@@ -13,5 +13,6 @@ namespace ilet.Server.Interfaces
         Task<bool> CreateUserAsync(CreateUserDto dto);
         Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
         Task UploadProfilePicture(int userId, IFormFile file);
+        Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId);
     }
 }

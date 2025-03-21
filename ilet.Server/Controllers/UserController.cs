@@ -129,5 +129,15 @@ namespace IletApi.Controllers
             }
             return Ok();
         }
+        [Authorize]
+        [HttpGet("{userId}/profile-picture")]
+        public async Task<IActionResult> GetProfilePicture(int userId)
+        {
+            var ppDto = await _userService.GetProfilePictureAsync(userId);
+            if (ppDto == null || ppDto.Image == null)
+                return NotFound();
+            return File(ppDto.Image, ppDto.ContentType);
+
+        }
     }
 }
