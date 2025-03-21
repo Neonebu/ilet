@@ -64,6 +64,28 @@ export default function ProfileSection({ nickname, setNickname, profilePicUrl, s
         }
     }, [tempNickname, isEditingNickname]);
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const fetchUser = async () => {
+            const res = await fetch("https://iletapi.onrender.com/user/getUser", {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                console.error("API Hata:", res.status);
+                return;
+            }
+
+            const data = await res.json();
+            setNickname(data.nickname || "No Nickname");
+            if (data.profilePictureUrl) {
+                setProfilePicUrl(`${data.profilePictureUrl}?t=${Date.now()}`);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
     return (
         <div className="top-row">
             <img

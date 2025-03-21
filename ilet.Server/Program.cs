@@ -75,6 +75,15 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = ""
 });
 
+// Ek olarak uploads dizinini de dışarı aç:
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
+
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
