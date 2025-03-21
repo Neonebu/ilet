@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IletApi.Repo;
 using Microsoft.Extensions.FileProviders;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
@@ -48,8 +49,19 @@ builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
+var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder
+        .AddConsole() // Terminal çıktısı
+        .AddDebug()   // VS Output paneline de dene
+        .SetMinimumLevel(LogLevel.Information);
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString)
+        .UseLoggerFactory(loggerFactory)
+        .EnableSensitiveDataLogging()
+);
 
 var app = builder.Build();
 
