@@ -6,6 +6,7 @@ namespace ilet.Server.Context
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<UserProfilePicture> UserProfilePictures { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {

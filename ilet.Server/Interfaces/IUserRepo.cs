@@ -1,6 +1,6 @@
 ﻿namespace ilet.Server.Interfaces
 {
-    public interface IRepo<T> where T : class
+    public interface IUserRepo<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
         IQueryable<T> Query();

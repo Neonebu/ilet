@@ -1,15 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ilet.Server.Context;
 using ilet.Server.Interfaces;
+using System.Linq.Expressions;
 
 namespace IletApi.Repo
 {
-    public class Repo<T> : IRepo<T> where T : class
+    public class UserRepo<T> : IUserRepo<T> where T : class
     {
         private readonly AppDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        protected readonly DbSet<T> _dbSet;
 
-        public Repo(AppDbContext context)
+        public UserRepo(AppDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
@@ -50,5 +51,16 @@ namespace IletApi.Repo
             return await _dbSet.FindAsync(id);
         }
 
+        // 🟢 Yeni eklenenler:
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
     }
+
 }

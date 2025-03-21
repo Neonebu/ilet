@@ -12,13 +12,15 @@ namespace IletApi.Services
 {
     public class UserService : IUserService
     {
-        private readonly IRepo<User> _userRepo;
+        private readonly IUserRepo<User> _userRepo;
         private readonly IMapper _mapper;
+        private readonly IUserProfilePictureRepo _ppRepo;
 
-        public UserService(IRepo<User> userRepo,IMapper mapper)
+        public UserService(IUserRepo<User> userRepo,IMapper mapper,IUserProfilePictureRepo userProfilePictureRepo)
         {
             _userRepo = userRepo;
             _mapper = mapper;
+            _ppRepo = userProfilePictureRepo;
         }
 
         public async Task<List<User>> GetAll()
@@ -115,17 +117,33 @@ namespace IletApi.Services
             return await _userRepo.Query()
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
-        public async Task<bool> UpdateProfilePicture(int userId, string fileName)
+        public async Task UploadProfilePicture(int userId, IFormFile file)
         {
-            var user = await _userRepo.GetByIdAsync(userId);
-            if (user == null)
-                return false;
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var bytes = ms.ToArray();
 
-            user.ProfilePicturePath = fileName;
-            _userRepo.Update(user);
-            await _userRepo.SaveAsync();
-            return true;
+            var existing = await _ppRepo.GetByUserIdAsync(userId);
+
+            if (existing != null)
+            {
+                existing.Image = bytes;
+                existing.CreatedAt = DateTime.UtcNow;
+                _ppRepo.Update(existing);
+            }
+            else
+            {
+                await _ppRepo.AddAsync(new UserProfilePicture
+                {
+                    UserId = userId,
+                    Image = bytes,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            await _ppRepo.SaveAsync();
         }
+
         public async Task<bool> CreateUserAsync(CreateUserDto dto)
         {
             // Email kontrolü
@@ -165,6 +183,11 @@ namespace IletApi.Services
             _userRepo.Update(user);
             await _userRepo.SaveAsync();
             return true;
+        }
+
+        public Task<bool> UpdateProfilePicture(int userId, string fileName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
