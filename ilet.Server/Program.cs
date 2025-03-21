@@ -68,6 +68,12 @@ var app = builder.Build();
 // Middleware pipeline
 app.UseCors(); // DefaultPolicy çalışır
 app.UseDeveloperExceptionPage();
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
