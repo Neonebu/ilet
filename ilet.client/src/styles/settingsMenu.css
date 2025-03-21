@@ -1,0 +1,41 @@
+﻿.top-bar-content {
+    display: flex;
+    align-items: flex-start;
+}
+
+.settings-dropdown {
+    position: relative;
+}
+
+.settings-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    min-width: 120px;
+    z-index: 9999;
+}
+
+.settings-dropdown.open .settings-menu {
+    display: block;
+}
+
+.menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+    .menu-item:hover {
+        background: #f0f0f0;
+    }

@@ -3,8 +3,8 @@
   "profile": "Profil",
   "logout": "Çıkış Yap",
   "theme": "Tema",
-  "online": "Çevrimiçi",
-  "offline": "Çevrimdışı",
+  "Online": "Online",
+  "Offline": "Offline",
   "world": "Dünya",
   "personal_message": "Kişisel bir mesaj yaz",
   "language": "Language"

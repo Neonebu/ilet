@@ -1,0 +1,37 @@
+﻿body, html, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.dashboard-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(circle, #f0f0f0 0%, #ffffff 100%);
+}
+
+.top-bar {
+    background-color: #1c3e75;
+    height: 40px;
+    display: flex;
+    align-items: flex-start;
+    padding: 5px 16px 0 5px;
+    color: white;
+    position: relative;
+    z-index: 100;
+}
+
+.content-panel {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+}

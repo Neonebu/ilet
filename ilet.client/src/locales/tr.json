@@ -3,7 +3,9 @@
   "profile": "Profil",
   "logout": "Çıkış Yap",
   "theme": "Tema",
-  "online": "(Çevrim içi)",
+  "Online": "Çevrimiçi",
+  "Offline": "Çevrimdışı",
+  "World": "Dünya",
   "type_message": "Kişisel bir mesaj yazın",
   "language": "Dil"
 }
