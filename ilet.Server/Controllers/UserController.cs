@@ -16,11 +16,13 @@ namespace IletApi.Controllers
         private readonly IUserService _userService;
         private readonly IWebHostEnvironment _env;
         private readonly IMapper _mapper;
-        public UserController(IUserService userService, IWebHostEnvironment env,IMapper mapper)
+        private readonly ILogger<UserController> _logger;
+        public UserController(IUserService userService, IWebHostEnvironment env,IMapper mapper, ILogger<UserController> logger)
         {
             _userService = userService;
             _env = env;
             _mapper = mapper;
+            _logger = logger;
         }
         [HttpGet("/")]
         public IActionResult Index()
@@ -73,8 +75,17 @@ namespace IletApi.Controllers
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
-            await _userService.UploadProfilePicture(userId, profilePicture);
-            return Ok(new { message = "Yükleme başarılı." });
+            try
+            {
+                await _userService.UploadProfilePicture(userId, profilePicture);
+                return Ok(new { message = "Yükleme başarılı." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Profil resmi yüklenirken hata oluştu");
+                return StatusCode(500, new { message = "Sunucu hatası", error = ex.Message });
+            }
+
         }
 
         [HttpPost("create")]

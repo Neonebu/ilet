@@ -29,9 +29,14 @@ namespace ilet.Server.Context
         }
         private static string ToSnakeCase(string input)
         {
-            return string.Concat(
-                input.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x : x.ToString())
-            ).ToLower();
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
+
+            return System.Text.RegularExpressions.Regex
+                .Replace(input, @"([a-z0-9])([A-Z])", "$1_$2")
+                .Replace("-", "_")
+                .ToLower();
         }
+
     }
 }

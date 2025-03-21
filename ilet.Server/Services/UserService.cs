@@ -89,7 +89,6 @@ namespace IletApi.Services
             }
         }
 
-
         public string GenerateToken(User user)
         {
             var claims = new[]
