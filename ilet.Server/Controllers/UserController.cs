@@ -126,7 +126,15 @@ namespace IletApi.Controllers
 
             return Ok(new { message = "Kullanıcı güncellendi." });
         }
-
-
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId != null)
+            {
+                // Refresh token db'den sil vs.
+            }
+            return Ok();
+        }
     }
 }
