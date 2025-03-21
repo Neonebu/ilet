@@ -185,9 +185,5 @@ namespace IletApi.Services
             return true;
         }
 
-        public Task<bool> UpdateProfilePicture(int userId, string fileName)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
