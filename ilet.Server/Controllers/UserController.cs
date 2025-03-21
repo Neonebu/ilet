@@ -73,28 +73,10 @@ namespace IletApi.Controllers
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
-            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
-
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{userId}_{Guid.NewGuid()}{Path.GetExtension(profilePicture.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            await using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await profilePicture.CopyToAsync(stream);
-            }
-
-            var success = await _userService.UpdateProfilePicture(userId, fileName);
-            if (!success)
-                return NotFound(new { message = "Kullanıcı bulunamadı." });
-
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
-            var fileUrl = $"{baseUrl}/uploads/{fileName}";
-
-            return Ok(new { message = "Yükleme başarılı.", profilePictureUrl = fileUrl });
+            await _userService.UploadProfilePicture(userId, profilePicture);
+            return Ok(new { message = "Yükleme başarılı." });
         }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
         {
