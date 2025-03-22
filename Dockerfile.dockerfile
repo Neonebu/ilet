@@ -36,5 +36,5 @@ WORKDIR /app
 
 COPY --from=build-env /app/publish .
 COPY --from=build-env /src/ilet.client/dist ./wwwroot
-
+COPY ilet.Server/wwwroot/uploads ./wwwroot/uploads  # <-- EKLENECEK!
 ENTRYPOINT ["dotnet", "ilet.Server.dll"]
