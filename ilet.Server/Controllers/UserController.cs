@@ -29,16 +29,51 @@ namespace IletApi.Controllers
         {
             return Ok("API is working!");
         }
-
+        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> CreateOrGetUsers([FromBody] User user)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto input)
         {
-            var (success, token, nickname) = await _userService.CreateOrGetUser(user);
+            try
+            {
+                var userDto = await _userService.Login(input);
 
-            if (!success)
-                return Unauthorized(new { message = "Incorrect password." });
+                // Token üretelim:
+                var token = _userService.GenerateToken(new User { Id = userDto.Id, Email = userDto.Email });
 
-            return Ok(new { token, nickname });
+                return Ok(new
+                {
+                    User = userDto,
+                    Token = token
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("signup")]
+        public async Task<IActionResult> Signup([FromBody] CreateUserRequestDto input)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var userDto = await _userService.Signup(input);
+
+                var token = _userService.GenerateToken(new User { Id = userDto.Id, Email = userDto.Email });
+
+                return Ok(new
+                {
+                    User = userDto,
+                    Token = token
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpGet("getUser")]
         [Authorize]
@@ -48,7 +83,7 @@ namespace IletApi.Controllers
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
-            var user = await _userService.GetUserById(userId);
+            var user = await _userService.GetUser(userId);
             if (user == null)
                 return NotFound(new { message = "Kullanıcı bulunamadı." });
 
@@ -58,9 +93,9 @@ namespace IletApi.Controllers
             var userDto = _mapper.Map<UserDto>(user);
 
             // DTO içinde URL'yi tamamlıyoruz
-            userDto.ProfilePictureUrl = user.ProfilePicturePath != null
-                ? $"{baseUrl}/uploads/{user.ProfilePicturePath}"
-                : null;
+            //userDto.ProfilePictureUrl = user.ProfilePicturePath != null
+            //    ? $"{baseUrl}/uploads/{user.ProfilePicturePath}"
+            //    : null;
 
             return Ok(userDto);
         }
@@ -87,24 +122,6 @@ namespace IletApi.Controllers
             }
 
         }
-
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                await _userService.CreateUserAsync(dto);
-                return Ok(new { message = "Kayıt başarılı." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
         [HttpPut("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
@@ -119,24 +136,18 @@ namespace IletApi.Controllers
 
             return Ok(new { message = "Kullanıcı güncellendi." });
         }
+        [Authorize]
         [HttpPost("logout")]
         public IActionResult Logout()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId != null)
             {
-                // Refresh token db'den sil vs.
+                // Burada refresh token veya session silme işlemleri yapılabilir
+                // Örneğin: await _authService.RemoveRefreshToken(userId);
             }
-            return Ok();
+            return Ok(new { message = "Çıkış yapıldı." });
         }
-        [HttpGet("{userId}/profile-picture")]
-        public async Task<IActionResult> GetProfilePicture(int userId)
-        {
-            var ppDto = await _userService.GetProfilePictureAsync(userId);
-            if (ppDto == null || ppDto.Image == null)
-                return NotFound();
-            return File(ppDto.Image, ppDto.ContentType);
 
-        }
     }
 }

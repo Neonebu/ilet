@@ -8,8 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IletApi.Repo;
 using Microsoft.Extensions.FileProviders;
-using System.Diagnostics;
-using ilet.Server.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
@@ -46,8 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Servisler
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped(typeof(IUserRepo<>), typeof(UserRepo<>));
-builder.Services.AddScoped<IUserProfilePictureRepo, UserProfilePictureRepo>();
+builder.Services.AddScoped(typeof(IRepositoryDb<>), typeof(RepositoryDb<>));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));

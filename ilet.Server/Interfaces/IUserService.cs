@@ -6,13 +6,12 @@ namespace ilet.Server.Interfaces
     public interface IUserService
     {
         Task<List<User>> GetAll();
-        Task<(bool success, string token, string nickname)> CreateOrGetUser(User user);
-        Task<(bool success, User? user)> GetUser(string token);
+        Task<UserDto> Signup(CreateUserRequestDto input);
+        Task<UserDto> Login(LoginRequestDto input);
+        Task<UserDto?> GetUser(int userId);
         string GenerateToken(User user);
-        Task<User?> GetUserById(int userId);
-        Task<bool> CreateUserAsync(CreateUserDto dto);
-        Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
         Task UploadProfilePicture(int userId, IFormFile file);
+        Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
         Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId);
     }
 }

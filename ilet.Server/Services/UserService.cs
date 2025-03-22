@@ -12,15 +12,14 @@ namespace IletApi.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepo<User> _userRepo;
+        private readonly IRepositoryDb<User> _userRepo;
+        private readonly IRepositoryDb<UserProfilePicture> _ppRepo;
         private readonly IMapper _mapper;
-        private readonly IUserProfilePictureRepo _ppRepo;
-
-        public UserService(IUserRepo<User> userRepo,IMapper mapper,IUserProfilePictureRepo userProfilePictureRepo)
+        public UserService(IRepositoryDb<User> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo)
         {
             _userRepo = userRepo;
             _mapper = mapper;
-            _ppRepo = userProfilePictureRepo;
+            _ppRepo = ppRepo;
         }
 
         public async Task<List<User>> GetAll()
@@ -28,67 +27,54 @@ namespace IletApi.Services
             var users = await _userRepo.GetAllAsync();
             return users.ToList();
         }
-
-        public async Task<(bool success, string token, string nickname)> CreateOrGetUser(User user)
+        public async Task<UserDto> Signup(CreateUserRequestDto input)
         {
-            var existingUser = (await _userRepo.GetAllAsync()).FirstOrDefault(u => u.Email == user.Email);
+            var existingUser = await _userRepo.Query()
+                .FirstOrDefaultAsync(u => u.Email == input.Email);
 
             if (existingUser != null)
-            {
-                if (existingUser.Password == user.Password)
-                {
-                    if (string.IsNullOrEmpty(existingUser.Nickname))
-                    {
-                        existingUser.Nickname = existingUser.Email;
-                        _userRepo.Update(existingUser);
-                        await _userRepo.SaveAsync();
-                    }
-                    var token = GenerateToken(existingUser);
-                    return (true, token, existingUser.Nickname);
-                }
-                return (false, "", "");
-            }
+                throw new Exception("Bu email zaten kayıtlı.");
 
-            user.Nickname = user.Email;
-            user.Status = "Online"; // veya "Offline"
+            var user = new User
+            {
+                Email = input.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(input.Password),
+                Nickname = input.Email, // İlk nickname olarak email atanabilir
+                Status = "Online",  // Varsayılan bir durum
+                Language = input.Language // Eğer DTO'da varsa
+            };
+
             await _userRepo.AddAsync(user);
             await _userRepo.SaveAsync();
-            var newToken = GenerateToken(user);
-            return (true, newToken, user.Nickname);
-        }
 
-        public async Task<(bool success, User? user)> GetUser(string token)
+            var userDto = _mapper.Map<UserDto>(user);
+            return userDto;
+        }
+        public async Task<UserDto> Login(LoginRequestDto input)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("super_secret_key_123");
+            var user = await _userRepo.Query()
+                .FirstOrDefaultAsync(u => u.Email == input.Email);
 
-            try
-            {
-                var claims = handler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = "yourapp",
-                    ValidAudience = "yourapp",
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateLifetime = true
-                }, out SecurityToken validatedToken);
+            if (user == null)
+                throw new Exception("Kullanıcı bulunamadı.");
 
-                var userIdStr = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var isPasswordValid = BCrypt.Net.BCrypt.Verify(input.Password, user.Password);
 
-                if (!int.TryParse(userIdStr, out var userId))
-                    return (false, null);
+            if (!isPasswordValid)
+                throw new Exception("Şifre hatalı.");
 
-                var user = await _userRepo.GetByIdAsync(userId);
-                return user != null ? (true, user) : (false, null);
-            }
-            catch
-            {
-                return (false, null);
-            }
+            var userDto = _mapper.Map<UserDto>(user);
+            return userDto;
         }
+        public async Task<UserDto?> GetUser(int userId)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null)
+                return null;
 
+            var userDto = _mapper.Map<UserDto>(user);
+            return userDto;
+        }
         public string GenerateToken(User user)
         {
             var claims = new[]
@@ -110,19 +96,13 @@ namespace IletApi.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-        public async Task<User?> GetUserById(int userId)
-        {
-            return await _userRepo.Query()
-                .FirstOrDefaultAsync(u => u.Id == userId);
-        }
         public async Task UploadProfilePicture(int userId, IFormFile file)
         {
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
             var bytes = ms.ToArray();
 
-            var existing = await _ppRepo.GetByUserIdAsync(userId);
+            var existing = await _ppRepo.GetByIdAsync(userId);
 
             if (existing != null)
             {
@@ -140,30 +120,8 @@ namespace IletApi.Services
                 });
             }
 
-            await _ppRepo.SaveAsync();
-        }
-
-        public async Task<bool> CreateUserAsync(CreateUserDto dto)
-        {
-            // Email kontrolü
-            var existingUser = await _userRepo.Query()
-                .FirstOrDefaultAsync(u => u.Email == dto.Email);
-
-            if (existingUser != null)
-                throw new Exception("Bu email zaten kayıtlı.");
-
-            var user = _mapper.Map<User>(dto);
-
-            // Password hashing (opsiyonel)
-            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
-            user.Status = "Hey there!";
-
-            await _userRepo.AddAsync(user);
             await _userRepo.SaveAsync();
-            return true;
         }
-
         public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -185,7 +143,7 @@ namespace IletApi.Services
         }
         public async Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId)
         {
-            var pp = await _ppRepo.GetByUserIdAsync(userId);
+            var pp = await _ppRepo.GetByIdAsync(userId);
             if (pp == null || pp.Image == null)
                 return null;
 

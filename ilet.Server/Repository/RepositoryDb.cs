@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 
 namespace IletApi.Repo
 {
-    public class UserRepo<T> : IUserRepo<T> where T : class
+    public class RepositoryDb<T> : IRepositoryDb<T> where T : class
     {
         private readonly AppDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public UserRepo(AppDbContext context)
+        public RepositoryDb(AppDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
