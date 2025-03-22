@@ -1,18 +1,18 @@
-﻿// components/ProfileSection.tsx
-import { useRef, useState, useEffect } from "react";
+﻿import { useRef, useState, useEffect } from "react";
 import defaultProfilePic from "../assets/msn-logo-small.png";
 import '../styles/profileSection.css';
+
 interface Props {
     nickname: string;
     setNickname: (name: string) => void;
-    profilePicUrl: string;
-    setProfilePicUrl: (url: string) => void;
+    userId: number;
 }
 
-export default function ProfileSection({ nickname, setNickname, profilePicUrl, setProfilePicUrl }: Props) {
+export default function ProfileSection({ nickname, setNickname, userId }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isEditingNickname, setIsEditingNickname] = useState(false);
     const [tempNickname, setTempNickname] = useState("");
+    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
     const handleProfileClick = () => {
         fileInputRef.current?.click();
@@ -33,13 +33,10 @@ export default function ProfileSection({ nickname, setNickname, profilePicUrl, s
                 body: formData,
             });
 
-            if (!response.ok) return;
-
-            const data = await response.json();
-            if (data.profilePictureUrl) {
-                setProfilePicUrl(`${data.profilePictureUrl}?t=${Date.now()}`);
+            if (response.ok) {
+                // upload sonrası pp url'yi yenile
+                refreshProfilePic();
             }
-
         } catch (error: any) {
             console.error("Yükleme sırasında hata:", error.message);
         }
@@ -49,42 +46,20 @@ export default function ProfileSection({ nickname, setNickname, profilePicUrl, s
         const newNickname = tempNickname.trim();
         if (newNickname !== "") {
             setNickname(newNickname);
+            // Opsiyonel: burada nickname update API çağırabilirsiniz
         }
         setIsEditingNickname(false);
     };
 
+    const refreshProfilePic = () => {
+        setProfilePicUrl(`https://iletapi.onrender.com/user/${userId}/profile-picture?t=${Date.now()}`);
+    };
+
     useEffect(() => {
-        if (isEditingNickname) {
-            const span = document.getElementById("nickname-measure");
-            const input = fileInputRef.current;
-            if (span && input) {
-                const spanWidth = span.offsetWidth;
-                input.style.width = `${spanWidth}px`;
-            }
+        if (userId) {
+            refreshProfilePic();
         }
-    }, [tempNickname, isEditingNickname]);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const fetchUser = async () => {
-            const res = await fetch("https://iletapi.onrender.com/user/getUser", {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (!res.ok) {
-                console.error("API Hata:", res.status);
-                return;
-            }
-
-            const data = await res.json();
-            setNickname(data.nickname || "No Nickname");
-            if (data.profilePictureUrl) {
-                setProfilePicUrl(`${data.profilePictureUrl}?t=${Date.now()}`);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    }, [userId]);
 
     return (
         <div className="top-row">
@@ -119,7 +94,6 @@ export default function ProfileSection({ nickname, setNickname, profilePicUrl, s
                                     }}
                                     onBlur={handleSaveNickname}
                                     className="nickname-input"
-                                    ref={fileInputRef}
                                 />
                                 <span id="nickname-measure" className="ghost-span">{tempNickname || " "}</span>
                             </>

@@ -129,7 +129,6 @@ namespace IletApi.Controllers
             }
             return Ok();
         }
-        [Authorize]
         [HttpGet("{userId}/profile-picture")]
         public async Task<IActionResult> GetProfilePicture(int userId)
         {
