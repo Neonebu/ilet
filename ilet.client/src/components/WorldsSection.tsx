@@ -1,5 +1,5 @@
 ﻿import defaultProfilePic from "../assets/msn-logo-small.png";
-import '../styles/WorldsSection.css';
+import '../styles/worldsSection.css';
 import '../styles/commonGroups.css';
 import GroupsWrapper from "./GroupsWrapper";
 
