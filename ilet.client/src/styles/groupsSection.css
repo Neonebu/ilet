@@ -1,25 +1,4 @@
-﻿.groups-bar {
-    display: flex;
-    flex-direction: column;
-    padding: 5px 10px;
-    gap: 3px;
-    font-family: Tahoma, sans-serif;
-    font-size: 11px;
-}
-
-.group-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-}
-
-.group-toggle {
-    font-weight: bold;
-    font-size: 12px;
-    margin-right: 2px;
-}
-
+﻿
 /* mail bar */
 .mail-bar {
     display: flex;

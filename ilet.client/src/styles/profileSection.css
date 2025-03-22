@@ -29,10 +29,10 @@
     display: inline-block;
 }
 
-.status-wrapper {
+.nickname-inline {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
 }
 
 .nickname {
@@ -40,54 +40,17 @@
     font-size: 15px;
     color: #003399;
     font-family: Tahoma, sans-serif;
-    width: 170px;
-}
-
-.status-text {
-    font-size: 11px;
-    color: #339933;
-    font-family: Tahoma, sans-serif;
-}
-
-.down-arrow {
-    font-size: 10px;
-    color: black;
     cursor: pointer;
-    margin-left: 2px;
 }
-
-.personal-message {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-}
-
-    .personal-message input {
-        font-family: Tahoma, sans-serif;
-        font-size: 11px;
-        border: 1px solid #ccc;
-        padding: 2px 5px;
-        width: 100%;
-        height: 20px;
-        border-radius: 2px;
-        outline: none;
-    }
-
-        .personal-message input::placeholder {
-            color: #888;
-            font-size: 11px;
-        }
 
 .nickname-input {
     font-family: Tahoma, sans-serif;
     font-size: 15px;
     font-weight: bold;
     border: 1px solid #ccc;
-    border-radius: 2px;
     padding: 2px 4px;
-    height: 22px;
-    box-sizing: content-box;
+    border-radius: 2px;
+    outline: none;
 }
 
 .ghost-span {
@@ -98,4 +61,63 @@
     font-size: 15px;
     font-weight: bold;
     padding: 2px 4px;
+}
+
+.status-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.status-text {
+    font-weight: normal;
+    font-size: 11px;
+    font-family: Tahoma, sans-serif;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: black;
+    margin-left: 3px;
+}
+
+.status-dropdown {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px 0;
+    list-style: none;
+    width: 120px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+
+    .status-dropdown li {
+        padding: 5px 10px;
+        font-family: Tahoma, sans-serif;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+        .status-dropdown li:hover {
+            background: #e0e0e0;
+        }
+
+.status-online {
+    color: #339933; /* yeşil */
+}
+
+.status-busy {
+    color: #cc3333; /* kırmızı */
+}
+
+.status-away {
+    color: #e67e22; /* turuncu */
+}
+
+.status-invisible {
+    color: gray; /* gri */
 }

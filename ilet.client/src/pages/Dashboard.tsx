@@ -4,10 +4,14 @@ import GroupsSection from "../components/GroupsSection";
 import { useState } from "react";
 import '../styles/dashboard.css';
 import { useEffect } from "react";
+import WorldsSection from "../components/WorldsSection";
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [selectedLang, setSelectedLang] = useState("en");
     const [userId, setUserId] = useState<number | null>(null);
+    const [profilePicUrl] = useState<string | null>(null);
+    const [status] = useState("çevrimiçi");
+    const [groupUsers] = useState<any[]>([]);
 
     const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newLang = e.target.value;
@@ -52,7 +56,16 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
-                <GroupsSection />
+                <div className="groups-bar">
+                    <GroupsSection />
+                    <WorldsSection
+                        profilePicUrl={profilePicUrl}
+                        nickname={nickname}
+                        status={status}
+                        userId={userId}
+                        groupUsers={groupUsers}
+                    />
+                </div>
             </div>
         </div>
     );

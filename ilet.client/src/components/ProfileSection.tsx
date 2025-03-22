@@ -14,6 +14,9 @@ export default function ProfileSection({ nickname, setNickname, userId }: Props)
     const [tempNickname, setTempNickname] = useState("");
     const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
+    const [status, setStatus] = useState("Çevrimiçi");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
     const handleProfileClick = () => {
         fileInputRef.current?.click();
     };
@@ -34,19 +37,34 @@ export default function ProfileSection({ nickname, setNickname, userId }: Props)
             });
 
             if (response.ok) {
-                // upload sonrası pp url'yi yenile
                 refreshProfilePic();
             }
         } catch (error: any) {
             console.error("Yükleme sırasında hata:", error.message);
         }
     };
-
+    const getStatusClass = (status: string) => {
+        switch (status) {
+            case "Çevrimiçi": return "status-online";
+            case "Meşgul": return "status-busy";
+            case "Dışarıda": return "status-away";
+            case "Görünmez": return "status-invisible";
+            default: return "status-online";
+        }
+    };
     const handleSaveNickname = async () => {
         const newNickname = tempNickname.trim();
         if (newNickname !== "") {
             setNickname(newNickname);
-            // Opsiyonel: burada nickname update API çağırabilirsiniz
+            const token = localStorage.getItem('token');
+            await fetch("https://iletapi.onrender.com/user/update", {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ nickname: newNickname })
+            });
         }
         setIsEditingNickname(false);
     };
@@ -54,6 +72,22 @@ export default function ProfileSection({ nickname, setNickname, userId }: Props)
     const refreshProfilePic = () => {
         setProfilePicUrl(`https://iletapi.onrender.com/user/${userId}/profile-picture?t=${Date.now()}`);
     };
+
+    const handleStatusChange = async (newStatus: string) => {
+        setStatus(newStatus);
+        setDropdownOpen(false);
+
+        const token = localStorage.getItem('token');
+        await fetch("https://iletapi.onrender.com/user/update", {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+    };
+
 
     useEffect(() => {
         if (userId) {
@@ -82,31 +116,62 @@ export default function ProfileSection({ nickname, setNickname, userId }: Props)
                     <div className="nickname-wrapper">
                         {isEditingNickname ? (
                             <>
-                                <input
-                                    type="text"
-                                    value={tempNickname}
-                                    autoFocus
-                                    onChange={(e) => setTempNickname(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                            handleSaveNickname();
-                                        }
-                                    }}
-                                    onBlur={handleSaveNickname}
-                                    className="nickname-input"
-                                />
+                                <div className="nickname-inline">
+                                    <input
+                                        type="text"
+                                        value={tempNickname}
+                                        autoFocus
+                                        onChange={(e) => setTempNickname(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                handleSaveNickname();
+                                            }
+                                        }}
+                                        onBlur={handleSaveNickname}
+                                        className="nickname-input"
+                                    />
+                                    <div className="status-wrapper" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                        <span className="status-text">({status})</span>
+                                        <span className="dropdown-arrow">▼</span>
+                                        {dropdownOpen && (
+                                            <ul className="status-dropdown">
+                                                <li onClick={() => handleStatusChange("Çevrimiçi")}>Çevrimiçi</li>
+                                                <li onClick={() => handleStatusChange("Meşgul")}>Meşgul</li>
+                                                <li onClick={() => handleStatusChange("Dışarıda")}>Dışarıda</li>
+                                                <li onClick={() => handleStatusChange("Görünmez")}>Görünmez</li>
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
                                 <span id="nickname-measure" className="ghost-span">{tempNickname || " "}</span>
                             </>
                         ) : (
-                            <h2
-                                className="nickname"
-                                onClick={() => {
-                                    setTempNickname(nickname);
-                                    setIsEditingNickname(true);
-                                }}
-                            >
-                                {nickname || "Loading..."}
-                            </h2>
+                            <div className="nickname-inline">
+                                <h2
+                                    className="nickname"
+                                    onClick={() => {
+                                        setTempNickname(nickname);
+                                        setIsEditingNickname(true);
+                                    }}
+                                >
+                                    {nickname || "Loading..."}
+                                </h2>
+                                    <div className="status-wrapper" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                        <span className={`status-text ${getStatusClass(status)}`}>
+                                            ({status})
+                                        </span>
+                                        <span className="dropdown-arrow">▼</span>
+                                        {dropdownOpen && (
+                                            <ul className="status-dropdown">
+                                                <li onClick={() => handleStatusChange("Çevrimiçi")}>Çevrimiçi</li>
+                                                <li onClick={() => handleStatusChange("Meşgul")}>Meşgul</li>
+                                                <li onClick={() => handleStatusChange("Dışarıda")}>Dışarıda</li>
+                                                <li onClick={() => handleStatusChange("Görünmez")}>Görünmez</li>
+                                            </ul>
+                                        )}
+                                    </div>
+
+                            </div>
                         )}
                     </div>
                 </div>

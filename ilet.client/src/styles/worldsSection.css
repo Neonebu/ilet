@@ -1,0 +1,17 @@
+﻿.small-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.worlds-header {
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    color: #003399;
+    margin-bottom: 5px;
+    padding-left: 0;
+    font-weight: normal;
+}
+
+
