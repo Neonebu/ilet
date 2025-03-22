@@ -9,7 +9,7 @@ export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [selectedLang, setSelectedLang] = useState("en");
     const [userId, setUserId] = useState<number | null>(null);
-    const [profilePicUrl] = useState<string | null>(null);
+    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
     const [status] = useState("çevrimiçi");
     const [groupUsers] = useState<any[]>([]);
 
@@ -34,6 +34,7 @@ export default function Dashboard() {
             const data = await res.json();
             setNickname(data.nickname || "No Nickname");
             setUserId(data.id); // işte burası eksikti!
+            setProfilePicUrl(data.profilePictureUrl);
         };
 
         fetchUser();

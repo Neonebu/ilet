@@ -35,8 +35,13 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+	<ItemGroup>
+		<Content Include="wwwroot\uploads\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Folder Include="Migrations\" />
   </ItemGroup>
 

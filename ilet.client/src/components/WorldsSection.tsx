@@ -21,7 +21,8 @@ export default function WorldsSection({ profilePicUrl, nickname, userId, status,
             default: return "status-online";
         }
     };
-    console.log(userId);
+    console.log("UserId "+userId);
+    console.log("profilePicUrl:", profilePicUrl);
     return (
         <GroupsWrapper>
             <div className="group-item group-header">
@@ -41,8 +42,8 @@ export default function WorldsSection({ profilePicUrl, nickname, userId, status,
             {groupUsers.map(user => (
                 <div className="group-user-item" key={user.id}>
                     <img
-                        src={`https://iletapi.onrender.com/uploads/${user.avatar}`}
-                        alt="avatar"
+                        src={profilePicUrl ? `${profilePicUrl}?t=${Date.now()}` : defaultProfilePic}
+                        alt="profile"
                         className="small-avatar"
                     />
                     <span className="group-nickname">{user.name}</span>
