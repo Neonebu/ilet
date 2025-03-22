@@ -52,7 +52,8 @@ namespace IletApi.Controllers
             if (user == null)
                 return NotFound(new { message = "Kullanıcı bulunamadı." });
 
-            var baseUrl = "https://iletapi.onrender.com";
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
             // AutoMapper ile User => UserDto mapleme
             var userDto = _mapper.Map<UserDto>(user);
 
