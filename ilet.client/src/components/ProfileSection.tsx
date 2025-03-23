@@ -9,12 +9,12 @@ interface Props {
     profilePicUrl: string;
 }
 
-export default function ProfileSection({ nickname, profilePicUrl }: Props) {
+export default function ProfileSection({ nickname, setNickname, profilePicUrl }: Props) {
     return (
         <div className="top-row">
             <ProfilePictureUploader profilePicUrl={profilePicUrl} />
             <div className="right-block">
-                <NicknameEditor nickname={nickname}/>
+                <NicknameEditor nickname={nickname} setNickname={setNickname} />
             </div>
         </div>
     );

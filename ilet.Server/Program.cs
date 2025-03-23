@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IletApi.Repo;
 using Microsoft.Extensions.FileProviders;
+using ilet.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
@@ -91,6 +92,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseWebSockets();
+app.Map("/ws", async context =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var socket = await context.WebSockets.AcceptWebSocketAsync();
+        await WebSocketHandler.HandleConnection(socket);
+    }
+    else
+    {
+        context.Response.StatusCode = 400;
+    }
+});
+
 app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthorization();

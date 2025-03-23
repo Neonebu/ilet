@@ -55,6 +55,26 @@ export default function Dashboard() {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        const ws = new WebSocket("ws://localhost:54550/ws");
+
+        ws.onopen = () => {
+            console.log("✅ WebSocket bağlı");
+            ws.send("Merhaba server!");
+        };
+
+        ws.onmessage = (event) => {
+            console.log("📥 Gelen mesaj:", event.data);
+        };
+
+        ws.onclose = () => {
+            console.log("❌ Bağlantı kapandı.");
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, []);
 
 
     useEffect(() => {
