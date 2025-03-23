@@ -19,19 +19,9 @@ export default function StatusDropdown({status, setStatus }: { status: string, s
         });
     };
 
-    const getStatusClass = (status: string) => {
-        switch (status) {
-            case "Çevrimiçi": return "status-online";
-            case "Meşgul": return "status-busy";
-            case "Dışarıda": return "status-away";
-            case "Görünmez": return "status-invisible";
-            default: return "status-online";
-        }
-    };
-
     return (
         <div className="status-wrapper" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <span className={`status-text`}>
+            <span className="status-text">
                 ({t(status)})
             </span>
             <span className="dropdown-arrow">▼</span>
