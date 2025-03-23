@@ -15,7 +15,7 @@ public partial class Users
 
     public string? Status { get; set; }
 
-    public string Language { get; set; } = null!;
+    public string Language { get; set; } = "en";
 
     public virtual UserProfilePictures? UserProfilePictures { get; set; }
 }

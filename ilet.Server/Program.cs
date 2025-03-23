@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Servisler
 builder.Services.AddControllers();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUsersService, UserService>();
 builder.Services.AddScoped(typeof(IRepositoryDb<>), typeof(RepositoryDb<>));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

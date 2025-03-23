@@ -13,11 +13,11 @@ namespace IletApi.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUsersService _userService;
         private readonly IWebHostEnvironment _env;
         private readonly IMapper _mapper;
         private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService, IWebHostEnvironment env,IMapper mapper, ILogger<UserController> logger)
+        public UserController(IUsersService userService, IWebHostEnvironment env,IMapper mapper, ILogger<UserController> logger)
         {
             _userService = userService;
             _env = env;
@@ -38,7 +38,7 @@ namespace IletApi.Controllers
                 var userDto = await _userService.Login(input);
 
                 // Token üretelim:
-                var token = _userService.GenerateToken(new User { Id = userDto.Id, Email = userDto.Email });
+                var token = _userService.GenerateToken(new Users { Id = userDto.Id, Email = userDto.Email });
 
                 return Ok(new
                 {
@@ -62,7 +62,7 @@ namespace IletApi.Controllers
             {
                 var userDto = await _userService.Signup(input);
 
-                var token = _userService.GenerateToken(new User { Id = userDto.Id, Email = userDto.Email });
+                var token = _userService.GenerateToken(new Users { Id = userDto.Id, Email = userDto.Email });
 
                 return Ok(new
                 {

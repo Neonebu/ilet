@@ -10,19 +10,19 @@ using ilet.Server.Dtos;
 
 namespace IletApi.Services
 {
-    public class UserService : IUserService
+    public class UserService : IUsersService
     {
-        private readonly IRepositoryDb<User> _userRepo;
+        private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePicture> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<User> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo)
+        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _ppRepo = ppRepo;
         }
 
-        public async Task<List<User>> GetAll()
+        public async Task<List<Users>> GetAll()
         {
             var users = await _userRepo.GetAllAsync();
             return users.ToList();
@@ -35,7 +35,7 @@ namespace IletApi.Services
             if (existingUser != null)
                 throw new Exception("Bu email zaten kayıtlı.");
 
-            var user = new User
+            var user = new Users
             {
                 Email = input.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(input.Password),
@@ -75,7 +75,7 @@ namespace IletApi.Services
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
-        public string GenerateToken(User user)
+        public string GenerateToken(Users user)
         {
             var claims = new[]
             {

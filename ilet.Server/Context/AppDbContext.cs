@@ -19,7 +19,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<UserProfilePictures> UserProfilePictures { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("Host=dpg-cvc71llds78s73ag5g9g-a.oregon-postgres.render.com;Port=5432;Database=iletapi_db;Username=iletapi_db_user;Password=9FDT9Cv3POHCkXRmDWRAcSekKssHYdQG;Ssl Mode=Require;Trust Server Certificate=true;").ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
