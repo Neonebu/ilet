@@ -3,7 +3,10 @@
   "profile": "Profil",
   "logout": "Déconnexion",
   "theme": "Thème",
-  "online": "(En ligne)",
-  "type_message": "Tapez un message personnel",
+  "Online": "En ligne",
+  "Offline": "Hors ligne",
+  "World": "Monde",
+  "Worlds": "Mondes",
+  "type_message": "Écrivez un message personnel",
   "language": "Langue"
 }

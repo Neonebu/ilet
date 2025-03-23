@@ -18,13 +18,14 @@ export default function Home() {
         }
     }, []);
 
-    const handleLogin = async () => {
+    const handleLoginOrSignup = async () => {
         if (!email || !password) {
             alert("Please fill all fields.");
             return;
         }
         try {
-            const response = await fetch("https://iletapi.onrender.com/user/login", {
+            // İlk olarak login deniyoruz
+            const loginResponse = await fetch("https://iletapi.onrender.com/user/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -32,36 +33,60 @@ export default function Home() {
                 body: JSON.stringify({ email, password })
             });
 
-            let data: any = null;
-            let errorText = '';
-
-            if (response.ok) {
-                data = await response.json();
-                localStorage.setItem('token', data.token);
-                if (remember) {
-                    localStorage.setItem('remembered_email', email);
-                    localStorage.setItem('remembered_password', password);
-                } else {
-                    localStorage.removeItem('remembered_email');
-                    localStorage.removeItem('remembered_password');
-                }
-                navigate('/dashboard');
+            if (loginResponse.ok) {
+                const data = await loginResponse.json();
+                handleSuccess(data, "Login başarılı!");
             } else {
-                const contentType = response.headers.get("Content-Type") || "";
-                if (contentType.includes("application/json")) {
-                    data = await response.json();
-                    alert(data.message || 'Login failed.');
+                const data = await loginResponse.json();
+                if (data.message === "Kullanıcı bulunamadı.") {
+                    // Login başarısızsa signup deniyoruz
+                    const signupResponse = await fetch("https://iletapi.onrender.com/user/signup", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    if (signupResponse.ok) {
+                        const signupData = await signupResponse.json();
+                        handleSuccess(signupData, "Signup başarılı!");
+                    } else {
+                        const signupError = await signupResponse.json();
+                        alert(signupError.message || "Signup başarısız.");
+                    }
                 } else {
-                    errorText = await response.text();
-                    alert(errorText || 'Login failed (plain error).');
+                    alert(data.message || "Login başarısız.");
                 }
             }
         } catch (error: any) {
             alert('Network error: ' + error.message);
         }
-
-
     };
+
+    const handleSuccess = (data: any, message: string) => {
+        localStorage.setItem('token', data.token);
+
+        // Burada profile picture kontrolü yapıyoruz
+        const profilePictureUrl = data.profilePictureUrl
+            ? data.profilePictureUrl
+            : logo;
+
+        // localStorage'a kaydedebilirsin
+        localStorage.setItem('profilePictureUrl', profilePictureUrl);
+        localStorage.setItem('nickname', data.nickname);
+
+        if (remember) {
+            localStorage.setItem('remembered_email', email);
+            localStorage.setItem('remembered_password', password);
+        } else {
+            localStorage.removeItem('remembered_email');
+            localStorage.removeItem('remembered_password');
+        }
+        console.log(message);
+        navigate('/dashboard');
+    };
+
 
     return (
         <div style={{
@@ -130,7 +155,7 @@ export default function Home() {
                         fontWeight: 'bold',
                         cursor: 'pointer',
                     }}
-                    onClick={handleLogin}
+                    onClick={handleLoginOrSignup}
                 >
                     Sign In/Login
                 </button>

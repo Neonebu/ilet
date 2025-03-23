@@ -1,7 +1,7 @@
 ﻿import defaultProfilePic from "../assets/msn-logo-small.png";
 import '../styles/worldsSection.css';
 import '../styles/commonGroups.css';
-import GroupsWrapper from "./GroupsWrapper";
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     profilePicUrl: string | null;
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function WorldsSection({ profilePicUrl, nickname, userId, status, groupUsers }: Props) {
+    const { t } = useTranslation();
     const getStatusClass = (status: string) => {
         switch (status) {
             case "Çevrimiçi": return "status-online";
@@ -24,11 +25,10 @@ export default function WorldsSection({ profilePicUrl, nickname, userId, status,
     console.log("UserId "+userId);
     console.log("profilePicUrl:", profilePicUrl);
     return (
-        <GroupsWrapper>
+        <>
             <div className="group-item group-header">
-                <span className="group-toggle">-</span> Worlds
+                <span className="group-toggle">-</span> {t('Worlds')}
             </div>
-
             <div className="group-user-item">
                 <img
                     src={profilePicUrl ? `${profilePicUrl}?t=${Date.now()}` : defaultProfilePic}
@@ -50,7 +50,7 @@ export default function WorldsSection({ profilePicUrl, nickname, userId, status,
                     <span className={`status-dot ${getStatusClass(user.status)}`}></span>
                 </div>
             ))}
-        </GroupsWrapper>
+         </>
     );
 
 }

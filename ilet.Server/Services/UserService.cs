@@ -127,16 +127,14 @@ namespace IletApi.Services
             var user = await _userRepo.GetByIdAsync(userId);
             if (user == null)
                 return false;
-
             if (dto.Nickname != null)
                 user.Nickname = dto.Nickname;
-
             if (dto.Status != null)
                 user.Status = dto.Status;
-
             if (dto.ProfilePicturePath != null)
                 user.ProfilePicturePath = dto.ProfilePicturePath;
-
+            if(dto.Language != null) 
+                user.Language = dto.Language;
             _userRepo.Update(user);
             await _userRepo.SaveAsync();
             return true;

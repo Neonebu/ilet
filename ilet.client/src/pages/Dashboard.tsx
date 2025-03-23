@@ -1,22 +1,40 @@
 ﻿import SettingsMenu from "../components/SettingsMenu";
 import ProfileSection from "../components/ProfileSection";
 import GroupsSection from "../components/GroupsSection";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import '../styles/dashboard.css';
-import { useEffect } from "react";
 import WorldsSection from "../components/WorldsSection";
+import logo from '../assets/msn-logo.png';
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+
+
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
-    const [selectedLang, setSelectedLang] = useState("en");
     const [userId, setUserId] = useState<number | null>(null);
     const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
     const [status] = useState("çevrimiçi");
     const [groupUsers] = useState<any[]>([]);
+    const navigate = useNavigate();
+    const { i18n } = useTranslation();
+    const [selectedLang, setSelectedLang] = useState(i18n.language);
 
-    const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleLangChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newLang = e.target.value;
+        i18n.changeLanguage(newLang);
         setSelectedLang(newLang);
         localStorage.setItem('lang', newLang);
+
+        // backend'e kaydet:
+        const token = localStorage.getItem('token');
+        await fetch("https://iletapi.onrender.com/user/update", {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ language: newLang })
+        });
     };
 
     useEffect(() => {
@@ -26,24 +44,39 @@ export default function Dashboard() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (!res.ok) {
-                console.error("API Hata:", res.status);
-                return;
-            }
-
             const data = await res.json();
-            setNickname(data.nickname || "No Nickname");
-            setUserId(data.id); // işte burası eksikti!
+            setNickname(data.nickname);
+            setUserId(data.id);
             setProfilePicUrl(data.profilePictureUrl);
+            setSelectedLang(data.language || 'en');
+            i18n.changeLanguage(data.language || 'en'); // dil senkronizasyonu burada!
         };
 
         fetchUser();
     }, []);
 
+
+
+    useEffect(() => {
+        const handleBackButton = () => {
+            // logout işlemi
+            localStorage.removeItem('token');
+            localStorage.removeItem('profilePictureUrl');
+            localStorage.removeItem('nickname');
+            navigate('/'); // anasayfa veya login route
+        };
+
+        window.onpopstate = handleBackButton;
+
+        return () => {
+            window.onpopstate = null;
+        };
+    }, [navigate]);
     return (
         <div className="dashboard-container">
             <div className="top-bar">
                 <SettingsMenu
+                    key={selectedLang}
                     selectedLang={selectedLang}
                     handleLangChange={handleLangChange}
                 />
@@ -52,15 +85,19 @@ export default function Dashboard() {
             <div className="content-panel">
                 {userId !== null && (
                     <ProfileSection
+                        key={`profile-${selectedLang}`}
                         nickname={nickname}
                         setNickname={setNickname}
                         userId={userId}
+                        profilePicUrl={profilePicUrl ?? logo}
                     />
                 )}
+
                 <div className="groups-bar">
-                    <GroupsSection />
+                    <GroupsSection key={`groups-${selectedLang}`} />
                     <WorldsSection
-                        profilePicUrl={profilePicUrl}
+                        key={`worlds-${selectedLang}`}
+                        profilePicUrl={profilePicUrl ?? logo}
                         nickname={nickname}
                         status={status}
                         userId={userId}
@@ -70,4 +107,5 @@ export default function Dashboard() {
             </div>
         </div>
     );
+
 }

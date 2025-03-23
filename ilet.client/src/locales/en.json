@@ -1,11 +1,12 @@
 {
-  "settings": "Ayarlar",
-  "profile": "Profil",
-  "logout": "Çıkış Yap",
-  "theme": "Tema",
+  "settings": "Settings",
+  "profile": "Profile",
+  "logout": "Logout",
+  "theme": "Theme",
   "Online": "Online",
   "Offline": "Offline",
-  "world": "Dünya",
-  "personal_message": "Kişisel bir mesaj yaz",
+  "World": "World",
+  "Worlds": "Worlds",
+  "type_message": "Type a personal message",
   "language": "Language"
 }
