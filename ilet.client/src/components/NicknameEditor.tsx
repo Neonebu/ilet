@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import StatusDropdown from "./StatusDropdown";
 
 interface Props {
     nickname: string;
-    setNickname: (name: string) => void;
 }
 
-export default function NicknameEditor({ nickname, setNickname }: Props) {
+export default function NicknameEditor({ nickname }: Props) {
     const [isEditingNickname, setIsEditingNickname] = useState(false);
     const [tempNickname, setTempNickname] = useState("");
     const [status, setStatus] = useState("Online");
-    const { t } = useTranslation();
 
     return (
         <div className="nickname-line">

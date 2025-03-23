@@ -3,10 +3,9 @@ import defaultProfilePic from "../assets/msn-logo-small.png";
 
 interface Props {
     profilePicUrl: string;
-    userId: number;
 }
 
-export default function ProfilePictureUploader({ profilePicUrl, userId }: Props) {
+export default function ProfilePictureUploader({ profilePicUrl}: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleProfileClick = () => {

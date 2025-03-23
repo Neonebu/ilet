@@ -5,20 +5,6 @@ export default function StatusDropdown({status, setStatus }: { status: string, s
     const { t } = useTranslation();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const handleStatusChange = async (newStatus: string) => {
-        setStatus(newStatus);
-        setDropdownOpen(false);
-        const token = localStorage.getItem('token');
-        await fetch("https://iletapi.onrender.com/user/update", {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ status: newStatus })
-        });
-    };
-
     return (
         <div className="status-wrapper" onClick={() => setDropdownOpen(!dropdownOpen)}>
             <span className="status-text">
