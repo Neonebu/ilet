@@ -106,7 +106,6 @@ app.Map("/ws", async context =>
     }
 });
 
-app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

@@ -131,8 +131,6 @@ namespace IletApi.Services
                 user.Nickname = dto.Nickname;
             if (dto.Status != null)
                 user.Status = dto.Status;
-            if (dto.ProfilePicturePath != null)
-                user.ProfilePicturePath = dto.ProfilePicturePath;
             if(dto.Language != null) 
                 user.Language = dto.Language;
             _userRepo.Update(user);

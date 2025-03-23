@@ -18,9 +18,6 @@ namespace ilet.Server.Models
         [Column("password")]
         public string Password { get; set; } = string.Empty;
 
-        [Column("profile_picture_path")]
-        public string? ProfilePicturePath { get; set; }
-
         [Column("status")]
         public string? Status { get; set; }
         public string Language { get; set; } = "en"; // Default 'en'
