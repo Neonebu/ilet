@@ -120,7 +120,7 @@ namespace IletApi.Services
                 });
             }
 
-            await _userRepo.SaveAsync();
+            await _ppRepo.SaveAsync();
         }
         public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto)
         {

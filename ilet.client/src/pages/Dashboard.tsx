@@ -56,7 +56,7 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        const ws = new WebSocket("ws://localhost:54550/ws");
+        const ws = new WebSocket("wss://iletapi.onrender.com/ws");
 
         ws.onopen = () => {
             console.log("✅ WebSocket bağlı");
