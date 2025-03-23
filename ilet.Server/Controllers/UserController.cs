@@ -92,11 +92,6 @@ namespace IletApi.Controllers
             // AutoMapper ile User => UserDto mapleme
             var userDto = _mapper.Map<UserDto>(user);
 
-            // DTO içinde URL'yi tamamlıyoruz
-            //userDto.ProfilePictureUrl = user.ProfilePicturePath != null
-            //    ? $"{baseUrl}/uploads/{user.ProfilePicturePath}"
-            //    : null;
-
             return Ok(userDto);
         }
         [HttpPost("uploadProfilePic")]
@@ -147,6 +142,19 @@ namespace IletApi.Controllers
                 // Örneğin: await _authService.RemoveRefreshToken(userId);
             }
             return Ok(new { message = "Çıkış yapıldı." });
+        }
+        [HttpGet("profile-picture")]
+        public async Task<IActionResult> GetProfilePicture()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (userId == 0)
+                return Unauthorized();
+
+            var pp = await _userService.GetProfilePictureAsync(userId);
+            if (pp == null)
+                return NotFound();
+
+            return File(pp.Image, pp.ContentType);
         }
 
     }

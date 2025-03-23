@@ -145,11 +145,21 @@ namespace IletApi.Services
             if (pp == null || pp.Image == null)
                 return null;
 
+            // Basit bir MIME type tespiti yapalım:
+            string contentType;
+            if (pp.Image.Length >= 4 && pp.Image[0] == 0xFF && pp.Image[1] == 0xD8)
+                contentType = "image/jpeg";
+            else if (pp.Image.Length >= 8 && pp.Image[0] == 0x89 && pp.Image[1] == 0x50)
+                contentType = "image/png";
+            else
+                contentType = "application/octet-stream";
+
             return new UserProfilePictureDto
             {
                 Image = pp.Image,
-                ContentType = "image/jpeg"
+                ContentType = contentType
             };
         }
+
     }
 }
