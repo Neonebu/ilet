@@ -102,7 +102,7 @@ namespace IletApi.Services
             await file.CopyToAsync(ms);
             var bytes = ms.ToArray();
 
-            var existing = await _ppRepo.GetByIdAsync(userId);
+            var existing = await _ppRepo.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (existing != null)
             {
