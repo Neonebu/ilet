@@ -8,9 +8,11 @@ export default function GroupsSection() {
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch('/getOnlineUsers', { credentials: 'include' })
-            .then(res => res.json())
-            .then(data => setOnlineUsers(data));
+        fetch('/getOnlineUsers', {
+            credentials: 'include', // eğer cookie/jwt varsa ekle
+        })
+            .then((res) => res.json())
+            .then((data) => setOnlineUsers(data));
     }, []);
 
     return (
@@ -18,9 +20,14 @@ export default function GroupsSection() {
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Online')}
             </div>
-            {onlineUsers.map(user => (
+
+            {onlineUsers.map((user) => (
                 <div className="group-user" key={user.id}>
-                    <img src={`/user/${user.id}/profile-picture`} className="group-avatar" />
+                    <img
+                        src={`/user/${user.id}/profile-picture`}
+                        alt={user.nickname}
+                        className="group-avatar"
+                    />
                     <span>{user.nickname}</span>
                 </div>
             ))}

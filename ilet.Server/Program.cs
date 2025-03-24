@@ -44,6 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Servisler
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IUsersService, UserService>();
 builder.Services.AddScoped(typeof(IRepositoryDb<>), typeof(RepositoryDb<>));
 builder.Services.AddEndpointsApiExplorer();
@@ -105,7 +106,6 @@ app.Map("/ws", async context =>
         context.Response.StatusCode = 400;
     }
 });
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
