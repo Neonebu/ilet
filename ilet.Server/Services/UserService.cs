@@ -25,7 +25,6 @@ namespace IletApi.Services
             _ppRepo = ppRepo;
             _cache = cache;
         }
-
         public async Task<List<Users>> GetAll()
         {
             var users = await _userRepo.GetAllAsync();
@@ -64,12 +63,14 @@ namespace IletApi.Services
             if (!isPasswordValid)
                 throw new Exception("Şifre hatalı.");
 
-            // Online listesine ekle
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+
+            // Eklemeyi güvenli yap (aynı ID bir daha eklenmesin)
             onlineUsers.Add(user.Id);
             _cache.Set("online_users", onlineUsers);
 
-            return _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserDto>(user);
+            return userDto;
         }
 
         public async Task<UserDto?> GetUser(int userId)
@@ -174,7 +175,6 @@ namespace IletApi.Services
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return userDtos;
         }
-
         public async Task Logout(int userId)
         {
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();

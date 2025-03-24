@@ -6,15 +6,29 @@ import '../styles/commonGroups.css';
 export default function GroupsSection() {
     const { t } = useTranslation();
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
-
+    const token = localStorage.getItem('token');
     useEffect(() => {
-        fetch('https://iletapi.onrender.com/getOnlineUsers', {
+        fetch('https://iletapi.onrender.com/user/getOnlineUsers', {
             credentials: 'include',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
         })
-            .then((res) => res.json())
-            .then((data) => setOnlineUsers(data));
-    }, []);
+            .then((res) => {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.text();
+            })
+            .then((text) => {
+                if (text) {
+                    const json = JSON.parse(text);
+                    setOnlineUsers(json);
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
 
+    }, []);
 
     return (
         <>
