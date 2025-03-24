@@ -9,6 +9,8 @@ export default function GroupsSection() {
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [offlineUsers, setOfflineUsers] = useState<any[]>([]);
     const token = localStorage.getItem('token');
+    const currentUserId = Number(localStorage.getItem('userId'));
+    const currentUserStatus = localStorage.getItem('status'); // "online" ya da "offline"
     useEffect(() => {
         fetch('https://iletapi.onrender.com/user/getOnlineUsers', {
             credentials: 'include',
@@ -34,26 +36,29 @@ export default function GroupsSection() {
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Online')}
             </div>
-            {onlineUsers.map((user) => (
-                <div className="group-user" key={user.id}>
-                    <span className="nickname-with-icon">
-                        <img src={greenBuddy} alt="online icon" className="msn-icon" />
-                        {user.nickname}
-                    </span>
-                </div>
-            ))}
+            {onlineUsers
+                .filter(user => user.id !== currentUserId || currentUserStatus !== 'offline')
+                .map((user) => (
+                    <div className="group-user" key={user.id}>
+                        <span className="nickname-with-icon">
+                            <img src={greenBuddy} alt="online icon" className="msn-icon" />
+                            {user.nickname}
+                        </span>
+                    </div>
+                ))}
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Offline')}
             </div>
-            {offlineUsers.map((user) => (
-                <div className="group-user" key={user.id}>
-                    <span className="nickname-with-icon">
-                        <img src={grayBuddy} alt="offline icon" className="msn-icon" />
-                        {user.nickname}
-                    </span>
-                </div>
-            ))}
-
+            {offlineUsers
+                .filter(user => user.id !== currentUserId || currentUserStatus !== 'online')
+                .map((user) => (
+                    <div className="group-user" key={user.id}>
+                        <span className="nickname-with-icon">
+                            <img src={grayBuddy} alt="offline icon" className="msn-icon" />
+                            {user.nickname}
+                        </span>
+                    </div>
+                ))}
         </>
     );
 

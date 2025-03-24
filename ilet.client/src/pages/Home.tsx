@@ -35,6 +35,8 @@ export default function Home() {
 
             if (loginResponse.ok) {
                 const data = await loginResponse.json();
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('status', data.status); // 👈 status kaydedildi
                 handleSuccess(data, "Login başarılı!");
             } else {
                 const data = await loginResponse.json();
@@ -50,6 +52,8 @@ export default function Home() {
 
                     if (signupResponse.ok) {
                         const signupData = await signupResponse.json();
+                        localStorage.setItem('userId', signupData.id);
+                        localStorage.setItem('status', signupData.status); // 👈 status kaydedildi
                         handleSuccess(signupData, "Signup başarılı!");
                     } else {
                         const signupError = await signupResponse.json();
@@ -63,6 +67,8 @@ export default function Home() {
             alert('Network error: ' + error.message);
         }
     };
+
+
 
     const handleSuccess = (data: any, message: string) => {
         localStorage.setItem('token', data.token);
