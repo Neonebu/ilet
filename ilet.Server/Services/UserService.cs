@@ -8,22 +8,22 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using ilet.Server.Dtos;
 using Microsoft.EntityFrameworkCore.Storage;
-using StackExchange.Redis;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace IletApi.Services
 {
     public class UserService : IUsersService
     {
-        private readonly StackExchange.Redis.IDatabase _redisDb;
+        private readonly IMemoryCache _cache;
         private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePicture> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo, IConnectionMultiplexer redis)
+        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo, IMemoryCache cache)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _ppRepo = ppRepo;
-            _redisDb = redis.GetDatabase();
+            _cache = cache;
         }
 
         public async Task<List<Users>> GetAll()
@@ -56,23 +56,22 @@ namespace IletApi.Services
         }
         public async Task<UserDto> Login(LoginRequestDto input)
         {
-            var user = await _userRepo.Query()
-                .FirstOrDefaultAsync(u => u.Email == input.Email);
-
+            var user = await _userRepo.Query().FirstOrDefaultAsync(u => u.Email == input.Email);
             if (user == null)
                 throw new Exception("Kullanıcı bulunamadı.");
 
             var isPasswordValid = BCrypt.Net.BCrypt.Verify(input.Password, user.Password);
-
             if (!isPasswordValid)
                 throw new Exception("Şifre hatalı.");
 
-            // Redis'e online olarak ekle (online_users set)
-            await _redisDb.SetAddAsync("online_users", user.Id);
+            // Online listesine ekle
+            var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            onlineUsers.Add(user.Id);
+            _cache.Set("online_users", onlineUsers);
 
-            var userDto = _mapper.Map<UserDto>(user);
-            return userDto;
+            return _mapper.Map<UserDto>(user);
         }
+
         public async Task<UserDto?> GetUser(int userId)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -167,18 +166,22 @@ namespace IletApi.Services
         }
         public async Task<List<UserDto>> GetOnlineUsers()
         {
-            var userIds = await _redisDb.SetMembersAsync("online_users");
-            var idList = userIds.Select(x => (int)x).ToList();
+            var userIds = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            var idList = userIds.ToList();
 
             var users = await _userRepo.WhereAsync(u => idList.Contains(u.Id));
 
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return userDtos;
         }
+
         public async Task Logout(int userId)
         {
-            await _redisDb.SetRemoveAsync("online_users", userId);
-        }
+            var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            onlineUsers.Remove(userId);
+            _cache.Set("online_users", onlineUsers);
 
+            await Task.CompletedTask;
+        }
     }
 }
