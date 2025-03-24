@@ -16,5 +16,7 @@ namespace ilet.Server.Interfaces
         Task<List<UserDto>> GetOnlineUsers();
         Task<List<UserDto>> GetOfflineUsers();
         Task Logout(int userId);
+        Task ChangeStatus(int userId, string status);
+
     }
 }

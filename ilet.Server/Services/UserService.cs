@@ -216,7 +216,6 @@ namespace IletApi.Services
             var userDtos = _mapper.Map<List<UserDto>>(offlineUsers);
             return userDtos;
         }
-
         public async Task Logout(int userId)
         {
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
@@ -232,7 +231,28 @@ namespace IletApi.Services
 
             await Task.CompletedTask;
         }
+        public async Task ChangeStatus(int userId, string status)
+        {
+            var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
 
+            if (status == "online")
+            {
+                onlineUsers.Add(userId);
+                offlineUsers.Remove(userId);
+            }
+            else if (status == "offline")
+            {
+                onlineUsers.Remove(userId);
+                offlineUsers.Add(userId);
+            }
 
+            _cache.Set("online_users", onlineUsers);
+            _cache.Set("offline_users", offlineUsers);
+
+            await WebSocketHandler.BroadcastStatusUpdate(); // realtime güncelleme
+
+            await Task.CompletedTask;
+        }
     }
 }

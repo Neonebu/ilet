@@ -179,5 +179,14 @@ namespace IletApi.Controllers
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return Ok(userDtos);
         }
+        [HttpPost("changeStatus")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus([FromBody] ChangeStatusDto input)
+        {
+            var userId = int.Parse(User.FindFirst("nameid")!.Value);
+            await _userService.ChangeStatus(userId, input.Status);
+            return Ok(new { message = "Status updated" });
+        }
+
     }
 }
