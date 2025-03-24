@@ -2,7 +2,7 @@
 import '../styles/worldsSection.css';
 import '../styles/commonGroups.css';
 import { useTranslation } from 'react-i18next';
-
+import { useEffect, useState } from 'react';
 interface Props {
     profilePicUrl: string | null;
     nickname: string;
@@ -13,6 +13,9 @@ interface Props {
 
 export default function WorldsSection({ profilePicUrl, nickname, userId, status, groupUsers }: Props) {
     const { t } = useTranslation();
+    const [allUsers, setAllUsers] = useState<any[]>([]);
+    const token = localStorage.getItem('token');
+
     const getStatusClass = (status: string) => {
         switch (status) {
             case "Çevrimiçi": return "status-online";
@@ -22,35 +25,37 @@ export default function WorldsSection({ profilePicUrl, nickname, userId, status,
             default: return "status-online";
         }
     };
+
     console.log("UserId "+userId);
     console.log("profilePicUrl:", profilePicUrl);
+    useEffect(() => {
+        fetch('https://iletapi.onrender.com/user/getAllUsers', {
+            credentials: 'include',
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (data) setAllUsers(data);
+            });
+    }, []);
+
     return (
         <>
             <div className="group-item group-header">
                 <span className="group-toggle">-</span> {t('Worlds')}
             </div>
-            <div className="group-user-item">
-                <img
-                    src={profilePicUrl ? `${profilePicUrl}?t=${Date.now()}` : defaultProfilePic}
-                    alt="profile"
-                    className="small-avatar"
-                />
-                <span className="group-nickname user-nickname">{nickname}</span>
-                <span className={`status-dot ${getStatusClass(status)}`}></span>
-            </div>
 
-            {groupUsers.map(user => (
-                <div className="group-user-item" key={user.id}>
+            {allUsers.map((user) => (
+                <div className="group-user" key={user.id}>
                     <img
-                        src={profilePicUrl ? `${profilePicUrl}?t=${Date.now()}` : defaultProfilePic}
-                        alt="profile"
-                        className="small-avatar"
+                        src={`/user/${user.id}/profile-picture`}
+                        alt={user.nickname}
+                        className="group-avatar"
                     />
-                    <span className="group-nickname">{user.name}</span>
-                    <span className={`status-dot ${getStatusClass(user.status)}`}></span>
+                    <span>{user.nickname}</span>
                 </div>
             ))}
-         </>
+        </>
     );
 
 }

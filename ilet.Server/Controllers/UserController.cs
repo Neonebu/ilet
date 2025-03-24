@@ -164,6 +164,13 @@ namespace IletApi.Controllers
             var users = await _userService.GetOnlineUsers();
             return Ok(users);
         }
-
+        [HttpGet("getAllUsers")]
+        [Authorize]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAll(); // mevcut metodunu çağırıyoruz
+            var userDtos = _mapper.Map<List<UserDto>>(users);
+            return Ok(userDtos);
+        }
     }
 }
