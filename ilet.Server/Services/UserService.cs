@@ -175,7 +175,10 @@ namespace IletApi.Services
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return userDtos;
         }
-
+        public async Task Logout(int userId)
+        {
+            await _redisDb.SetRemoveAsync("online_users", userId);
+        }
 
     }
 }

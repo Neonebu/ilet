@@ -133,16 +133,17 @@ namespace IletApi.Controllers
         }
         [Authorize]
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId != null)
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr != null && int.TryParse(userIdStr, out var userId))
             {
-                // Burada refresh token veya session silme işlemleri yapılabilir
-                // Örneğin: await _authService.RemoveRefreshToken(userId);
+                await _userService.Logout(userId); // Redis'ten çıkar
             }
+
             return Ok(new { message = "Çıkış yapıldı." });
         }
+
         [HttpGet("profile-picture")]
         public async Task<IActionResult> GetProfilePicture()
         {
