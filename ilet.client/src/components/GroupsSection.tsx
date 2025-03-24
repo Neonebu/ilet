@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import '../styles/groupsSection.css';
 import '../styles/commonGroups.css';
 import greenBuddy from '../assets/green-buddy.png';
-import graynBuddy from '../assets/gray-buddy.png';
+import grayBuddy from '../assets/gray-buddy.png';
 export default function GroupsSection() {
     const { t } = useTranslation();
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
