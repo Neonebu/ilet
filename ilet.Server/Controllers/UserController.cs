@@ -10,7 +10,7 @@ using ilet.Server.Dtos;
 namespace IletApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("user")]
     public class UserController : ControllerBase
     {
         private readonly IUsersService _userService;

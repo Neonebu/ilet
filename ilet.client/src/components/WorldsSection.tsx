@@ -1,5 +1,4 @@
-﻿import defaultProfilePic from "../assets/msn-logo-small.png";
-import '../styles/worldsSection.css';
+﻿import '../styles/worldsSection.css';
 import '../styles/commonGroups.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -11,20 +10,10 @@ interface Props {
     groupUsers: Array<{ id: number; name: string; avatar: string; status: string; }>;
 }
 
-export default function WorldsSection({ profilePicUrl, nickname, userId, status, groupUsers }: Props) {
+export default function WorldsSection({ profilePicUrl, userId }: Props) {
     const { t } = useTranslation();
     const [allUsers, setAllUsers] = useState<any[]>([]);
     const token = localStorage.getItem('token');
-
-    const getStatusClass = (status: string) => {
-        switch (status) {
-            case "Çevrimiçi": return "status-online";
-            case "Meşgul": return "status-busy";
-            case "Dışarıda": return "status-away";
-            case "Görünmez": return "status-invisible";
-            default: return "status-online";
-        }
-    };
 
     console.log("UserId "+userId);
     console.log("profilePicUrl:", profilePicUrl);
