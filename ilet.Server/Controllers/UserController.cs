@@ -164,6 +164,13 @@ namespace IletApi.Controllers
             var users = await _userService.GetOnlineUsers();
             return Ok(users);
         }
+        [HttpGet("getOfflineUsers")]
+        [Authorize]
+        public async Task<IActionResult> GetOfflineUsers()
+        {
+            var users = await _userService.GetOnlineUsers();
+            return Ok(users);
+        }
         [HttpGet("getAllUsers")]
         [Authorize]
         public async Task<IActionResult> GetAllUsers()

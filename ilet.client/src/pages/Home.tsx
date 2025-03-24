@@ -146,6 +146,7 @@ export default function Home() {
                     <label style={{ fontSize: '14px' }}>Beni hatırla</label>
                 </div>
                 <button
+                    type="button"
                     style={{
                         width: '100%',
                         padding: '0.5rem',

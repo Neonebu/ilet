@@ -41,7 +41,6 @@ export default function WorldsSection({ profilePicUrl, userId }: Props) {
                         alt={user.nickname}
                         className="group-avatar"
                     />
-                    <span>{user.nickname}</span>
                 </div>
             ))}
         </>

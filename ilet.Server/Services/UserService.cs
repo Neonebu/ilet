@@ -188,14 +188,40 @@ namespace IletApi.Services
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return userDtos;
         }
+        public async Task<List<UserDto>> GetOfflineUsers()
+        {
+            var offlineUserIds = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
+
+            Console.WriteLine("🔴 [Cache dışı kullanıcılar]");
+
+            var allUsers = await _userRepo.GetAllAsync();
+
+            var offlineUsers = allUsers.Where(u => !offlineUserIds.Contains(u.Id)).ToList();
+
+            foreach (var u in offlineUsers)
+            {
+                Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
+            }
+
+            var userDtos = _mapper.Map<List<UserDto>>(offlineUsers);
+            return userDtos;
+        }
 
         public async Task Logout(int userId)
         {
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
+
+            // Online'dan çıkar
             onlineUsers.Remove(userId);
             _cache.Set("online_users", onlineUsers);
 
+            // Offline'a ekle
+            offlineUsers.Add(userId);
+            _cache.Set("offline_users", offlineUsers);
+
             await Task.CompletedTask;
         }
+
     }
 }

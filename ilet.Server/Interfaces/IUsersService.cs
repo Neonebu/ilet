@@ -14,6 +14,7 @@ namespace ilet.Server.Interfaces
         Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
         Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId);
         Task<List<UserDto>> GetOnlineUsers();
+        Task<List<UserDto>> GetOfflineUsers();
         Task Logout(int userId);
     }
 }
