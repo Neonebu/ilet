@@ -9,6 +9,7 @@ using AutoMapper;
 using ilet.Server.Dtos;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
+using ilet.Server.Services;
 
 namespace IletApi.Services
 {
@@ -64,15 +65,24 @@ namespace IletApi.Services
                 throw new Exception("Şifre hatalı.");
 
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+            var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
 
-            // Eklemeyi güvenli yap (aynı ID bir daha eklenmesin)
+            // Kullanıcıyı online listesine ekle
             onlineUsers.Add(user.Id);
+
+            // Offline listesinden çıkar
+            offlineUsers.Remove(user.Id);
+
+            // Cache güncelle
             _cache.Set("online_users", onlineUsers);
+            _cache.Set("offline_users", offlineUsers);
+
+            // WebSocket üzerinden tüm clientlara status güncellemesini gönder
+            await WebSocketHandler.BroadcastStatusUpdate();
 
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
-
         public async Task<UserDto?> GetUser(int userId)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -212,16 +222,17 @@ namespace IletApi.Services
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
             var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
 
-            // Online'dan çıkar
             onlineUsers.Remove(userId);
-            _cache.Set("online_users", onlineUsers);
-
-            // Offline'a ekle
             offlineUsers.Add(userId);
+
+            _cache.Set("online_users", onlineUsers);
             _cache.Set("offline_users", offlineUsers);
+
+            await WebSocketHandler.BroadcastStatusUpdate(); // << WS yayını
 
             await Task.CompletedTask;
         }
+
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
@@ -6,12 +7,11 @@ namespace ilet.Server.Services
 {
     public static class WebSocketHandler
     {
-        private static readonly Dictionary<int, WebSocket> Connections = new();
+        private static ConcurrentDictionary<int, WebSocket> _sockets = new ConcurrentDictionary<int, WebSocket>();
 
         public static async Task HandleConnection(int userId, WebSocket socket)
         {
-            Connections[userId] = socket;
-            await BroadcastStatus(userId, "user-online");
+            _sockets.TryAdd(userId, socket);
 
             var buffer = new byte[1024 * 4];
 
@@ -21,34 +21,39 @@ namespace ilet.Server.Services
 
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
+                    _sockets.TryRemove(userId, out _);
                     await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
-                    Connections.Remove(userId);
-                    await BroadcastStatus(userId, "user-offline");
                 }
                 else if (result.MessageType == WebSocketMessageType.Text)
                 {
+                    // Client'dan mesaj gelirse buraya düşer
                     var msg = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    Console.WriteLine("Received: " + msg);
-                    // İstersen buraya da özel mesaj/event publish ekleyebilirsin
+                    Console.WriteLine($"Received from {userId}: {msg}");
                 }
             }
         }
 
-        private static async Task BroadcastStatus(int userId, string eventType)
+        // Event: Status değişimlerini herkese broadcast edelim
+        public static async Task BroadcastStatusUpdate()
         {
-            var payload = JsonSerializer.Serialize(new { eventType, userId });
-            var payloadBytes = Encoding.UTF8.GetBytes(payload);
-
-            foreach (var kvp in Connections)
+            var payload = new
             {
-                var ws = kvp.Value;
-                if (ws.State == WebSocketState.Open)
+                eventType = "status-update",
+                timestamp = DateTime.UtcNow
+            };
+
+            var json = JsonSerializer.Serialize(payload);
+            var bytes = Encoding.UTF8.GetBytes(json);
+            var segment = new ArraySegment<byte>(bytes);
+
+            foreach (var socket in _sockets.Values)
+            {
+                if (socket.State == WebSocketState.Open)
                 {
-                    await ws.SendAsync(new ArraySegment<byte>(payloadBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
-
-            Console.WriteLine($"[Broadcast] {eventType} for userId: {userId}");
         }
     }
+
 }

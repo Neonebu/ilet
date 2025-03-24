@@ -1,5 +1,4 @@
-﻿using System;
-using ilet.Server.Context;
+﻿using ilet.Server.Context;
 using ilet.Server.Interfaces;
 using IletApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +6,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IletApi.Repo;
-using Microsoft.Extensions.FileProviders;
 using ilet.Server.Services;
+using ilet.Server.Helpers;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Builder;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
@@ -82,6 +85,28 @@ if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 }
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
+    {
+        var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var userId = JwtTokenHelper.ExtractUserId(token); // 👈 Token’dan userId çekiyoruz
+
+        if (userId == null)
+        {
+            context.Response.StatusCode = 401;
+            return;
+        }
+
+        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        await WebSocketHandler.HandleConnection(userId.Value, webSocket);
+    }
+    else
+    {
+        await next();
+    }
+});
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -101,17 +126,30 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseWebSockets();
-app.Map("/ws", async context =>
+app.Map("/ws", wsApp =>
 {
-    if (context.WebSockets.IsWebSocketRequest)
+    wsApp.Run(async context =>
     {
-        var socket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleConnection(socket);
-    }
-    else
-    {
-        context.Response.StatusCode = 400;
-    }
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid");
+            if (userIdClaim == null)
+            {
+                context.Response.StatusCode = 400;
+                return;
+            }
+            var userId = int.Parse(userIdClaim.Value);
+            var socket = await context.WebSockets.AcceptWebSocketAsync();
+            await WebSocketHandler.HandleConnection(userId, socket);
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+        }
+    });
 });
 app.UseHttpsRedirection();
 app.UseAuthorization();
