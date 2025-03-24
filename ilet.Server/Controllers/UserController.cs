@@ -156,6 +156,13 @@ namespace IletApi.Controllers
 
             return File(pp.Image, pp.ContentType);
         }
+        [HttpGet("getOnlineUsers")]
+        [Authorize]
+        public async Task<IActionResult> GetOnlineUsers()
+        {
+            var users = await _userService.GetOnlineUsers();
+            return Ok(users);
+        }
 
     }
 }

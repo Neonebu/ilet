@@ -7,19 +7,23 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using ilet.Server.Dtos;
+using Microsoft.EntityFrameworkCore.Storage;
+using StackExchange.Redis;
 
 namespace IletApi.Services
 {
     public class UserService : IUsersService
     {
+        private readonly StackExchange.Redis.IDatabase _redisDb;
         private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePicture> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo)
+        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo, IConnectionMultiplexer redis)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _ppRepo = ppRepo;
+            _redisDb = redis.GetDatabase();
         }
 
         public async Task<List<Users>> GetAll()
@@ -62,6 +66,9 @@ namespace IletApi.Services
 
             if (!isPasswordValid)
                 throw new Exception("Şifre hatalı.");
+
+            // Redis'e online olarak ekle (online_users set)
+            await _redisDb.SetAddAsync("online_users", user.Id);
 
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
@@ -158,6 +165,17 @@ namespace IletApi.Services
                 ContentType = contentType
             };
         }
+        public async Task<List<UserDto>> GetOnlineUsers()
+        {
+            var userIds = await _redisDb.SetMembersAsync("online_users");
+            var idList = userIds.Select(x => (int)x).ToList();
+
+            var users = await _userRepo.WhereAsync(u => idList.Contains(u.Id));
+
+            var userDtos = _mapper.Map<List<UserDto>>(users);
+            return userDtos;
+        }
+
 
     }
 }
