@@ -17,16 +17,23 @@ var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
 
-// CORS tüm dünyaya açık
+var allowedOrigins = new[]
+{
+    "https://localhost:54550",
+    "https://ilet.onrender.com"
+};
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
+
 
 // JWT Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

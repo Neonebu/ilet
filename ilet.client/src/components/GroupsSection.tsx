@@ -8,12 +8,13 @@ export default function GroupsSection() {
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch('/getOnlineUsers', {
-            credentials: 'include', // eğer cookie/jwt varsa ekle
+        fetch('https://iletapi.onrender.com/getOnlineUsers', {
+            credentials: 'include',
         })
             .then((res) => res.json())
             .then((data) => setOnlineUsers(data));
     }, []);
+
 
     return (
         <>
