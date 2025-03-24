@@ -114,7 +114,7 @@ export default function Dashboard() {
                 )}
 
                 <div className="groups-bar">
-                    <GroupsSection key={`groups-${selectedLang}`} />
+                    <GroupsSection/>
                     <WorldsSection
                         key={`worlds-${selectedLang}`}
                         profilePicUrl={profilePicUrl ?? logo}

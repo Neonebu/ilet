@@ -10,42 +10,32 @@ export default function GroupsSection() {
     useEffect(() => {
         fetch('https://iletapi.onrender.com/user/getOnlineUsers', {
             credentials: 'include',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         })
-            .then((res) => {
-                if (!res.ok) throw new Error("HTTP error " + res.status);
-                return res.text();
-            })
-            .then((text) => {
-                if (text) {
-                    const json = JSON.parse(text);
-                    setOnlineUsers(json);
-                }
-            })
-            .catch((err) => {
-                console.error(err);
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (data) setOnlineUsers(data);
             });
-
+        console.log("mounted");
     }, []);
-
     return (
         <>
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Online')}
             </div>
 
-            {onlineUsers.map((user) => (
-                <div className="group-user" key={user.id}>
-                    <img
-                        src={`/user/${user.id}/profile-picture`}
-                        alt={user.nickname}
-                        className="group-avatar"
-                    />
-                    <span>{user.nickname}</span>
-                </div>
-            ))}
+            {onlineUsers
+                .filter((user, index, self) => self.findIndex(u => u.id === user.id) === index)
+                .map((user) => (
+                    <div className="group-user" key={user.id}>
+                        <img
+                            src={`/user/${user.id}/profile-picture`}
+                            alt={user.nickname}
+                            className="group-avatar"
+                        />
+                        <span>{user.nickname}</span>
+                    </div>
+                ))}
 
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Offline')}

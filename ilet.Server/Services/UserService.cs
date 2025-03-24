@@ -168,13 +168,27 @@ namespace IletApi.Services
         public async Task<List<UserDto>> GetOnlineUsers()
         {
             var userIds = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
+
+            Console.WriteLine("🔵 [Cache'deki ID'ler]");
+            foreach (var id in userIds)
+            {
+                Console.WriteLine($"- ID: {id}");
+            }
+
             var idList = userIds.ToList();
 
             var users = await _userRepo.WhereAsync(u => idList.Contains(u.Id));
 
+            Console.WriteLine("🟢 [DB'den gelen kullanıcılar]");
+            foreach (var u in users)
+            {
+                Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
+            }
+
             var userDtos = _mapper.Map<List<UserDto>>(users);
             return userDtos;
         }
+
         public async Task Logout(int userId)
         {
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
