@@ -17,9 +17,9 @@ namespace IletApi.Services
     {
         private readonly IMemoryCache _cache;
         private readonly IRepositoryDb<Users> _userRepo;
-        private readonly IRepositoryDb<UserProfilePicture> _ppRepo;
+        private readonly IRepositoryDb<UserProfilePictures> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePicture> ppRepo, IMemoryCache cache)
+        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache)
         {
             _userRepo = userRepo;
             _mapper = mapper;
@@ -129,7 +129,7 @@ namespace IletApi.Services
             }
             else
             {
-                await _ppRepo.AddAsync(new UserProfilePicture
+                await _ppRepo.AddAsync(new UserProfilePictures
                 {
                     UserId = userId,
                     Image = bytes,

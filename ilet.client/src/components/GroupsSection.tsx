@@ -49,36 +49,39 @@ export default function GroupsSection() {
     }, [token, userId]);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const [onlineRes, offlineRes] = await Promise.all([
-                    fetch('https://iletapi.onrender.com/user/getOnlineUsers', {
-                        credentials: 'include',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }),
-                    fetch('https://iletapi.onrender.com/user/getOfflineUsers', {
-                        credentials: 'include',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    })
-                ]);
+        const fetchData = async () => {
+            const userId = localStorage.getItem("userId");
+            const token = localStorage.getItem("token");
 
-                if (onlineRes.ok) {
-                    const data = await onlineRes.json();
-                    setOnlineUsers(data);
-                }
+            if (!userId || !token) return;
 
-                if (offlineRes.ok) {
-                    const data = await offlineRes.json();
-                    setOfflineUsers(data);
-                }
+            const headers = {
+                Authorization: `Bearer ${token}`
+            };
 
-            } catch (err) {
-                console.error('Fetch users error:', err);
+            const onlineRes = await fetch("https://localhost:54550/user/getOnlineUsers", { headers });
+            const offlineRes = await fetch("https://localhost:54550/user/getOfflineUsers", { headers });
+            const allRes = await fetch("https://localhost:54550/user/getAllUsers", { headers });
+
+            if (onlineRes.ok) {
+                const data = await onlineRes.json();
+                const filteredData = data.filter((user: any) => user.id !== userId);
+                setOnlineUsers(filteredData);
+            }
+
+            if (offlineRes.ok) {
+                const data = await offlineRes.json();
+                const filteredData = data.filter((user: any) => user.id !== userId);
+                setOfflineUsers(filteredData);
+            }
+
+            if (allRes.ok) {
+
             }
         };
 
-        fetchUsers();
-    }, [token]);
+        fetchData();
+    }, []);
 
     return (
         <>
