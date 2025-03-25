@@ -96,22 +96,27 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),                        // subject
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),         // token id
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),                  // "nameid"
-            new Claim(ClaimTypes.Email, user.Email)                                    // optional
-             };
+        new Claim(JwtRegisteredClaimNames.Sub, user.Email),                       // subject
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),        // token id
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),                 // C# tarafında kolay çözümleme
+        new Claim("nameid", user.Id.ToString()),                                  // 🔥 nameid frontend için kritik!
+        new Claim(ClaimTypes.Email, user.Email ?? "")                             // optional
+    };
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
             var token = new JwtSecurityToken(
                 issuer: "yourapp",
                 audience: "yourapp",
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),             // UTC kullan!
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
             );
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
         public async Task UploadProfilePicture(int userId, IFormFile file)
         {

@@ -63,9 +63,8 @@ export default function GroupsSection() {
             };
 
             try {
-                const onlineRes = await fetch("https://localhost:54550/user/getOnlineUsers", { headers });
-                const offlineRes = await fetch("https://localhost:54550/user/getOfflineUsers", { headers });
-
+                const onlineRes = await fetch("https://iletapi.onrender.com/user/getOnlineUsers", { headers });
+                const offlineRes = await fetch("https://iletapi.onrender.com/user/getOfflineUsers", { headers });
                 if (onlineRes.ok) {
                     const data = await onlineRes.json();
                     const filteredData = data.filter((user: any) => user.id !== userId);

@@ -32,7 +32,6 @@ export default function WorldsSection({ userId }: Props) {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
                 if (response.ok) {
                     const data = await response.json();
                     const filteredData = data.filter((user: User) => user.id !== userId);

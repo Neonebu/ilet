@@ -39,21 +39,37 @@ export default function Dashboard() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const fetchUser = async () => {
-            const res = await fetch("https://iletapi.onrender.com/user/getUser", {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+        if (!token) {
+            console.error("Token bulunamadı. Kullanıcı yönlendirilecek.");
+            navigate('/');
+            return;
+        }
 
-            const data = await res.json();
-            setNickname(data.nickname);
-            setUserId(data.id);
-            setProfilePicUrl(data.profilePictureUrl);
-            setSelectedLang(data.language || 'en');
-            i18n.changeLanguage(data.language || 'en'); // dil senkronizasyonu burada!
+        const fetchUser = async () => {
+            try {
+                const res = await fetch("https://iletapi.onrender.com/user/getUser", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) {
+                    console.error("Kullanıcı alınamadı, yetkisiz:", res.status);
+                    navigate('/');
+                    return;
+                }
+                const data = await res.json();
+                setNickname(data.nickname);
+                setUserId(data.id);
+                setProfilePicUrl(data.profilePictureUrl);
+                setSelectedLang(data.language || 'en');
+                i18n.changeLanguage(data.language || 'en');
+            } catch (err) {
+                console.error("fetchUser error:", err);
+                navigate('/');
+            }
         };
 
         fetchUser();
-    }, []);
+    }, [navigate]);
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");

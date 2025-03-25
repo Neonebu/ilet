@@ -71,16 +71,19 @@ export default function Home() {
 
 
     const handleSuccess = (data: any, message: string) => {
-        localStorage.setItem('token', data.token);
+        const token = data.Token || data.token;
+        const user = data.User || data.user;
 
-        // Burada profile picture kontrolü yapıyoruz
-        const profilePictureUrl = data.profilePictureUrl
-            ? data.profilePictureUrl
-            : logo;
+        if (!token || !user) {
+            alert("Hatalı yanıt formatı!");
+            return;
+        }
 
-        // localStorage'a kaydedebilirsin
-        localStorage.setItem('profilePictureUrl', profilePictureUrl);
-        localStorage.setItem('nickname', data.nickname);
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', user.id);
+        localStorage.setItem('nickname', user.nickname);
+        localStorage.setItem('status', user.status || '');
+        localStorage.setItem('profilePictureUrl', user.profilePictureUrl || logo);
 
         if (remember) {
             localStorage.setItem('remembered_email', email);
@@ -89,10 +92,10 @@ export default function Home() {
             localStorage.removeItem('remembered_email');
             localStorage.removeItem('remembered_password');
         }
-        console.log(message);
+
+        console.log("Home.tsx login kısmı"+ message);
         navigate('/dashboard');
     };
-
 
     return (
         <div style={{
