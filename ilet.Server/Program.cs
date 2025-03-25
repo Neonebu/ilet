@@ -135,7 +135,7 @@ app.Map("/ws", wsApp =>
 
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
-        var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid");
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
         if (userIdClaim == null)
         {
             context.Response.StatusCode = 400;

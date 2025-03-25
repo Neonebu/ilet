@@ -6,6 +6,7 @@ using ilet.Server.Interfaces;
 using System.Security.Claims;
 using AutoMapper;
 using ilet.Server.Dtos;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace IletApi.Controllers
 {
@@ -79,9 +80,9 @@ namespace IletApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetUser()
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdStr = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (!int.TryParse(userIdStr, out var userId))
-                return Unauthorized("unauthorized user");
+                return Unauthorized();
 
             var user = await _userService.GetUser(userId);
             if (user == null)
