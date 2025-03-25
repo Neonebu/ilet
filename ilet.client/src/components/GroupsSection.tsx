@@ -5,19 +5,24 @@ import '../styles/commonGroups.css';
 import greenBuddy from '../assets/green-buddy.png';
 import grayBuddy from '../assets/gray-buddy.png';
 
+interface User {
+    id: number;
+    nickname: string;
+}
+
 export default function GroupsSection() {
     const { t } = useTranslation();
-    const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
-    const [offlineUsers, setOfflineUsers] = useState<any[]>([]);
+    const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
+    const [offlineUsers, setOfflineUsers] = useState<User[]>([]);
+
     const token = localStorage.getItem('token');
     const userId = Number(localStorage.getItem('userId'));
 
+    // WebSocket bağlantısı ve kullanıcı durumu güncellemeleri
     useEffect(() => {
-        const ws = new WebSocket('wss://iletapi.onrender.com/ws');
+        if (!token || !userId) return;
 
-        ws.onopen = () => {
-            ws.send(JSON.stringify({ type: 'auth', token }));
-        };
+        const ws = new WebSocket(`wss://iletapi.onrender.com/ws?token=${token}`);
 
         ws.onmessage = (event) => {
             try {
@@ -48,69 +53,63 @@ export default function GroupsSection() {
         };
     }, [token, userId]);
 
+    // Başlangıçta online ve offline kullanıcıları çek
     useEffect(() => {
+        if (!token || !userId) return;
+
         const fetchData = async () => {
-            const userId = localStorage.getItem("userId");
-            const token = localStorage.getItem("token");
-
-            if (!userId || !token) return;
-
             const headers = {
                 Authorization: `Bearer ${token}`
             };
 
-            const onlineRes = await fetch("https://localhost:54550/user/getOnlineUsers", { headers });
-            const offlineRes = await fetch("https://localhost:54550/user/getOfflineUsers", { headers });
-            const allRes = await fetch("https://localhost:54550/user/getAllUsers", { headers });
+            try {
+                const onlineRes = await fetch("https://localhost:54550/user/getOnlineUsers", { headers });
+                const offlineRes = await fetch("https://localhost:54550/user/getOfflineUsers", { headers });
 
-            if (onlineRes.ok) {
-                const data = await onlineRes.json();
-                const filteredData = data.filter((user: any) => user.id !== userId);
-                setOnlineUsers(filteredData);
-            }
+                if (onlineRes.ok) {
+                    const data = await onlineRes.json();
+                    const filteredData = data.filter((user: any) => user.id !== userId);
+                    setOnlineUsers(filteredData);
+                }
 
-            if (offlineRes.ok) {
-                const data = await offlineRes.json();
-                const filteredData = data.filter((user: any) => user.id !== userId);
-                setOfflineUsers(filteredData);
-            }
-
-            if (allRes.ok) {
-
+                if (offlineRes.ok) {
+                    const data = await offlineRes.json();
+                    const filteredData = data.filter((user: any) => user.id !== userId);
+                    setOfflineUsers(filteredData);
+                }
+            } catch (error) {
+                console.error("Kullanıcı listesi çekilirken hata:", error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [token, userId]);
 
     return (
         <>
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Online')}
             </div>
-            {onlineUsers
-                .filter(user => user.id !== userId)
-                .map((user) => (
-                    <div className="group-user" key={user.id}>
-                        <span className="nickname-with-icon">
-                            <img src={greenBuddy} alt="online icon" className="msn-icon" />
-                            {user.nickname}
-                        </span>
-                    </div>
-                ))}
+            {onlineUsers.map((user) => (
+                <div className="group-user" key={user.id}>
+                    <span className="nickname-with-icon">
+                        <img src={greenBuddy} alt="online icon" className="msn-icon" />
+                        {user.nickname}
+                    </span>
+                </div>
+            ))}
+
             <div className="group-item">
                 <span className="group-toggle">-</span> {t('Offline')}
             </div>
-            {offlineUsers
-                .filter(user => user.id !== userId)
-                .map((user) => (
-                    <div className="group-user" key={user.id}>
-                        <span className="nickname-with-icon">
-                            <img src={grayBuddy} alt="offline icon" className="msn-icon" />
-                            {user.nickname}
-                        </span>
-                    </div>
-                ))}
+            {offlineUsers.map((user) => (
+                <div className="group-user" key={user.id}>
+                    <span className="nickname-with-icon">
+                        <img src={grayBuddy} alt="offline icon" className="msn-icon" />
+                        {user.nickname}
+                    </span>
+                </div>
+            ))}
         </>
     );
 }

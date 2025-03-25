@@ -2,6 +2,13 @@
 import '../styles/commonGroups.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+
+interface User {
+    id: number;
+    nickname: string;
+    status: string;
+}
+
 interface Props {
     profilePicUrl: string | null;
     nickname: string;
@@ -12,21 +19,34 @@ interface Props {
 
 export default function WorldsSection({ profilePicUrl, userId }: Props) {
     const { t } = useTranslation();
-    const [allUsers, setAllUsers] = useState<any[]>([]);
+    const [allUsers, setAllUsers] = useState<User[]>([]);
     const token = localStorage.getItem('token');
 
-    console.log("UserId "+userId);
-    console.log("profilePicUrl:", profilePicUrl);
     useEffect(() => {
-        fetch('https://iletapi.onrender.com/user/getAllUsers', {
-            credentials: 'include',
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-            .then(res => res.ok ? res.json() : null)
-            .then(data => {
-                if (data) setAllUsers(data);
-            });
-    }, []);
+        if (!token || userId === null) return;
+
+        const fetchAllUsers = async () => {
+            try {
+                const response = await fetch('https://iletapi.onrender.com/user/getAllUsers', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const filteredData = data.filter((user: User) => user.id !== userId);
+                    setAllUsers(filteredData);
+                } else {
+                    console.error("getAllUsers fetch failed:", response.status);
+                }
+            } catch (err) {
+                console.error("getAllUsers fetch error:", err);
+            }
+        };
+
+        fetchAllUsers();
+    }, [token, userId]);
 
     return (
         <>
@@ -41,9 +61,9 @@ export default function WorldsSection({ profilePicUrl, userId }: Props) {
                         alt={user.nickname}
                         className="group-avatar"
                     />
+                    <span className="nickname-text">{user.nickname}</span>
                 </div>
             ))}
         </>
     );
-
 }

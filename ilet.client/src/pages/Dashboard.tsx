@@ -56,8 +56,9 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        const ws = new WebSocket("wss://iletapi.onrender.com/ws");
-
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const ws = new WebSocket(`wss://iletapi.onrender.com/ws?token=${token}`);
         ws.onopen = () => {
             console.log("✅ WebSocket bağlı");
             ws.send("Merhaba server!");

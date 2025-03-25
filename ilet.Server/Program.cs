@@ -9,23 +9,16 @@ using IletApi.Repo;
 using ilet.Server.Services;
 using ilet.Server.Helpers;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Builder;
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
-
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
-
 var allowedOrigins = new[]
 {
     "https://localhost:54550",
     "https://ilet.onrender.com"
 };
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -36,8 +29,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
-
 // JWT Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -51,7 +42,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"))
         };
     });
-
 // Servisler
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
@@ -67,15 +57,12 @@ var loggerFactory = LoggerFactory.Create(builder =>
         .AddDebug()   // VS Output paneline de dene
         .SetMinimumLevel(LogLevel.Information);
 });
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
         .UseLoggerFactory(loggerFactory)
         .EnableSensitiveDataLogging()
 );
-
 var app = builder.Build();
-
 // Middleware pipeline
 app.UseCors(); // DefaultPolicy çalışır
 app.UseDeveloperExceptionPage();
@@ -84,14 +71,18 @@ if (!Directory.Exists(uploadsPath))
 {
     Directory.CreateDirectory(uploadsPath);
 }
-
 app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
     {
-        var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        var userId = JwtTokenHelper.ExtractUserId(token); // 👈 Token’dan userId çekiyoruz
-
+        var token = context.Request.Query["token"].ToString(); // 👈 token query string'den alınır
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Token missing in query");
+            return;
+        }
+        var userId = JwtTokenHelper.ExtractUserId(token);
         if (userId == null)
         {
             context.Response.StatusCode = 401;
@@ -106,7 +97,6 @@ app.Use(async (context, next) =>
         await next();
     }
 });
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -119,7 +109,6 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Migration skipped or failed gracefully: {ex.Message}");
     }
 }
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -130,25 +119,32 @@ app.Map("/ws", wsApp =>
 {
     wsApp.Run(async context =>
     {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid");
-            if (userIdClaim == null)
-            {
-                context.Response.StatusCode = 400;
-                return;
-            }
-            var userId = int.Parse(userIdClaim.Value);
-            var socket = await context.WebSockets.AcceptWebSocketAsync();
-            await WebSocketHandler.HandleConnection(userId, socket);
-        }
-        else
+        if (!context.WebSockets.IsWebSocketRequest)
         {
             context.Response.StatusCode = 400;
+            return;
         }
+
+        var token = context.Request.Query["token"].ToString();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Token missing");
+            return;
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid");
+        if (userIdClaim == null)
+        {
+            context.Response.StatusCode = 400;
+            return;
+        }
+
+        var userId = int.Parse(userIdClaim.Value);
+        var socket = await context.WebSockets.AcceptWebSocketAsync();
+        await WebSocketHandler.HandleConnection(userId, socket);
     });
 });
 app.UseHttpsRedirection();
