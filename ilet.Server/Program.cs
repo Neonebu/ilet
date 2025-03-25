@@ -148,6 +148,7 @@ app.Map("/ws", wsApp =>
     });
 });
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

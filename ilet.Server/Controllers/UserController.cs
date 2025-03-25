@@ -81,7 +81,7 @@ namespace IletApi.Controllers
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var userId))
-                return Unauthorized();
+                return Unauthorized("unauthorized user");
 
             var user = await _userService.GetUser(userId);
             if (user == null)
