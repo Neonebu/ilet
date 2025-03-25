@@ -12,7 +12,7 @@ namespace ilet.Server.Mapper
                 .ForMember(dest => dest.ProfilePictureUrl, opt => opt.Ignore()).ReverseMap(); // BaseUrl için manuel ekleyeceğiz.
             CreateMap<CreateUserRequestDto, Users>();
             CreateMap<UpdateUserDto, Users>();
-            CreateMap<UserProfilePictureDto, UserProfilePicture>().ReverseMap();
+            CreateMap<UserProfilePictureDto, UserProfilePictures>().ReverseMap();
         }
     }
 
