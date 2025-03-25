@@ -19,7 +19,7 @@ namespace IletApi.Services
         private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePictures> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<Users> userRepo,IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache)
+        public UserService(IRepositoryDb<Users> userRepo, IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache)
         {
             _userRepo = userRepo;
             _mapper = mapper;
@@ -96,23 +96,23 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),                        // subject
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),         // token id
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),                  // "nameid"
+            new Claim(ClaimTypes.Email, user.Email)                                    // optional
+             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
             var token = new JwtSecurityToken(
                 issuer: "yourapp",
                 audience: "yourapp",
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(1),             // UTC kullan!
                 signingCredentials: creds
             );
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         public async Task UploadProfilePicture(int userId, IFormFile file)
         {
             using var ms = new MemoryStream();
@@ -148,7 +148,7 @@ namespace IletApi.Services
                 user.Nickname = dto.Nickname;
             if (dto.Status != null)
                 user.Status = dto.Status;
-            if(dto.Language != null) 
+            if (dto.Language != null)
                 user.Language = dto.Language;
             _userRepo.Update(user);
             await _userRepo.SaveAsync();
