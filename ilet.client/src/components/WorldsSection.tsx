@@ -17,7 +17,7 @@ interface Props {
     groupUsers: Array<{ id: number; name: string; avatar: string; status: string; }>;
 }
 
-export default function WorldsSection({ profilePicUrl, userId }: Props) {
+export default function WorldsSection({ userId }: Props) {
     const { t } = useTranslation();
     const [allUsers, setAllUsers] = useState<User[]>([]);
     const token = localStorage.getItem('token');
