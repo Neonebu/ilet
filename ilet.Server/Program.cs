@@ -17,7 +17,8 @@ Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
 var allowedOrigins = new[]
 {
     "https://localhost:54550",
-    "https://ilet.onrender.com"
+    "https://ilet.onrender.com",
+    "https://iletapi.onrender.com"
 };
 builder.Services.AddCors(options =>
 {

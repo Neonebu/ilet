@@ -30,7 +30,8 @@ export default function Home() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
+                credentials: 'include', 
             });
 
             if (loginResponse.ok) {
@@ -47,7 +48,8 @@ export default function Home() {
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({ email, password })
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include', 
                     });
 
                     if (signupResponse.ok) {
