@@ -80,7 +80,7 @@ namespace IletApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetUser()
         {
-            var userIdStr = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 

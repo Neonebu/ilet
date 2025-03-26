@@ -96,7 +96,7 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),  // userId burada taşınır
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),  // userId burada taşınır
         new Claim(JwtRegisteredClaimNames.Email, user.Email)
     };
 
@@ -113,9 +113,6 @@ namespace IletApi.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-
-
         public async Task UploadProfilePicture(int userId, IFormFile file)
         {
             using var ms = new MemoryStream();

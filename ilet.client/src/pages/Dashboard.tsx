@@ -44,7 +44,9 @@ export default function Dashboard() {
             navigate('/');
             return;
         }
-
+        else {
+            console.log("user tokenı "+token)
+        }
         const fetchUser = async () => {
             try {
                 const res = await fetch("https://iletapi.onrender.com/user/getUser", {
@@ -55,12 +57,12 @@ export default function Dashboard() {
                     navigate('/');
                     return;
                 }
-                const data = await res.json();
-                setNickname(data.nickname);
-                setUserId(data.id);
-                setProfilePicUrl(data.profilePictureUrl);
-                setSelectedLang(data.language || 'en');
-                i18n.changeLanguage(data.language || 'en');
+                //const data = await res.json();
+                //setNickname(data.nickname);
+                //setUserId(data.id);
+                //setProfilePicUrl(data.profilePictureUrl);
+                //setSelectedLang(data.language || 'en');
+                //i18n.changeLanguage(data.language || 'en');
             } catch (err) {
                 console.error("fetchUser error:", err);
                 navigate('/');
