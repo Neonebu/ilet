@@ -89,38 +89,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseWebSockets();
-app.Map("/ws", wsApp =>
-{
-    wsApp.Run(async context =>
-    {
-        if (!context.WebSockets.IsWebSocketRequest)
-        {
-            context.Response.StatusCode = 400;
-            return;
-        }
-
-        var token = context.Request.Query["token"].ToString();
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Token missing");
-            return;
-        }
-
-        var handler = new JwtSecurityTokenHandler();
-        var jwtToken = handler.ReadJwtToken(token);
-        var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
-        if (userIdClaim == null)
-        {
-            context.Response.StatusCode = 400;
-            return;
-        }
-
-        var userId = int.Parse(userIdClaim.Value);
-        var socket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleConnection(userId, socket);
-    });
-});
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(); // DefaultPolicy çalışır
