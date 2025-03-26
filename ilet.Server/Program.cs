@@ -129,4 +129,9 @@ app.Use(async (context, next) =>
     }
 });
 app.MapControllers();
+var dataSource = app.Services.GetRequiredService<EndpointDataSource>();
+foreach (var endpoint in dataSource.Endpoints)
+{
+    Console.WriteLine($"📡 Route: {endpoint.DisplayName}");
+}
 app.Run();
