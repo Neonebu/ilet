@@ -96,14 +96,12 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
-
-    };
-
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
             var token = new JwtSecurityToken(
                 issuer: "yourapp",
                 audience: "yourapp",
@@ -111,7 +109,6 @@ namespace IletApi.Services
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
             );
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         public async Task UploadProfilePicture(int userId, IFormFile file)
