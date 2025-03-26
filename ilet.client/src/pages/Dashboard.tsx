@@ -3,8 +3,8 @@ import ProfileSection from "../components/ProfileSection";
 import GroupsSection from "../components/GroupsSection";
 import { useState, useEffect } from "react";
 import '../styles/dashboard.css';
-import WorldsSection from "../components/WorldsSection";
-import logo from '../assets/msn-logo.png';
+//import WorldsSection from "../components/WorldsSection";
+//import logo from '../assets/msn-logo.png';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 
@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
-    const [status] = useState("çevrimiçi");
-    const [groupUsers] = useState<any[]>([]);
+    //const [status] = useState("çevrimiçi");
+    //const [groupUsers] = useState<any[]>([]);
     const navigate = useNavigate();
     const { i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
@@ -98,6 +98,7 @@ export default function Dashboard() {
         const handleBackButton = () => {
             // logout işlemi
             localStorage.removeItem('token');
+            localStorage.removeItem('profilePictureUrl');
             localStorage.removeItem('nickname');
             navigate('/'); // anasayfa veya login route
         };
@@ -125,20 +126,19 @@ export default function Dashboard() {
                         nickname={nickname}
                         setNickname={setNickname}
                         userId={userId}
-                        profilePicUrl={profilePicUrl ?? logo}
                     />
                 )}
 
                 <div className="groups-bar">
                     <GroupsSection/>
-                    <WorldsSection
-                        key={`worlds-${selectedLang}`}
-                        profilePicUrl={profilePicUrl ?? logo}
-                        nickname={nickname}
-                        status={status}
-                        userId={userId}
-                        groupUsers={groupUsers}
-                    />
+                    {/*<WorldsSection*/}
+                    {/*    key={`worlds-${selectedLang}`}*/}
+                    {/*    profilePicUrl={profilePicUrl ?? logo}*/}
+                    {/*    nickname={nickname}*/}
+                    {/*    status={status}*/}
+                    {/*    userId={userId}*/}
+                    {/*    groupUsers={groupUsers}*/}
+                    {/*/>*/}
                 </div>
             </div>
         </div>

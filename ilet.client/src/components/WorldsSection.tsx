@@ -55,11 +55,11 @@ export default function WorldsSection({ userId }: Props) {
 
             {allUsers.map((user) => (
                 <div className="group-user" key={user.id}>
-                    <img
-                        src={`/user/${user.id}/profile-picture`}
-                        alt={user.nickname}
-                        className="group-avatar"
-                    />
+                    {/*<img*/}
+                    {/*    src={`/user/${user.id}/profile-picture`}*/}
+                    {/*    alt={user.nickname}*/}
+                    {/*    className="group-avatar"*/}
+                    {/*/>*/}
                     <span className="nickname-text">{user.nickname}</span>
                 </div>
             ))}
