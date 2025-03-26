@@ -143,7 +143,7 @@ namespace IletApi.Controllers
         [HttpGet("getpp")]
         public async Task<IActionResult> GetProfilePicture()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userId = int.Parse(User.FindFirst("sub")?.Value ?? "0");
             if (userId == 0)
                 return Unauthorized();
 
