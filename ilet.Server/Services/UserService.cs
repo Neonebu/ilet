@@ -96,7 +96,6 @@ namespace IletApi.Services
         {
             var claims = new[]
             {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),  // userId burada taşınır
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
         new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
 
