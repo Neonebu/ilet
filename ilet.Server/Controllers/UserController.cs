@@ -139,7 +139,7 @@ namespace IletApi.Controllers
 
             return Ok(new { message = "Çıkış yapıldı." });
         }
-
+        [Authorize]
         [HttpGet("getpp")]
         public async Task<IActionResult> GetProfilePicture()
         {
