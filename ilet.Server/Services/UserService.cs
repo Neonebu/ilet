@@ -156,24 +156,10 @@ namespace IletApi.Services
         }
         public async Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId)
         {
-            var pp = await _ppRepo.GetByIdAsync(userId);
-            if (pp == null || pp.Image == null)
+            var entity = await _ppRepo.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (entity == null)
                 return null;
-
-            // Basit bir MIME type tespiti yapalım:
-            string contentType;
-            if (pp.Image.Length >= 4 && pp.Image[0] == 0xFF && pp.Image[1] == 0xD8)
-                contentType = "image/jpeg";
-            else if (pp.Image.Length >= 8 && pp.Image[0] == 0x89 && pp.Image[1] == 0x50)
-                contentType = "image/png";
-            else
-                contentType = "application/octet-stream";
-
-            return new UserProfilePictureDto
-            {
-                Image = pp.Image,
-                ContentType = contentType
-            };
+            return _mapper.Map<UserProfilePictureDto>(entity);
         }
         public async Task<List<UserDto>> GetOnlineUsers()
         {

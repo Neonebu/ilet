@@ -140,7 +140,7 @@ namespace IletApi.Controllers
             return Ok(new { message = "Çıkış yapıldı." });
         }
 
-        [HttpGet("profile-picture")]
+        [HttpGet("getpp")]
         public async Task<IActionResult> GetProfilePicture()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");

@@ -3,9 +3,10 @@ import defaultProfilePic from "../assets/msn-logo-small.png";
 
 interface Props {
     profilePicUrl: string;
+    onUploadSuccess: (url: string) => void;
 }
 
-export default function ProfilePictureUploader({ profilePicUrl}: Props) {
+export default function ProfilePictureUploader({ profilePicUrl, onUploadSuccess }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleProfileClick = () => {
@@ -28,7 +29,9 @@ export default function ProfilePictureUploader({ profilePicUrl}: Props) {
             });
 
             if (response.ok) {
-                window.location.reload();
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                onUploadSuccess(url);
             }
         } catch (error: any) {
             console.error("Yükleme sırasında hata:", error.message);
