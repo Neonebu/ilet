@@ -70,32 +70,6 @@ if (!Directory.Exists(uploadsPath))
 {
     Directory.CreateDirectory(uploadsPath);
 }
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
-    {
-        var token = context.Request.Query["token"].ToString(); // 👈 token query string'den alınır
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Token missing in query");
-            return;
-        }
-        var userId = JwtTokenHelper.ExtractUserId(token);
-        if (userId == null)
-        {
-            context.Response.StatusCode = 401;
-            return;
-        }
-
-        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleConnection(userId.Value, webSocket);
-    }
-    else
-    {
-        await next();
-    }
-});
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -149,6 +123,32 @@ app.Map("/ws", wsApp =>
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(); // DefaultPolicy çalışır
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
+    {
+        var token = context.Request.Query["token"].ToString(); // 👈 token query string'den alınır
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Token missing in query");
+            return;
+        }
+        var userId = JwtTokenHelper.ExtractUserId(token);
+        if (userId == null)
+        {
+            context.Response.StatusCode = 401;
+            return;
+        }
+
+        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        await WebSocketHandler.HandleConnection(userId.Value, webSocket);
+    }
+    else
+    {
+        await next();
+    }
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
