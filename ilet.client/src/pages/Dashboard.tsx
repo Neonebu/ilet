@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
-    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
     const [status] = useState("çevrimiçi");
     const [groupUsers] = useState<any[]>([]);
     const navigate = useNavigate();
@@ -57,12 +56,11 @@ export default function Dashboard() {
                     navigate('/');
                     return;
                 }
-                //const data = await res.json();
-                //setNickname(data.nickname);
-                //setUserId(data.id);
-                //setProfilePicUrl(data.profilePictureUrl);
-                //setSelectedLang(data.language || 'en');
-                //i18n.changeLanguage(data.language || 'en');
+                const data = await res.json();
+                setNickname(data.nickname);
+                setUserId(data.id);
+                setSelectedLang(data.language || 'en');
+                i18n.changeLanguage(data.language || 'en');
             } catch (err) {
                 console.error("fetchUser error:", err);
                 navigate('/');
