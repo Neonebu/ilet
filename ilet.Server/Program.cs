@@ -64,7 +64,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 var app = builder.Build();
 // Middleware pipeline
-app.UseCors(); // DefaultPolicy çalışır
 app.UseDeveloperExceptionPage();
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
 if (!Directory.Exists(uploadsPath))
@@ -148,6 +147,8 @@ app.Map("/ws", wsApp =>
     });
 });
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors(); // DefaultPolicy çalışır
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
