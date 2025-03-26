@@ -123,20 +123,31 @@ app.Map("/ws", wsApp =>
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(); // DefaultPolicy çalışır
+app.UseAuthentication();
+app.UseAuthorization();
 app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
     {
-        var token = context.Request.Query["token"].ToString(); // 👈 token query string'den alınır
+        Console.WriteLine("🔌 WS isteği geldi.");
+
+        var token = context.Request.Query["token"].ToString();
+        Console.WriteLine("🔐 Gelen token: " + token);
+
         if (string.IsNullOrWhiteSpace(token))
         {
+            Console.WriteLine("❌ Token boş.");
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Token missing in query");
             return;
         }
+
         var userId = JwtTokenHelper.ExtractUserId(token);
+        Console.WriteLine("👤 Çekilen userId: " + userId);
+
         if (userId == null)
         {
+            Console.WriteLine("❌ Token'dan userId çekilemedi.");
             context.Response.StatusCode = 401;
             return;
         }
@@ -149,7 +160,5 @@ app.Use(async (context, next) =>
         await next();
     }
 });
-app.UseAuthentication();
-app.UseAuthorization();
 app.MapControllers();
 app.Run();
