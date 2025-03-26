@@ -18,7 +18,7 @@ export default function ProfileSection({ nickname, setNickname }: Props) {
             const response = await fetch("https://iletapi.onrender.com/user/getpp", {
                 headers: {
                     Authorization: `Bearer ${token}`
-                }
+                },
             });
 
             if (response.ok) {
