@@ -83,16 +83,11 @@ namespace IletApi.Controllers
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
-
             var user = await _userService.GetUser(userId);
             if (user == null)
                 return NotFound(new { message = "Kullanıcı bulunamadı." });
-
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
             // AutoMapper ile User => UserDto mapleme
             var userDto = _mapper.Map<UserDto>(user);
-
             return Ok(userDto);
         }
         [HttpPost("uploadProfilePic")]

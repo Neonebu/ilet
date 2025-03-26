@@ -98,7 +98,6 @@ export default function Dashboard() {
         const handleBackButton = () => {
             // logout işlemi
             localStorage.removeItem('token');
-            localStorage.removeItem('profilePictureUrl');
             localStorage.removeItem('nickname');
             navigate('/'); // anasayfa veya login route
         };
