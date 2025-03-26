@@ -10,7 +10,6 @@ using ilet.Server.Services;
 using ilet.Server.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
