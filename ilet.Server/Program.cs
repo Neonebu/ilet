@@ -129,9 +129,10 @@ app.Use(async (context, next) =>
     }
 });
 app.MapControllers();
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 var dataSource = app.Services.GetRequiredService<EndpointDataSource>();
 foreach (var endpoint in dataSource.Endpoints)
 {
-    Console.WriteLine($"📡 Route: {endpoint.DisplayName}");
+    logger.LogInformation("📡 Route: {Route}", endpoint.DisplayName);
 }
 app.Run();
