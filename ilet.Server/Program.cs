@@ -9,6 +9,7 @@ using IletApi.Repo;
 using ilet.Server.Services;
 using ilet.Server.Helpers;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
@@ -37,9 +38,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
             ValidIssuer = "yourapp",
             ValidAudience = "yourapp",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("V3ry_Str0ng_S3cret_Key_123456789!@#")),
+            NameClaimType = ClaimTypes.NameIdentifier // 💥 Burası!
         };
     });
 // Servisler
