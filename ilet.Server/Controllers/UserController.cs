@@ -25,7 +25,7 @@ namespace IletApi.Controllers
             _mapper = mapper;
             _logger = logger;
         }
-        [HttpGet("/")]
+        [HttpGet("index")]
         public IActionResult Index()
         {
             return Ok("API is working!");
