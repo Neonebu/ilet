@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ilet.Server.Models;
 
@@ -9,6 +10,7 @@ public partial class UserProfilePictures
     public int UserId { get; set; }
     public byte[] Image { get; set; } = null!;
     public DateTime? CreatedAt { get; set; }
+    [Column("content_type")] // Veritabanındaki isimle eşleştir
     public required string ContentType { get; set; } // ekle
     public virtual Users User { get; set; } = null!;
 }
