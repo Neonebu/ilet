@@ -131,7 +131,8 @@ namespace IletApi.Services
                 {
                     UserId = userId,
                     Image = bytes,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    ContentType = file.ContentType
                 });
             }
 
