@@ -28,7 +28,7 @@ namespace ilet.Server.Services
                 {
                     // Client'dan mesaj gelirse buraya düşer
                     var msg = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    Console.WriteLine($"Received from {userId}: {msg}");
+                    //Console.WriteLine($"Received from {userId}: {msg}");
                 }
             }
         }

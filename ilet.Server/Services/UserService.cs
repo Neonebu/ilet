@@ -163,20 +163,20 @@ namespace IletApi.Services
         {
             var userIds = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
 
-            Console.WriteLine("🔵 [Cache'deki ID'ler]");
+            //Console.WriteLine("🔵 [Cache'deki ID'ler]");
             foreach (var id in userIds)
             {
-                Console.WriteLine($"- ID: {id}");
+                //Console.WriteLine($"- ID: {id}");
             }
 
             var idList = userIds.ToList();
 
             var users = await _userRepo.WhereAsync(u => idList.Contains(u.Id));
 
-            Console.WriteLine("🟢 [DB'den gelen kullanıcılar]");
+            //Console.WriteLine("🟢 [DB'den gelen kullanıcılar]");
             foreach (var u in users)
             {
-                Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
+                //Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
             }
 
             var userDtos = _mapper.Map<List<UserDto>>(users);
@@ -186,7 +186,7 @@ namespace IletApi.Services
         {
             var offlineUserIds = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
 
-            Console.WriteLine("🔴 [Cache dışı kullanıcılar]");
+            //Console.WriteLine("🔴 [Cache dışı kullanıcılar]");
 
             var allUsers = await _userRepo.GetAllAsync();
 
@@ -194,7 +194,7 @@ namespace IletApi.Services
 
             foreach (var u in offlineUsers)
             {
-                Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
+                //Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
             }
 
             var userDtos = _mapper.Map<List<UserDto>>(offlineUsers);

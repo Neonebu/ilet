@@ -13,7 +13,7 @@ using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
-Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
+//Console.WriteLine($"[DEBUG] Connection string -> {connectionString}");
 var allowedOrigins = new[]
 {
     "https://localhost:54550",
@@ -74,18 +74,18 @@ if (!Directory.Exists(uploadsPath))
 {
     Directory.CreateDirectory(uploadsPath);
 }
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Migration skipped or failed gracefully: {ex.Message}");
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    try
+//    {
+//        db.Database.Migrate();
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"Migration skipped or failed gracefully: {ex.Message}");
+//    }
+//}
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -101,14 +101,14 @@ app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/ws" && context.WebSockets.IsWebSocketRequest)
     {
-        Console.WriteLine("🔌 WS isteği geldi.");
+        //Console.WriteLine("🔌 WS isteği geldi.");
 
         var token = context.Request.Query["token"].ToString();
-        Console.WriteLine("🔐 Gelen token: " + token);
+        //Console.WriteLine("🔐 Gelen token: " + token);
 
         if (string.IsNullOrWhiteSpace(token))
         {
-            Console.WriteLine("❌ Token boş.");
+            //Console.WriteLine("❌ Token boş.");
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Token missing in query");
             return;
@@ -134,14 +134,14 @@ app.Use(async (context, next) =>
 });
 app.MapControllers();
 var lifetime = app.Lifetime;
-lifetime.ApplicationStarted.Register(() =>
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    var dataSource = app.Services.GetRequiredService<EndpointDataSource>();
+//lifetime.ApplicationStarted.Register(() =>
+//{
+//    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+//    var dataSource = app.Services.GetRequiredService<EndpointDataSource>();
 
-    foreach (var endpoint in dataSource.Endpoints)
-    {
-        logger.LogInformation("📡 Route: {Route}", endpoint.DisplayName);
-    }
-});
+//    foreach (var endpoint in dataSource.Endpoints)
+//    {
+//        logger.LogInformation("📡 Route: {Route}", endpoint.DisplayName);
+//    }
+//});
 app.Run();
