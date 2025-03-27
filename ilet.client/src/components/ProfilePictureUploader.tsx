@@ -29,9 +29,15 @@ export default function ProfilePictureUploader({ profilePicUrl, onUploadSuccess 
             });
 
             if (response.ok) {
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                onUploadSuccess(url);
+                const newPP = await fetch("https://iletapi.onrender.com/user/getpp", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (newPP.ok) {
+                    const blob = await newPP.blob();
+                    const url = URL.createObjectURL(blob);
+                    onUploadSuccess(url);
+                }
             }
         } catch (error: any) {
             console.error("Yükleme sırasında hata:", error.message);
