@@ -115,11 +115,11 @@ app.Use(async (context, next) =>
         }
 
         var userId = JwtTokenHelper.ExtractUserId(token);
-        Console.WriteLine("👤 Çekilen userId: " + userId);
+        //Console.WriteLine("👤 Çekilen userId: " + userId);
 
         if (userId == null)
         {
-            Console.WriteLine("❌ Token'dan userId çekilemedi.");
+            //Console.WriteLine("❌ Token'dan userId çekilemedi.");
             context.Response.StatusCode = 401;
             return;
         }

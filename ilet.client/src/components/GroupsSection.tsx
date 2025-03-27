@@ -29,13 +29,13 @@ export default function GroupsSection() {
                 const data = JSON.parse(event.data);
 
                 if (data.type === 'status-update' && data.userId !== userId) {
-                    if (data.status === 'online') {
+                    if (data.status === 'online' || data.status === 'busy' || data.status === 'away') {
                         setOfflineUsers(prev => prev.filter(u => u.id !== data.userId));
                         setOnlineUsers(prev => {
                             if (prev.some(u => u.id === data.userId)) return prev;
                             return [...prev, { id: data.userId, nickname: data.nickname }];
                         });
-                    } else if (data.status === 'offline') {
+                    } else if (data.status === 'offline' || data.status === 'invisible') {
                         setOnlineUsers(prev => prev.filter(u => u.id !== data.userId));
                         setOfflineUsers(prev => {
                             if (prev.some(u => u.id === data.userId)) return prev;
