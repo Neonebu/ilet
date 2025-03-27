@@ -108,7 +108,7 @@ namespace IletApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Profil resmi yüklenirken hata oluştu");
+                _logger.LogError(ex, "Profil resmi yüklenirken hata oluştu "+ex.ToString());
                 return StatusCode(500, new { message = "Sunucu hatası", error = ex.Message });
             }
 
@@ -145,11 +145,11 @@ namespace IletApi.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId) || userId <= 0)
-                return Unauthorized();
+                return Unauthorized(new { message = "Yetkilendirme başarısız." });
 
             var pp = await _userService.GetProfilePictureAsync(userId);
             if (pp == null)
-                return NotFound();
+                return NotFound(new { message = "Profil resmi bulunamadı." });
 
             return File(pp.Image, pp.ContentType);
         }
