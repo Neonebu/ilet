@@ -9,12 +9,12 @@ interface Props {
     setNickname: (name: string) => void;
     userId: number;
 }
-
 export default function ProfileSection({ nickname, setNickname }: Props) {
     const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
     useEffect(() => {
         const fetchProfilePicture = async () => {
             const token = localStorage.getItem("token");
+            console.log("fetching profile picture with token:", token);
             const response = await fetch("https://iletapi.onrender.com/user/getpp", {
                 headers: {
                     Authorization: `Bearer ${token}`

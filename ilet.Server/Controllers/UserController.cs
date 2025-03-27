@@ -143,8 +143,8 @@ namespace IletApi.Controllers
         [HttpGet("getpp")]
         public async Task<IActionResult> GetProfilePicture()
         {
-            var userId = int.Parse(User.FindFirst("sub")?.Value ?? "0");
-            if (userId == 0)
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId) || userId <= 0)
                 return Unauthorized();
 
             var pp = await _userService.GetProfilePictureAsync(userId);
@@ -153,6 +153,7 @@ namespace IletApi.Controllers
 
             return File(pp.Image, pp.ContentType);
         }
+
         [HttpGet("getOnlineUsers")]
         [Authorize]
         public async Task<IActionResult> GetOnlineUsers()
