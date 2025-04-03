@@ -10,13 +10,11 @@ namespace ilet.Server.Interfaces
         Task<UserDto> Login(LoginRequestDto input);
         Task<UserDto?> GetUser(int userId);
         string GenerateToken(Users user);
-        Task UploadProfilePicture(int userId, IFormFile file);
+        Task UploadProfilePicture(UserProfilePictureDto userProfilePictureDto);
         Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
         Task<UserProfilePictureDto?> GetProfilePictureAsync(int userId);
-        Task<List<UserDto>> GetOnlineUsers();
-        Task<List<UserDto>> GetOfflineUsers();
         Task Logout(int userId);
-        Task ChangeStatus(int userId, string status);
+        Task ChangeStatus(UserDto userDto);
 
     }
 }

@@ -7,6 +7,7 @@ using System.Security.Claims;
 using AutoMapper;
 using ilet.Server.Dtos;
 using System.IdentityModel.Tokens.Jwt;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace IletApi.Controllers
 {
@@ -92,9 +93,10 @@ namespace IletApi.Controllers
         }
         [HttpPost("uploadProfilePic")]
         [Authorize]
-        public async Task<IActionResult> UploadProfilePic([FromForm] IFormFile profilePicture)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadProfilePic([FromForm] UserProfilePictureDto dto)
         {
-            if (profilePicture == null || profilePicture.Length == 0)
+            if (dto.File == null || dto.File.Length == 0)
                 return BadRequest(new { message = "Dosya seçilmedi." });
 
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -103,15 +105,14 @@ namespace IletApi.Controllers
 
             try
             {
-                await _userService.UploadProfilePicture(userId, profilePicture);
+                await _userService.UploadProfilePicture(dto);
                 return Ok(new { message = "Yükleme başarılı." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Profil resmi yüklenirken hata oluştu "+ex.ToString());
+                _logger.LogError(ex, "Profil resmi yüklenirken hata oluştu: " + ex.ToString());
                 return StatusCode(500, new { message = "Sunucu hatası", error = ex.Message });
             }
-
         }
         [HttpPut("update")]
         [Authorize]
@@ -153,21 +154,6 @@ namespace IletApi.Controllers
 
             return File(pp.Image, pp.ContentType);
         }
-
-        [HttpGet("getOnlineUsers")]
-        [Authorize]
-        public async Task<IActionResult> GetOnlineUsers()
-        {
-            var users = await _userService.GetOnlineUsers();
-            return Ok(users);
-        }
-        [HttpGet("getOfflineUsers")]
-        [Authorize]
-        public async Task<IActionResult> GetOfflineUsers()
-        {
-            var users = await _userService.GetOnlineUsers();
-            return Ok(users);
-        }
         [HttpGet("getAllUsers")]
         [Authorize]
         public async Task<IActionResult> GetAllUsers()
@@ -181,7 +167,14 @@ namespace IletApi.Controllers
         public async Task<IActionResult> ChangeStatus([FromBody] ChangeStatusDto input)
         {
             var userId = int.Parse(User.FindFirst("nameid")!.Value);
-            await _userService.ChangeStatus(userId, input.Status);
+            var email = User.FindFirst("email")?.Value ?? "unknown@example.com";
+            var userDto = new UserDto
+            {
+                Id = userId,
+                Status = input.Status,
+                Email = email
+            };
+            await _userService.ChangeStatus(userDto);
             return Ok(new { message = "Status updated" });
         }
 

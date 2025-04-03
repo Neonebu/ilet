@@ -2,6 +2,7 @@
 import '../styles/commonGroups.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import config from '../config';
 
 interface User {
     id: number;
@@ -27,7 +28,7 @@ export default function WorldsSection({ userId }: Props) {
 
         const fetchAllUsers = async () => {
             try {
-                const response = await fetch('https://iletapi.onrender.com/user/getAllUsers', {
+                const response = await fetch(`${config.API_URL}/user/getAllUsers`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

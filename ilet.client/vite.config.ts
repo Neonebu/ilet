@@ -1,52 +1,7 @@
 ﻿import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
-import fs from 'fs';
-import path from 'path';
-import child_process from 'child_process';
 import { env } from 'process';
-
-// Render ortamında SSL kullanılmayacaksa bu değişken true olacak
-const isRender = !!process.env.RENDER;
-
-// https yapılandırması: Başlangıçta false olarak ayarlanır, sonra gerekirse doldurulur
-let httpsConfig: { key: Buffer; cert: Buffer } | undefined = undefined;
-
-if (!isRender) {
-    const baseFolder =
-        env.APPDATA !== undefined && env.APPDATA !== ''
-            ? `${env.APPDATA}/ASP.NET/https`
-            : `${env.HOME}/.aspnet/https`;
-
-    const certificateName = "ilet.client";
-    const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-    const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
-
-    if (!fs.existsSync(baseFolder)) {
-        fs.mkdirSync(baseFolder, { recursive: true });
-    }
-
-    if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-        const result = child_process.spawnSync('dotnet', [
-            'dev-certs',
-            'https',
-            '--export-path',
-            certFilePath,
-            '--format',
-            'Pem',
-            '--no-password',
-        ], { stdio: 'inherit' });
-
-        if (result.status !== 0) {
-            throw new Error("Sertifika oluşturulamadı.");
-        }
-    }
-
-    httpsConfig = {
-        key: fs.readFileSync(keyFilePath),
-        cert: fs.readFileSync(certFilePath),
-    };
-}
 
 const target = env.ASPNETCORE_HTTPS_PORT
     ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
@@ -54,7 +9,6 @@ const target = env.ASPNETCORE_HTTPS_PORT
         ? env.ASPNETCORE_URLS.split(';')[0]
         : 'https://localhost:7147';
 
-// Vite yapılandırması
 export default defineConfig({
     plugins: [plugin()],
     resolve: {
@@ -69,8 +23,10 @@ export default defineConfig({
                 secure: false,
             },
         },
-        port: parseInt(env.DEV_SERVER_PORT || '54550'),
-        // sadece httpsConfig tanımlandıysa ekle
-        ...(httpsConfig ? { https: httpsConfig } : {}),
+        host: true,
+        port: 5173,
     },
+    esbuild: {
+        drop: ['console', 'debugger']
+    }
 });

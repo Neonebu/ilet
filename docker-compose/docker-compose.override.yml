@@ -1,0 +1,10 @@
+services:
+  iletserver:
+    environment:
+      - ASPNETCORE_URLS=http://+:54550
+    ports:
+      - "54550:54550"
+
+  iletclient:
+    ports:
+      - "5173:80"

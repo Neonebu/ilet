@@ -1,0 +1,18 @@
+services:
+  iletserver:
+    container_name: ilet.Server
+    build:
+      context: ../ilet.server
+      dockerfile: Dockerfile
+    ports:
+      - "54550:54550"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  iletclient:
+    container_name: ilet.Client
+    build:
+      context: ../ilet.client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"

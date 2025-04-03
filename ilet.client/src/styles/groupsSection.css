@@ -26,3 +26,13 @@
     color: #333;
     font-family: Tahoma, sans-serif;
 }
+group-label {
+    color: #0033cc;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+u {
+    color: #0033cc;
+    text-decoration: underline;
+}

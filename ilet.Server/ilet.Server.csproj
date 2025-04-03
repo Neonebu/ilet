@@ -9,10 +9,15 @@
 		<SpaRoot>..\ilet.client</SpaRoot>
 		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
 		<SpaProxyServerUrl>https://localhost:54550</SpaProxyServerUrl>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+	  <Content Remove="Properties\uploadProfilePic.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.SpaProxy">
@@ -24,20 +29,23 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.6.1" />
+		<PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.23" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.0.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\ilet.client\ilet.client.esproj">
-			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-		</ProjectReference>
-	</ItemGroup>
-
 	<ItemGroup>
 		<Folder Include="Migrations\" />
 	</ItemGroup>
-
+	<ItemGroup>
+	  <None Include="Properties\uploadProfilePic.json" />
+	</ItemGroup>
+	<PropertyGroup>
+		<ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>
+		<RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
 </Project>

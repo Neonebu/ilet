@@ -1,5 +1,6 @@
 ﻿import { useRef } from "react";
 import defaultProfilePic from "../assets/msn-logo-small.png";
+import config from "../config";
 
 interface Props {
     profilePicUrl: string;
@@ -22,14 +23,14 @@ export default function ProfilePictureUploader({ profilePicUrl, onUploadSuccess 
         formData.append('profilePicture', file);
 
         try {
-            const response = await fetch("https://iletapi.onrender.com/user/uploadProfilePic", {
+            const response = await fetch(`${config.API_URL}user/uploadProfilePic`, {
                 method: "POST",
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData,
             });
 
             if (response.ok) {
-                const newPP = await fetch("https://iletapi.onrender.com/user/getpp", {
+                const newPP = await fetch(`${config.API_URL}user/getpp`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 

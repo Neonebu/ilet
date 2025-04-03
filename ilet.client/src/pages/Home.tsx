@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 import logo from '../assets/msn-logo.png';
 import { useNavigate } from 'react-router-dom';
-
+import config from "../config";
 export default function Home() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,7 +25,7 @@ export default function Home() {
         }
         try {
             // İlk olarak login deniyoruz
-            const loginResponse = await fetch("https://iletapi.onrender.com/user/login", {
+            const loginResponse = await fetch(`${config.API_URL}user/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -38,12 +38,12 @@ export default function Home() {
                 const data = await loginResponse.json();
                 localStorage.setItem('userId', data.id);
                 localStorage.setItem('status', data.status); // 👈 status kaydedildi
-                handleSuccess(data, "Login başarılı!");
+                handleSuccess(data);
             } else {
                 const data = await loginResponse.json();
                 if (data.message === "Kullanıcı bulunamadı.") {
                     // Login başarısızsa signup deniyoruz
-                    const signupResponse = await fetch("https://iletapi.onrender.com/user/signup", {
+                    const signupResponse = await fetch(`${config.API_URL}user/signup`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -56,7 +56,7 @@ export default function Home() {
                         const signupData = await signupResponse.json();
                         localStorage.setItem('userId', signupData.id);
                         localStorage.setItem('status', signupData.status); // 👈 status kaydedildi
-                        handleSuccess(signupData, "Signup başarılı!");
+                        handleSuccess(signupData);
                     } else {
                         const signupError = await signupResponse.json();
                         alert(signupError.message || "Signup başarısız.");
@@ -72,7 +72,7 @@ export default function Home() {
 
 
 
-    const handleSuccess = (data: any, message: string) => {
+    const handleSuccess = (data: any) => {
         const token = data.Token || data.token;
         const user = data.User || data.user;
 
@@ -95,7 +95,7 @@ export default function Home() {
             localStorage.removeItem('remembered_password');
         }
 
-        console.log("Home.tsx login kısmı"+ message);
+/*        console.log("Home.tsx login kısmı"+ message);*/
         navigate('/dashboard');
     };
 

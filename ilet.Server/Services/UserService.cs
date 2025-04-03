@@ -78,8 +78,7 @@ namespace IletApi.Services
             _cache.Set("offline_users", offlineUsers);
 
             // WebSocket üzerinden tüm clientlara status güncellemesini gönder
-            await WebSocketHandler.BroadcastStatusUpdate();
-
+            await WebSocketHandler.BroadcastStatusUpdate(user.Id,user.Nickname,user.Status,user.Email);          
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
@@ -111,28 +110,29 @@ namespace IletApi.Services
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task UploadProfilePicture(int userId, IFormFile file)
+        public async Task UploadProfilePicture(UserProfilePictureDto dto)
         {
             using var ms = new MemoryStream();
-            await file.CopyToAsync(ms);
+            await dto.File.CopyToAsync(ms);
             var bytes = ms.ToArray();
 
-            var existing = await _ppRepo.FirstOrDefaultAsync(x => x.UserId == userId);
+            var existing = await _ppRepo.FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
             if (existing != null)
             {
                 existing.Image = bytes;
                 existing.CreatedAt = DateTime.UtcNow;
+                existing.ContentType = dto.File.ContentType;
                 _ppRepo.Update(existing);
             }
             else
             {
                 await _ppRepo.AddAsync(new UserProfilePictures
                 {
-                    UserId = userId,
+                    UserId = dto.UserId,
                     Image = bytes,
                     CreatedAt = DateTime.UtcNow,
-                    ContentType = file.ContentType
+                    ContentType = dto.File.ContentType
                 });
             }
 
@@ -160,47 +160,6 @@ namespace IletApi.Services
                 return null;
             return _mapper.Map<UserProfilePictureDto>(entity);
         }
-        public async Task<List<UserDto>> GetOnlineUsers()
-        {
-            var userIds = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
-
-            //Console.WriteLine("🔵 [Cache'deki ID'ler]");
-            foreach (var id in userIds)
-            {
-                //Console.WriteLine($"- ID: {id}");
-            }
-
-            var idList = userIds.ToList();
-
-            var users = await _userRepo.WhereAsync(u => idList.Contains(u.Id));
-
-            //Console.WriteLine("🟢 [DB'den gelen kullanıcılar]");
-            foreach (var u in users)
-            {
-                //Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
-            }
-
-            var userDtos = _mapper.Map<List<UserDto>>(users);
-            return userDtos;
-        }
-        public async Task<List<UserDto>> GetOfflineUsers()
-        {
-            var offlineUserIds = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
-
-            //Console.WriteLine("🔴 [Cache dışı kullanıcılar]");
-
-            var allUsers = await _userRepo.GetAllAsync();
-
-            var offlineUsers = allUsers.Where(u => !offlineUserIds.Contains(u.Id)).ToList();
-
-            foreach (var u in offlineUsers)
-            {
-                //Console.WriteLine($"- ID: {u.Id} | Nickname: {u.Nickname}");
-            }
-
-            var userDtos = _mapper.Map<List<UserDto>>(offlineUsers);
-            return userDtos;
-        }
         public async Task Logout(int userId)
         {
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
@@ -211,33 +170,34 @@ namespace IletApi.Services
 
             _cache.Set("online_users", onlineUsers);
             _cache.Set("offline_users", offlineUsers);
-
-            await WebSocketHandler.BroadcastStatusUpdate(); // << WS yayını
+            var user = await _userRepo.Query().FirstOrDefaultAsync(u => u.Id == userId);
+            await WebSocketHandler.BroadcastStatusUpdate(userId, user?.Nickname, user?.Status,user?.Email); // << WS yayını
 
             await Task.CompletedTask;
         }
-        public async Task ChangeStatus(int userId, string status)
+        public async Task ChangeStatus(UserDto userDto)
         {
+            var user = await _userRepo.FirstOrDefaultAsync(x => x.Id == userDto.Id);
+            if (user == null) return;
+            var userId = user.Id;
+            var status = userDto.Status?.ToLower();
+            var nickname = string.IsNullOrWhiteSpace(user.Nickname) ? user.Email : user.Nickname;
+            var safeStatus = string.IsNullOrWhiteSpace(status) ? "offline" : status;
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
             var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
-
-            if (status == "online")
+            if (safeStatus == "online" || safeStatus == "busy" || safeStatus == "away")
             {
                 onlineUsers.Add(userId);
                 offlineUsers.Remove(userId);
             }
-            else if (status == "offline")
+            else
             {
                 onlineUsers.Remove(userId);
                 offlineUsers.Add(userId);
             }
-
             _cache.Set("online_users", onlineUsers);
             _cache.Set("offline_users", offlineUsers);
-
-            await WebSocketHandler.BroadcastStatusUpdate(); // realtime güncelleme
-
-            await Task.CompletedTask;
+            await WebSocketHandler.BroadcastStatusUpdate(userId, nickname, safeStatus, user.Email);
         }
     }
 }

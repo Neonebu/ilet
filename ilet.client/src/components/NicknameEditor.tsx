@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StatusDropdown from "./StatusDropdown";
+import config from "../config";
 
 interface Props {
     nickname: string;
@@ -9,15 +10,14 @@ interface Props {
 export default function NicknameEditor({ nickname, setNickname }: Props) {
     const [isEditingNickname, setIsEditingNickname] = useState(false);
     const [tempNickname, setTempNickname] = useState("");
-    const [status, setStatus] = useState("Online");
-
+    const [status, setStatus] = useState(localStorage.getItem("status") || "Online");
     const handleSaveNickname = async () => {
         const newNickname = tempNickname.trim();
         if (newNickname !== "" && newNickname !== nickname) {
             setNickname(newNickname);
 
             const token = localStorage.getItem('token');
-            await fetch("https://iletapi.onrender.com/user/update", {
+            await fetch(`${config.API_URL}user/update`, {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',

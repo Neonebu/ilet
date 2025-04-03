@@ -3,6 +3,7 @@ import NicknameEditor from './NicknameEditor';
 import { useState, useEffect } from 'react'; // useState eksik
 import logo from '../assets/msn-logo.png'; // logo eksik
 import ProfilePictureUploader from './ProfilePictureUploader';
+import config from '../config';
 
 interface Props {
     nickname: string;
@@ -14,8 +15,7 @@ export default function ProfileSection({ nickname, setNickname }: Props) {
     useEffect(() => {
         const fetchProfilePicture = async () => {
             const token = localStorage.getItem("token");
-            console.log("fetching profile picture with token:", token);
-            const response = await fetch("https://iletapi.onrender.com/user/getpp", {
+            const response = await fetch(`${config.API_URL}user/getpp`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },

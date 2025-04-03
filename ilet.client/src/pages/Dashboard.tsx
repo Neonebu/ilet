@@ -7,26 +7,23 @@ import '../styles/dashboard.css';
 //import logo from '../assets/msn-logo.png';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-
+import config from "../config";
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
-    //const [status] = useState("çevrimiçi");
-    //const [groupUsers] = useState<any[]>([]);
     const navigate = useNavigate();
     const { i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
-
+    //const token = localStorage.getItem("token") ?? "";
     const handleLangChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newLang = e.target.value;
         i18n.changeLanguage(newLang);
         setSelectedLang(newLang);
         localStorage.setItem('lang', newLang);
-
         // backend'e kaydet:
         const token = localStorage.getItem('token');
-        await fetch("https://iletapi.onrender.com/user/update", {
+        await fetch(`${config.API_URL}user/update`, {
             method: "PUT",
             headers: {
                 'Content-Type': 'application/json',
@@ -44,11 +41,11 @@ export default function Dashboard() {
             return;
         }
         else {
-            console.log("user tokenı "+token)
+            
         }
         const fetchUser = async () => {
             try {
-                const res = await fetch("https://iletapi.onrender.com/user/getUser", {
+                const res = await fetch(`${config.API_URL}user/getUser`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!res.ok) {
@@ -69,30 +66,6 @@ export default function Dashboard() {
 
         fetchUser();
     }, [navigate]);
-
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        const ws = new WebSocket(`wss://iletapi.onrender.com/ws?token=${token}`);
-        ws.onopen = () => {
-            console.log("✅ WebSocket bağlı");
-            ws.send("Merhaba server!");
-        };
-
-        ws.onmessage = (event) => {
-            console.log("📥 Gelen mesaj:", event.data);
-        };
-
-        ws.onclose = () => {
-            console.log("❌ Bağlantı kapandı.");
-        };
-
-        return () => {
-            ws.close();
-        };
-    }, []);
-
 
     useEffect(() => {
         const handleBackButton = () => {
@@ -127,17 +100,8 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
-
                 <div className="groups-bar">
                     <GroupsSection/>
-                    {/*<WorldsSection*/}
-                    {/*    key={`worlds-${selectedLang}`}*/}
-                    {/*    profilePicUrl={profilePicUrl ?? logo}*/}
-                    {/*    nickname={nickname}*/}
-                    {/*    status={status}*/}
-                    {/*    userId={userId}*/}
-                    {/*    groupUsers={groupUsers}*/}
-                    {/*/>*/}
                 </div>
             </div>
         </div>
