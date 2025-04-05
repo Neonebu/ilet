@@ -15,7 +15,7 @@ RUN apt-get update && \
 WORKDIR /src
 
 # .NET backend project restore
-COPY ["ilet.server/ilet.server.csproj", "ilet.Server/"]
+COPY ["ilet.server/ilet.server.csproj", "ilet.server/"]
 COPY ["ilet.sln", "./"]
 RUN dotnet restore "./ilet.server/ilet.server.csproj"
 
