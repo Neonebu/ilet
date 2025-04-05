@@ -17,7 +17,7 @@ WORKDIR /src
 # .NET backend project restore
 COPY ["ilet.server/ilet.server.csproj", "ilet.Server/"]
 COPY ["ilet.sln", "./"]
-RUN dotnet restore "./ilet.Server/ilet.Server.csproj"
+RUN dotnet restore "./ilet.server/ilet.server.csproj"
 
 # React Build
 COPY ilet.client/ ilet.client/
@@ -28,7 +28,7 @@ RUN npm install && npm run build
 WORKDIR /src
 COPY . .
 WORKDIR "/src/ilet.server"
-RUN dotnet publish "./ilet.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./ilet.server.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final Image
 FROM base AS final
