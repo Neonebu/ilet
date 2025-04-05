@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ilet.client", "ilet.client\ilet.client.esproj", "{CE8BE91F-F5DB-0148-52FF-8A0659876C47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ilet.server", "ilet.Server\ilet.server.csproj", "{F33AD96D-0A12-4474-BE5B-86E405A01A72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ilet.server", "ilet.server\ilet.server.csproj", "{F33AD96D-0A12-4474-BE5B-86E405A01A72}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose\docker-compose.dcproj", "{DEADBEEF-DEAD-BEEF-DEAD-BEEFDEADBEEF}"
 EndProject
