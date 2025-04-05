@@ -1,0 +1,45 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Upload Profile Picture API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/user/profile-picture": {
+      "post": {
+        "summary": "Upload a user's profile picture",
+        "description": "Uploads a profile picture for the authenticated user.",
+        "tags": [ "User" ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The profile picture file to upload."
+                  }
+                },
+                "required": [ "file" ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload successful"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  }
+}
