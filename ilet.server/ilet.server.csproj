@@ -49,4 +49,9 @@
 		<NoWarn>$(NoWarn);1591</NoWarn>
 		<DockerfileContext>.</DockerfileContext>
 	</PropertyGroup>
+	<ItemGroup>
+		<None Update="Properties\uploadProfilePic.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>

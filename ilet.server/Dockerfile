@@ -27,5 +27,4 @@ RUN dotnet publish "./ilet.server.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ilet.server/Properties/uploadProfilePic.json ./Properties/uploadProfilePic.json
 ENTRYPOINT ["dotnet", "ilet.server.dll"]
