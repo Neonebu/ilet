@@ -1,6 +1,6 @@
 services:
   iletserver:
-    container_name: ilet.server
+    container_name: ilet.Server
     build:
       context: ../ilet.server
       dockerfile: Dockerfile
