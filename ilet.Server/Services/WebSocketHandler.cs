@@ -1,10 +1,10 @@
-﻿using ilet.Server.Models;
+﻿using ilet.server.Models;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
-namespace ilet.Server.Services
+namespace ilet.server.Services
 {
     public static class WebSocketHandler
     {

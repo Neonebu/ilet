@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IletApi.Services;
-using ilet.Server.Models;
-using ilet.Server.Interfaces;
+using ilet.server.Models;
+using ilet.server.Interfaces;
 using System.Security.Claims;
 using AutoMapper;
-using ilet.Server.Dtos;
+using ilet.server.Dtos;
 using System.IdentityModel.Tokens.Jwt;
 using Swashbuckle.AspNetCore.Annotations;
 

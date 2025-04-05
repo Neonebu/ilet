@@ -1,15 +1,15 @@
-﻿using ilet.Server.Interfaces;
-using ilet.Server.Models;
+﻿using ilet.server.Interfaces;
+using ilet.server.Models;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using ilet.Server.Dtos;
+using ilet.server.Dtos;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
-using ilet.Server.Services;
+using ilet.server.Services;
 
 namespace IletApi.Services
 {

@@ -1,4 +1,4 @@
-﻿namespace ilet.Server.Helpers
+﻿namespace ilet.server.Helpers
 {
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;

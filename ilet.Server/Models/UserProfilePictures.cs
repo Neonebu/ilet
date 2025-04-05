@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ilet.Server.Models;
+namespace ilet.server.Models;
 
 public partial class UserProfilePictures
 {

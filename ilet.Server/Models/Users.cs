@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ilet.Server.Models;
+namespace ilet.server.Models;
 
 public partial class Users
 {

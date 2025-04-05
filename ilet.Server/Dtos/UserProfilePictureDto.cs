@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ilet.Server.Dtos
+namespace ilet.server.Dtos
 {
     public class UserProfilePictureDto
     {

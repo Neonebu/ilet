@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ilet.Server.Helpers
+namespace ilet.server.Helpers
 {
     public class FormFileOperationFilter : IOperationFilter
     {

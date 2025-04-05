@@ -1,4 +1,4 @@
-﻿namespace ilet.Server.Helpers
+﻿namespace ilet.server.Helpers
 {
     using Microsoft.OpenApi.Models;
     using Microsoft.OpenApi.Readers;

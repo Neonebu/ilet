@@ -1,7 +1,7 @@
-﻿using ilet.Server.Dtos;
-using ilet.Server.Models;
+﻿using ilet.server.Dtos;
+using ilet.server.Models;
 
-namespace ilet.Server.Interfaces
+namespace ilet.server.Interfaces
 {
     public interface IUsersService
     {

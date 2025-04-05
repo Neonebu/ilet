@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using ilet.Server.Dtos;
-using ilet.Server.Models;
+using ilet.server.Dtos;
+using ilet.server.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-namespace ilet.Server.Mapper
+namespace ilet.server.Mapper
 {
    public class UserProfile : Profile
     {

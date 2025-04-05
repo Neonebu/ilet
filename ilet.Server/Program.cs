@@ -1,13 +1,13 @@
-﻿using ilet.Server.Context;
-using ilet.Server.Interfaces;
+﻿using ilet.server.Context;
+using ilet.server.Interfaces;
 using IletApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IletApi.Repo;
-using ilet.Server.Services;
-using ilet.Server.Helpers;
+using ilet.server.Services;
+using ilet.server.Helpers;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -63,7 +63,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     // Bu varsa zaten tekrar ekleme
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "ilet.Server", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "ilet.server", Version = "v1" });
     options.EnableAnnotations();
     var uploadDocPath = Path.Combine(AppContext.BaseDirectory, "Properties", "uploadProfilePic.json");
     options.IncludeExternalSwaggerDoc(uploadDocPath);
@@ -110,7 +110,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ilet.Server v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ilet.server v1");
         c.RoutePrefix = string.Empty; // Swagger ana dizinde açılsın
     });
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using ilet.Server.Models;
+using ilet.server.Models;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace ilet.Server.Context;
+namespace ilet.server.Context;
 
 public partial class AppDbContext : DbContext
 {

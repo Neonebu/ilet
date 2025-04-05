@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ilet.Server.Dtos
+namespace ilet.server.Dtos
 {
     public class CreateUserRequestDto
     {

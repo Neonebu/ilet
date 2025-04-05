@@ -1,4 +1,4 @@
-﻿namespace ilet.Server.Dtos
+﻿namespace ilet.server.Dtos
 {
     public class LoginRequestDto
     {

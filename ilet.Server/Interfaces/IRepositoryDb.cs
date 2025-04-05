@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace ilet.Server.Interfaces
+namespace ilet.server.Interfaces
 {
     public interface IRepositoryDb<T> where T : class
     {

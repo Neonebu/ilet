@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ilet.Server.Context;
-using ilet.Server.Interfaces;
+using ilet.server.Context;
+using ilet.server.Interfaces;
 using System.Linq.Expressions;
 
 namespace IletApi.Repo
