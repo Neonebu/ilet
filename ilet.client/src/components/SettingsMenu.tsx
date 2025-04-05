@@ -23,7 +23,6 @@ export default function SettingsMenu({ selectedLang, handleLangChange }: Props) 
                 </button>
                 <div className="settings-menu">
                     <LogoutButton />
-                    <div className="menu-item">Theme</div>
                     <div className="menu-item">
                         <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
                             {t("language")}

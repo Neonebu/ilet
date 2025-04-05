@@ -47,5 +47,6 @@
 		<RuntimeIdentifier>linux-x64</RuntimeIdentifier>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		<DockerfileContext>.</DockerfileContext>
 	</PropertyGroup>
 </Project>

@@ -135,6 +135,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.Use(async (context, next) =>
 {
+    if (context.Request.Method == "OPTIONS")
+    {
+        await next();
+        return;
+    }
     if (context.Request.Path.StartsWithSegments("/ws") && context.WebSockets.IsWebSocketRequest)
     {
         Console.WriteLine("🔌 WS isteği geldi.");
