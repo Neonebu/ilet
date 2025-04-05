@@ -120,7 +120,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseRouting();
-app.UseCors(); // DefaultPolicy çalışır
+app.UseCors(policy => policy
+    .WithOrigins(
+        "https://localhost:54550",
+        "https://ilet.onrender.com",
+        "https://iletapi.onrender.com",
+        "http://localhost:5173"
+    )
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials());
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.Use(async (context, next) =>
