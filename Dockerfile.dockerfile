@@ -15,7 +15,7 @@ RUN apt-get update && \
 WORKDIR /src
 
 # .NET backend project restore
-COPY ["ilet.Server/ilet.Server.csproj", "ilet.Server/"]
+COPY ["ilet.server/ilet.server.csproj", "ilet.Server/"]
 COPY ["ilet.sln", "./"]
 RUN dotnet restore "./ilet.Server/ilet.Server.csproj"
 
@@ -27,7 +27,7 @@ RUN npm install && npm run build
 # Backend Build
 WORKDIR /src
 COPY . .
-WORKDIR "/src/ilet.Server"
+WORKDIR "/src/ilet.server"
 RUN dotnet publish "./ilet.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final Image
@@ -35,4 +35,4 @@ FROM base AS final
 WORKDIR /app
 
 COPY --from=build-env /app/publish .
-ENTRYPOINT ["dotnet", "ilet.Server.dll"]
+ENTRYPOINT ["dotnet", "ilet.server.dll"]
