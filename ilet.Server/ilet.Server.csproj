@@ -38,7 +38,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Migrations\" />
-		<Compile Include="Helpers\SwaggerGenOptionsExtensions.cs" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Include="Properties\uploadProfilePic.json" />
