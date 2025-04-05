@@ -8,10 +8,8 @@ using System.Text;
 using IletApi.Repo;
 using ilet.Server.Services;
 using ilet.Server.Helpers;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Options;
 using System.Reflection;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
