@@ -8,5 +8,9 @@
   "World": "World",
   "Worlds": "Worlds",
   "type_message": "Type a personal message",
-  "language": "Language"
+  "language": "Language",
+  "login_button": "Sign In/Login",
+  "Mail": "Mail",
+  "Add Friend": "Add Friend",
+  "Remove Friend": "Remove Friend"
 }

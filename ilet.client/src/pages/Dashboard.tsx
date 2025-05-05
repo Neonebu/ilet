@@ -8,6 +8,7 @@ import '../styles/dashboard.css';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import config from "../config";
+import Friends from "../components/Friends";
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
@@ -15,23 +16,6 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
-    //const token = localStorage.getItem("token") ?? "";
-    const handleLangChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newLang = e.target.value;
-        i18n.changeLanguage(newLang);
-        setSelectedLang(newLang);
-        localStorage.setItem('lang', newLang);
-        // backend'e kaydet:
-        const token = localStorage.getItem('token');
-        await fetch(`${config.API_URL}user/update`, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ language: newLang })
-        });
-    };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -85,12 +69,8 @@ export default function Dashboard() {
         <div className="dashboard-container">
             <div className="top-bar">
                 <SettingsMenu
-                    key={selectedLang}
-                    selectedLang={selectedLang}
-                    handleLangChange={handleLangChange}
                 />
             </div>
-
             <div className="content-panel">
                 {userId !== null && (
                     <ProfileSection
@@ -100,11 +80,13 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
+                <Friends /> {/* Yeni Friends bileşeni */}
                 <div className="groups-bar">
-                    <GroupsSection/>
+                    <GroupsSection />
                 </div>
             </div>
         </div>
     );
+
 
 }

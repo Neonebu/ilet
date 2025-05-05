@@ -7,9 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using ilet.server.Dtos;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
 using ilet.server.Services;
+using ilet.server.Helpers;
 
 namespace IletApi.Services
 {
@@ -42,7 +42,7 @@ namespace IletApi.Services
             var user = new Users
             {
                 Email = input.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(input.Password),
+                Password = AesEncryptionHelper.Encrypt(input.Password), // AES Şifreleme burada
                 Nickname = input.Email, // İlk nickname olarak email atanabilir
                 Status = "Online",  // Varsayılan bir durum
                 Language = input.Language // Eğer DTO'da varsa
@@ -60,28 +60,29 @@ namespace IletApi.Services
             if (user == null)
                 throw new Exception("Kullanıcı bulunamadı.");
 
-            var isPasswordValid = BCrypt.Net.BCrypt.Verify(input.Password, user.Password);
+            // AES çözme işlemi
+            var decryptedPassword = AesEncryptionHelper.Decrypt(user.Password);
+
+            // Şifre doğrulama
+            var isPasswordValid = decryptedPassword == input.Password;
             if (!isPasswordValid)
                 throw new Exception("Şifre hatalı.");
 
             var onlineUsers = _cache.Get<HashSet<int>>("online_users") ?? new HashSet<int>();
             var offlineUsers = _cache.Get<HashSet<int>>("offline_users") ?? new HashSet<int>();
 
-            // Kullanıcıyı online listesine ekle
             onlineUsers.Add(user.Id);
-
-            // Offline listesinden çıkar
             offlineUsers.Remove(user.Id);
 
-            // Cache güncelle
             _cache.Set("online_users", onlineUsers);
             _cache.Set("offline_users", offlineUsers);
 
-            // WebSocket üzerinden tüm clientlara status güncellemesini gönder
-            await WebSocketHandler.BroadcastStatusUpdate(user.Id,user.Nickname,user.Status,user.Email);          
+            await WebSocketHandler.BroadcastStatusUpdate(user.Id, user.Nickname, user.Status, user.Email);
+
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
+
         public async Task<UserDto?> GetUser(int userId)
         {
             var user = await _userRepo.GetByIdAsync(userId);

@@ -2,11 +2,15 @@
 import logo from '../assets/msn-logo.png';
 import { useNavigate } from 'react-router-dom';
 import config from "../config";
+import { useTranslation } from "react-i18next";
+
 export default function Home() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // 👈 Şifre gösterme durumu
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         const savedEmail = localStorage.getItem('remembered_email');
@@ -24,38 +28,32 @@ export default function Home() {
             return;
         }
         try {
-            // İlk olarak login deniyoruz
             const loginResponse = await fetch(`${config.API_URL}user/login`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
-                credentials: 'include', 
+                credentials: 'include',
             });
 
             if (loginResponse.ok) {
                 const data = await loginResponse.json();
                 localStorage.setItem('userId', data.id);
-                localStorage.setItem('status', data.status); // 👈 status kaydedildi
+                localStorage.setItem('status', data.status);
                 handleSuccess(data);
             } else {
                 const data = await loginResponse.json();
                 if (data.message === "Kullanıcı bulunamadı.") {
-                    // Login başarısızsa signup deniyoruz
                     const signupResponse = await fetch(`${config.API_URL}user/signup`, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password }),
-                        credentials: 'include', 
+                        credentials: 'include',
                     });
 
                     if (signupResponse.ok) {
                         const signupData = await signupResponse.json();
                         localStorage.setItem('userId', signupData.id);
-                        localStorage.setItem('status', signupData.status); // 👈 status kaydedildi
+                        localStorage.setItem('status', signupData.status);
                         handleSuccess(signupData);
                     } else {
                         const signupError = await signupResponse.json();
@@ -69,8 +67,6 @@ export default function Home() {
             alert('Network error: ' + error.message);
         }
     };
-
-
 
     const handleSuccess = (data: any) => {
         const token = data.Token || data.token;
@@ -86,7 +82,11 @@ export default function Home() {
         localStorage.setItem('nickname', user.nickname);
         localStorage.setItem('status', user.status || '');
         localStorage.setItem('profilePictureUrl', user.profilePictureUrl || logo);
-
+        localStorage.setItem('email', user.email);
+        if (user.language) {
+            i18n.changeLanguage(user.language);
+            localStorage.setItem("language", user.language);
+        }
         if (remember) {
             localStorage.setItem('remembered_email', email);
             localStorage.setItem('remembered_password', password);
@@ -95,7 +95,6 @@ export default function Home() {
             localStorage.removeItem('remembered_password');
         }
 
-/*        console.log("Home.tsx login kısmı"+ message);*/
         navigate('/dashboard');
     };
 
@@ -130,23 +129,46 @@ export default function Home() {
                         width: '100%',
                         marginBottom: '0.5rem',
                         padding: '0.5rem',
+                        paddingRight: '2.5rem', // ✅ EKLENDİ (password ile eşit olsun)
                         borderRadius: '4px',
-                        border: '1px solid #ccc'
+                        border: '1px solid #ccc',
+                        boxSizing: 'border-box' // ✅ EKLENDİ
                     }}
                 />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{
-                        width: '100%',
-                        marginBottom: '0.5rem',
-                        padding: '0.5rem',
-                        borderRadius: '4px',
-                        border: '1px solid #ccc'
-                    }}
-                />
+                <div style={{
+                    position: 'relative',
+                    marginBottom: '0.5rem',
+                    width: '100%'
+                }}>
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '0.5rem',
+                            paddingRight: '2.5rem', // 👍 yeterli sağ boşluk, px değil rem kullandım daha temiz
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                            boxSizing: 'border-box' // ✅ en önemli düzeltme, padding genişliğe dahil olur
+                        }}
+                    />
+                    <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                            position: "absolute",
+                            right: "0.75rem", // rem kullandım, px değil → responsive ve temiz
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            cursor: "pointer",
+                            userSelect: "none",
+                            fontSize: "18px"
+                        }}
+                    >
+                        {showPassword ? "🙈" : "👁️"}
+                    </span>
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <input
                         type="checkbox"
@@ -169,7 +191,7 @@ export default function Home() {
                     }}
                     onClick={handleLoginOrSignup}
                 >
-                    Sign In/Login
+                    {t("login_button")}
                 </button>
             </div>
         </div>

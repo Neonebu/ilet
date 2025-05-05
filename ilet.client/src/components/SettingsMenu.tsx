@@ -1,17 +1,36 @@
 ﻿import { useState, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import LogoutButton from './LogoutButton';
+import config from "../config"; // API_URL içeriyor olmalı
 import '../styles/settingsMenu.css';
-interface Props {
-    selectedLang: string;
-    handleLangChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-}
 
-export default function SettingsMenu({ selectedLang, handleLangChange }: Props) {
-    const { t } = useTranslation();
+export default function SettingsMenu() {
+    const { t, i18n } = useTranslation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const selectedLang = i18n.language;
 
+    const handleLangChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newLang = e.target.value;
+        i18n.changeLanguage(newLang);
+        localStorage.setItem("language", newLang);
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+        const email = localStorage.getItem("email"); // veya girişte gelen user.Emai
+        if (token && userId) {
+            await fetch(`${config.API_URL}user/update`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    email,
+                    language: newLang
+                })
+            });
+        }
+    };
     return (
         <div className="top-bar-content">
             <div ref={dropdownRef} className={`settings-dropdown ${isDropdownOpen ? "open" : ""}`}>

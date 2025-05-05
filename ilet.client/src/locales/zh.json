@@ -8,5 +8,9 @@
   "World": "世界",
   "Worlds": "世界列表",
   "type_message": "输入一条个人消息",
-  "language": "语言"
+  "language": "语言",
+  "login_button": "登录 / 注册",
+  "Mail": "邮件",
+  "Add Friend": "添加好友",
+  "Remove Friend": "删除好友"
 }

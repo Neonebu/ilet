@@ -13,7 +13,7 @@
 }
 
 .top-bar {
-    background-color: #1c3e75;
+    background-color: #007bff;
     height: 40px;
     display: flex;
     align-items: flex-start;
@@ -35,3 +35,5 @@
     flex-direction: column;
     z-index: 1;
 }
+
+

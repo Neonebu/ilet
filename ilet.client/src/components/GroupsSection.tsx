@@ -47,7 +47,6 @@ const GroupsSection = () => {
             });
         }
     }, []);
-
     return (
         <div>
             <span className="group-label"><u>Online ({onlineUsers.length})</u></span>

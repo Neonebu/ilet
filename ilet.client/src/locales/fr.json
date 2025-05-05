@@ -8,5 +8,9 @@
   "World": "Monde",
   "Worlds": "Mondes",
   "type_message": "Écrivez un message personnel",
-  "language": "Langue"
+  "language": "Langue",
+  "login_button": "Se connecter / S'inscrire",
+  "Mail": "Courrier",
+  "Add Friend": "Ajouter un ami",
+  "Remove Friend": "Supprimer un ami"
 }

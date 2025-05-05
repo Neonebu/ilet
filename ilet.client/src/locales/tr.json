@@ -8,5 +8,9 @@
   "World": "Dünya",
   "Worlds": "Dünyalar",
   "type_message": "Kişisel bir mesaj yazın",
-  "language": "Dil"
+  "language": "Dil",
+  "login_button": "Giriş Yap",
+  "Mail": "E-posta",
+  "Add Friend": "Arkadaş Ekle",
+  "Remove Friend": "Arkadaşı Sil"
 }
