@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import { useState } from "react";
 import "../styles/friends.css";
 import { useTranslation } from "react-i18next";
 
@@ -6,7 +6,6 @@ const Friends = () => {
     const [showModal, setShowModal] = useState(false);
     const [email, setEmail] = useState("");
     const { t } = useTranslation();
-    const handleAddClick = () => setShowModal(true);
     const handleCancel = () => {
         setEmail("");
         setShowModal(false);
