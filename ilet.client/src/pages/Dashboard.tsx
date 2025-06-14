@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import config from "../config";
 import Friends from "../components/Friends";
+import FriendRequestsSection from "../components/FriendRequestsSection"; // yolunu doğru ayarla
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
@@ -16,6 +17,41 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
+    const [requests, setRequests] = useState<FriendRequestDto[]>([]);
+    type FriendRequestDto = {
+        id: number;
+        requesterNickname: string;
+    };
+    const handleRespond = async (id: number, accept: boolean) => {
+        const token = localStorage.getItem("token");
+
+        await fetch(`${config.API_URL}friends/respond`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ friendshipId: id, accept }),
+        });
+
+        // İsteği listeden çıkar
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+    };
+
+    useEffect(() => {
+        const fetchRequests = async () => {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${config.API_URL}friends/requests`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            setRequests(data);
+        };
+
+        fetchRequests();
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -80,6 +116,7 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
+                <FriendRequestsSection requests={requests} onRespond={handleRespond} />
                 <Friends /> {/* Yeni Friends bileşeni */}
                 <div className="groups-bar">
                     <GroupsSection />

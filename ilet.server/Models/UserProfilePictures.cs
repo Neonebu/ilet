@@ -8,7 +8,7 @@ public partial class UserProfilePictures
 {
     public int Id { get; set; }
     public int UserId { get; set; }
-    public byte[] Image { get; set; } = null!;
+    public byte[]? Image { get; set; } = null!;
     public DateTime? CreatedAt { get; set; }
     [Column("content_type")] // Veritabanındaki isimle eşleştir
     public required string ContentType { get; set; } // ekle

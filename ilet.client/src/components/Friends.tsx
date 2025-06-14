@@ -1,16 +1,23 @@
 ﻿import { useState } from "react";
 import "../styles/friends.css";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from 'react-router-dom';
 
 const Friends = () => {
     const [showModal, setShowModal] = useState(false);
     const [email, setEmail] = useState("");
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const handleCancel = () => {
         setEmail("");
         setShowModal(false);
     };
-
+    const handleRedirectToAddFriend = () => {
+        navigate("/add-friend");
+    };
+    const handleRedirectToRemoveFriend = () => {
+        navigate("/remove-friend");
+    };
     const handleAddFriend = () => {
         console.log("Adding friend:", email);
         // WebSocket veya API call burada olabilir
@@ -20,11 +27,15 @@ const Friends = () => {
 
     return (
         <>
-            <div className="section-bar">
+            <div className="section-bar"> 
                 <div className="section-title">{t("Mail")}</div>
                 <div className="friend-actions">
-                    <a href="/add-friend"target="_blank"rel="noopener noreferrer"className="friend-btn">➕ {t("Add Friend")}</a>
-                    <button className="friend-btn">❌ {t("Remove Friend")}</button>
+                    <button className="friend-btn" onClick={handleRedirectToAddFriend}>
+                        ➕ {t("Add Friend")}
+                    </button>
+                    <button className="friend-btn" onClick={handleRedirectToRemoveFriend}>
+                        ❌ {t("Remove Friend")}
+                    </button>
                 </div>
             </div>  
             {showModal && (

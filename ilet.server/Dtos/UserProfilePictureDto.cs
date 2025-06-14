@@ -6,11 +6,13 @@ namespace ilet.server.Dtos
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public required byte[] Image { get; set; }
-        public required string ContentType { get; set; } // ekle
+        public byte[] Image { get; set; } = null!;
+        public string ContentType { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+    }
+    public class UploadProfilePictureDto
+    {
         [FromForm(Name = "profilePicture")]
         public required IFormFile File { get; set; }
     }
-
 }

@@ -59,6 +59,8 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IUsersService, UserService>();
 builder.Services.AddScoped(typeof(IRepositoryDb<>), typeof(RepositoryDb<>));
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IFriendService, FriendService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

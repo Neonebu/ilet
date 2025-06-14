@@ -12,5 +12,8 @@
   "login_button": "Sign In/Login",
   "Mail": "Mail",
   "Add Friend": "Add Friend",
-  "Remove Friend": "Remove Friend"
+  "Remove Friend": "Remove Friend",
+  "forgot_password": "Şifremi unuttum?",
+  "add_friend_title": "Add Friend",
+  "send_friend_request": "Send Friend Request"
 }

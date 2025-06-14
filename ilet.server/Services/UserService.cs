@@ -19,12 +19,14 @@ namespace IletApi.Services
         private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePictures> _ppRepo;
         private readonly IMapper _mapper;
-        public UserService(IRepositoryDb<Users> userRepo, IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache)
+        private readonly IEmailService _emailService;
+        public UserService(IRepositoryDb<Users> userRepo, IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache, IEmailService emailService)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _ppRepo = ppRepo;
             _cache = cache;
+            _emailService = emailService;
         }
         public async Task<List<Users>> GetAll()
         {
@@ -111,13 +113,13 @@ namespace IletApi.Services
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public async Task UploadProfilePicture(UserProfilePictureDto dto)
+        public async Task UploadProfilePictureAsync(UploadProfilePictureDto dto, int userId)
         {
             using var ms = new MemoryStream();
             await dto.File.CopyToAsync(ms);
             var bytes = ms.ToArray();
 
-            var existing = await _ppRepo.FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+            var existing = await _ppRepo.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (existing != null)
             {
@@ -130,7 +132,7 @@ namespace IletApi.Services
             {
                 await _ppRepo.AddAsync(new UserProfilePictures
                 {
-                    UserId = dto.UserId,
+                    UserId = userId,
                     Image = bytes,
                     CreatedAt = DateTime.UtcNow,
                     ContentType = dto.File.ContentType
@@ -199,6 +201,19 @@ namespace IletApi.Services
             _cache.Set("online_users", onlineUsers);
             _cache.Set("offline_users", offlineUsers);
             await WebSocketHandler.BroadcastStatusUpdate(userId, nickname, safeStatus, user.Email);
+        }
+
+        public async Task SendPasswordReminderEmailAsync(string email)
+        {
+            var user = await _userRepo.Query().FirstOrDefaultAsync(x => x.Email == email);
+            if (user != null)
+            {
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Şifre Hatırlatma",
+                    $"Şifreniz: {user.Password}"
+                );
+            }
         }
     }
 }

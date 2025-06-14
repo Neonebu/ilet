@@ -6,23 +6,22 @@ using System.Security.Claims;
 using AutoMapper;
 using ilet.server.Dtos;
 
-namespace IletApi.Controllers
+namespace ilet.server.Controllers
 {
     [ApiController]
     [Route("user")]
-    public class UserController : ControllerBase
+    public class UserController(
+    IUsersService userService,
+    IWebHostEnvironment env,
+    IMapper mapper,
+    ILogger<UserController> logger
+) : ControllerBase
     {
-        private readonly IUsersService _userService;
-        private readonly IWebHostEnvironment _env;
-        private readonly IMapper _mapper;
-        private readonly ILogger<UserController> _logger;
-        public UserController(IUsersService userService, IWebHostEnvironment env,IMapper mapper, ILogger<UserController> logger)
-        {
-            _userService = userService;
-            _env = env;
-            _mapper = mapper;
-            _logger = logger;
-        }
+        private readonly IUsersService _userService = userService; 
+        private readonly IWebHostEnvironment _env = env;
+        private readonly IMapper _mapper = mapper;
+        private readonly ILogger<UserController> _logger = logger;
+
         [HttpGet("index")]
         public IActionResult Index()
         {
@@ -47,7 +46,7 @@ namespace IletApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return BadRequest(new { ex.Message });
             }
         }
         [AllowAnonymous]
@@ -91,18 +90,17 @@ namespace IletApi.Controllers
         [HttpPost("uploadProfilePic")]
         [Authorize]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadProfilePic([FromForm] UserProfilePictureDto dto)
+        public async Task<IActionResult> UploadProfilePic([FromForm] UploadProfilePictureDto dto)
         {
             if (dto.File == null || dto.File.Length == 0)
                 return BadRequest(new { message = "Dosya seçilmedi." });
 
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdStr, out var userId))
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
                 return Unauthorized();
 
             try
             {
-                await _userService.UploadProfilePicture(dto);
+                await _userService.UploadProfilePictureAsync(dto, userId);
                 return Ok(new { message = "Yükleme başarılı." });
             }
             catch (Exception ex)
@@ -111,6 +109,7 @@ namespace IletApi.Controllers
                 return StatusCode(500, new { message = "Sunucu hatası", error = ex.Message });
             }
         }
+
         [HttpPut("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
@@ -174,6 +173,11 @@ namespace IletApi.Controllers
             await _userService.ChangeStatus(userDto);
             return Ok(new { message = "Status updated" });
         }
-
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto input)
+        {
+            await _userService.SendPasswordReminderEmailAsync(input.Email);
+            return Ok(new { message = "Eğer böyle bir hesap varsa şifre gönderildi." });
+        }
     }
 }

@@ -97,7 +97,25 @@ export default function Home() {
 
         navigate('/dashboard');
     };
+    //const handleForgotPassword = async () => {
+    //    if (!email) {
+    //        alert("Lütfen e-mail adresinizi girin.");
+    //        return;
+    //    }
 
+    //    try {
+    //        const res = await fetch(`${config.API_URL}user/forgot-password`, {
+    //            method: "POST",
+    //            headers: { "Content-Type": "application/json" },
+    //            body: JSON.stringify({ email })
+    //        });
+
+    //        const data = await res.json();
+    //        alert(data.message || "İşlem tamamlandı.");
+    //    } catch (err) {
+    //        alert("Bir hata oluştu.");
+    //    }
+    //};
     return (
         <div style={{
             minHeight: '100vh',
@@ -193,6 +211,11 @@ export default function Home() {
                 >
                     {t("login_button")}
                 </button>
+                {/*<p style={{ marginTop: '1rem', fontSize: '13px' }}>*/}
+                {/*    <a href="#" onClick={handleForgotPassword} style={{ color: '#007bff', textDecoration: 'none' }}>*/}
+                {/*        {t("forgot_password")}*/}
+                {/*    </a>*/}
+                {/*</p>*/}
             </div>
         </div>
     );

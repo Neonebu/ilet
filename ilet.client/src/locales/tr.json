@@ -10,7 +10,10 @@
   "type_message": "Kişisel bir mesaj yazın",
   "language": "Dil",
   "login_button": "Giriş Yap",
+  "forgot_password": "Şifremi unuttum?",
   "Mail": "E-posta",
   "Add Friend": "Arkadaş Ekle",
-  "Remove Friend": "Arkadaşı Sil"
+  "Remove Friend": "Arkadaşı Sil",
+  "add_friend_title": "Arkadaş Ekle",
+  "send_friend_request": "Arkadaşlık İsteği Gönder"
 }

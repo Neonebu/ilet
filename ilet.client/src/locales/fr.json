@@ -12,5 +12,9 @@
   "login_button": "Se connecter / S'inscrire",
   "Mail": "Courrier",
   "Add Friend": "Ajouter un ami",
-  "Remove Friend": "Supprimer un ami"
+  "Remove Friend": "Supprimer un ami",
+  "forgot_password": "Mot de passe oublié ?",
+  "add_friend_title": "Ajouter un ami",
+  "send_friend_request": "Envoyer une demande d'ami"
+
 }

@@ -12,5 +12,8 @@
   "login_button": "登录 / 注册",
   "Mail": "邮件",
   "Add Friend": "添加好友",
-  "Remove Friend": "删除好友"
+  "Remove Friend": "删除好友",
+  "forgot_password": "忘记密码？",
+  "add_friend_title": "添加好友",
+  "send_friend_request": "发送好友请求"
 }
