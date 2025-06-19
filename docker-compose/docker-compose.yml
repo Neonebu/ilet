@@ -1,18 +1,13 @@
+﻿
 services:
   iletserver:
     container_name: ilet.Server
     build:
-      context: ../ilet.server
-      dockerfile: Dockerfile
+      context: ../       # context dizini: içinde ilet.sln, ilet.server/, ilet.client/ var
+      dockerfile: ilet.server/Dockerfile
     ports:
       - "54550:54550"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-
-  iletclient:
-    container_name: ilet.Client
-    build:
-      context: ../ilet.client
-      dockerfile: Dockerfile
-    ports:
-      - "5173:80"
+      - ASPNETCORE_URLS=http://+:54550
+    working_dir: /app

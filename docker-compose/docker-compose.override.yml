@@ -1,10 +1,9 @@
-services:
+﻿services:
   iletserver:
+    volumes:
+      - ../:/app
+    working_dir: /app
+    command: dotnet watch --project /app/ilet.server/ilet.server.csproj run --no-launch-profile
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:54550
-    ports:
-      - "54550:54550"
-
-  iletclient:
-    ports:
-      - "5173:80"

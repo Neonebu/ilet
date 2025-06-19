@@ -15,5 +15,12 @@
   "Add Friend": "Arkadaş Ekle",
   "Remove Friend": "Arkadaşı Sil",
   "add_friend_title": "Arkadaş Ekle",
-  "send_friend_request": "Arkadaşlık İsteği Gönder"
+  "send_friend_request": "Arkadaşlık İsteği Gönder",
+  "remove_friend_title": "Arkadaşı Sil",
+  "remove_friend_button": "Sil",
+  "remove_friend_success": "Arkadaş silindi.",
+  "remove_friend_error": "Bir hata oluştu.",
+  "remove_friend_network_error": "Ağ hatası.",
+  "remove_friend_empty_error": "Lütfen bir e-posta adresi girin.",
+  "remove_friend_invalid_email": "Lütfen geçerli bir e-posta adresi girin."
 }

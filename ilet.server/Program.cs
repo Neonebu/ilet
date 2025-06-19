@@ -107,7 +107,7 @@ if (!Directory.Exists(uploadsPath))
 {
     Directory.CreateDirectory(uploadsPath);
 }
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -144,25 +144,25 @@ app.Use(async (context, next) =>
     }
     if (context.Request.Path.StartsWithSegments("/ws") && context.WebSockets.IsWebSocketRequest)
     {
-        Console.WriteLine("🔌 WS isteği geldi.");
+        //Console.WriteLine("🔌 WS isteği geldi.");
 
         var token = context.Request.Query["token"].ToString();
-        Console.WriteLine("🔐 Gelen token: " + token);
+        //Console.WriteLine("🔐 Gelen token: " + token);
 
         if (string.IsNullOrWhiteSpace(token))
         {
-            Console.WriteLine("❌ Token boş.");
+            //Console.WriteLine("❌ Token boş.");
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Token missing in query");
             return;
         }
 
         var userId = JwtTokenHelper.ExtractUserId(token);
-        Console.WriteLine("👤 Çekilen userId: " + userId);
+        //Console.WriteLine("👤 Çekilen userId: " + userId);
 
         if (userId == null)
         {
-            Console.WriteLine("❌ Token'dan userId çekilemedi.");
+            //Console.WriteLine("❌ Token'dan userId çekilemedi.");
             context.Response.StatusCode = 401;
             return;
         }

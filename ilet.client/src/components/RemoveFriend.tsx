@@ -1,39 +1,55 @@
 ﻿import { useState } from "react";
 import config from "../config";
 import { useTranslation } from "react-i18next";
+import '../styles/addremovefriends.css';
 
 export default function RemoveFriend() {
     const { t } = useTranslation();
-    const [identifier, setIdentifier] = useState(""); // Email veya nickname
+    const [identifier, setIdentifier] = useState(""); // Email
     const [message, setMessage] = useState("");
 
     const handleRemoveFriend = async () => {
         setMessage("");
 
+        if (!identifier.trim()) {
+            alert(t("remove_friend_empty_error")); // 🌐 Çoklu dil desteği
+            return;
+        }
+
+        if (!identifier.includes("@")) {
+            alert(t("remove_friend_invalid_email")); // 🌐 Çoklu dil desteği
+            return;
+        }
+
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`${config.API_URL}friend/remove-by-identifier`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ identifier }),
-        });
-
-        const result = await res.json();
-        if (res.ok) {
-            setMessage("✅ Arkadaş silindi.");
-        } else {
-            setMessage("❌ " + (result.message || "Bir hata oluştu."));
+        try {
+            const res = await fetch(`${config.API_URL}friend/remove`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ email: identifier }),
+            });
+            const result = await res.json();
+            if (res.ok) {
+                setMessage("✅ " + t("remove_friend_success"));
+            } else {
+                setMessage("❌ " + (result.message || t("remove_friend_error")));
+            }
+        } catch (error) {
+            setMessage("❌ " + t("remove_friend_network_error"));
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center mt-16">
-            <h1 className="text-2xl font-bold mb-4">{t("remove_friend_title")}</h1>
+        <div className="remove-friend-container">
+            <h1 className="remove-title-bar">{t("remove_friend_title")}</h1>
             <input
-                type="text"
+                type="email"
+                name="remove-friend-email"
+                autoComplete="email" // 🌐 Tarayıcının tanıdığı keyword
                 className="border p-2 rounded w-72"
                 placeholder={t("Mail")}
                 value={identifier}

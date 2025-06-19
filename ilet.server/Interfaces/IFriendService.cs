@@ -7,6 +7,8 @@ namespace ilet.server.Interfaces
         Task AddFriendAsync(int requesterId, int addresseeId);
         Task<List<object>> GetFriendRequests(int userId);
         Task<string> RespondToFriendRequest(int userId, RespondFriendRequestDto dto);
-        Task<string> RemoveFriend(int userId, int friendId);
+
+        // Yeni: friendId veya identifier parametrelerinden biriyle silme
+        Task<string> RemoveFriend(int requesterId, string email); // ✅ Yeni hali sadece requesterId ve email alır
     }
 }

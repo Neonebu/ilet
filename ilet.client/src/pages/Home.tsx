@@ -21,8 +21,10 @@ export default function Home() {
             setRemember(true);
         }
     }, []);
-
     const handleLoginOrSignup = async () => {
+        console.log("Email:", email);
+        console.log("Password:", password);
+        console.log("Signup gönderilen veri:", JSON.stringify({ email, password }));
         if (!email || !password) {
             alert("Please fill all fields.");
             return;
@@ -42,6 +44,7 @@ export default function Home() {
                 handleSuccess(data);
             } else {
                 const data = await loginResponse.json();
+
                 if (data.message === "Kullanıcı bulunamadı.") {
                     const signupResponse = await fetch(`${config.API_URL}user/signup`, {
                         method: "POST",
@@ -51,10 +54,20 @@ export default function Home() {
                     });
 
                     if (signupResponse.ok) {
-                        const signupData = await signupResponse.json();
-                        localStorage.setItem('userId', signupData.id);
-                        localStorage.setItem('status', signupData.status);
-                        handleSuccess(signupData);
+                        // ✅ Otomatik login
+                        const loginAfterSignup = await fetch(`${config.API_URL}user/login`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email, password }),
+                            credentials: 'include',
+                        });
+
+                        if (loginAfterSignup.ok) {
+                            const loginData = await loginAfterSignup.json();
+                            handleSuccess(loginData);
+                        } else {
+                            alert("Signup başarılı ama login başarısız.");
+                        }
                     } else {
                         const signupError = await signupResponse.json();
                         alert(signupError.message || "Signup başarısız.");
@@ -67,7 +80,6 @@ export default function Home() {
             alert('Network error: ' + error.message);
         }
     };
-
     const handleSuccess = (data: any) => {
         const token = data.Token || data.token;
         const user = data.User || data.user;
@@ -97,25 +109,6 @@ export default function Home() {
 
         navigate('/dashboard');
     };
-    //const handleForgotPassword = async () => {
-    //    if (!email) {
-    //        alert("Lütfen e-mail adresinizi girin.");
-    //        return;
-    //    }
-
-    //    try {
-    //        const res = await fetch(`${config.API_URL}user/forgot-password`, {
-    //            method: "POST",
-    //            headers: { "Content-Type": "application/json" },
-    //            body: JSON.stringify({ email })
-    //        });
-
-    //        const data = await res.json();
-    //        alert(data.message || "İşlem tamamlandı.");
-    //    } catch (err) {
-    //        alert("Bir hata oluştu.");
-    //    }
-    //};
     return (
         <div style={{
             minHeight: '100vh',

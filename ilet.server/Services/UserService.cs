@@ -18,15 +18,17 @@ namespace IletApi.Services
         private readonly IMemoryCache _cache;
         private readonly IRepositoryDb<Users> _userRepo;
         private readonly IRepositoryDb<UserProfilePictures> _ppRepo;
+        private readonly IRepositoryDb<Userfriendship> _userFriendshipRepo;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
-        public UserService(IRepositoryDb<Users> userRepo, IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache, IEmailService emailService)
+        public UserService(IRepositoryDb<Users> userRepo, IMapper mapper, IRepositoryDb<UserProfilePictures> ppRepo, IMemoryCache cache, IEmailService emailService, IRepositoryDb<Userfriendship> userFriendshipRepo)
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _ppRepo = ppRepo;
             _cache = cache;
             _emailService = emailService;
+            _userFriendshipRepo = userFriendshipRepo;
         }
         public async Task<List<Users>> GetAll()
         {
@@ -53,6 +55,17 @@ namespace IletApi.Services
             await _userRepo.AddAsync(user);
             await _userRepo.SaveAsync();
 
+            // Add self-friendship (user is friends with themselves)
+            var selfFriendship = new Userfriendship
+            {
+                Requesterid = user.Id,
+                Addresseeid = user.Id,
+                Status = 1, // Status = 1 -> Accepted (you can define this as constant if needed)
+                Createdat = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+            };
+
+            await _userFriendshipRepo.AddAsync(selfFriendship);
+            await _userFriendshipRepo.SaveAsync();
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }

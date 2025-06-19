@@ -6,7 +6,7 @@ using System.Security.Claims;
 namespace ilet.server.Controllers
 {
     [ApiController]
-    [Route("friends")]
+    [Route("friend")]
     public class FriendController : ControllerBase
     {
         private readonly IFriendService _friendService;
@@ -15,7 +15,11 @@ namespace ilet.server.Controllers
         {
             _friendService = friendService;
         }
-
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("Test");
+        }
         [HttpPost("add")]
         public async Task<IActionResult> AddFriend([FromBody] AddFriendDto dto)
         {
@@ -55,18 +59,19 @@ namespace ilet.server.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
-
-        [HttpDelete("remove/{friendId}")]
-        public async Task<IActionResult> RemoveFriend(int friendId)
+        [HttpPost("remove")]
+        public async Task<IActionResult> RemoveFriend([FromBody] EmailDto dto)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest(new { message = "Email is required." });
             try
             {
-                var message = await _friendService.RemoveFriend(userId, friendId);
-                return Ok(new { message });
+                var result = await _friendService.RemoveFriend(userId, dto.Email);
+                return Ok(new { message = result });
             }
             catch (Exception ex)
             {

@@ -54,7 +54,7 @@ namespace ilet.server.Controllers
         public async Task<IActionResult> Signup([FromBody] CreateUserRequestDto input)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest("Modelstate valid değil "+ModelState);
 
             try
             {

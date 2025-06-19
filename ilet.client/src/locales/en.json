@@ -15,5 +15,12 @@
   "Remove Friend": "Remove Friend",
   "forgot_password": "Şifremi unuttum?",
   "add_friend_title": "Add Friend",
-  "send_friend_request": "Send Friend Request"
+  "send_friend_request": "Send Friend Request",
+  "remove_friend_title": "Remove Friend",
+  "remove_friend_button": "Remove",
+  "remove_friend_success": "Friend removed.",
+  "remove_friend_error": "An error occurred.",
+  "remove_friend_network_error": "Network error.",
+  "remove_friend_empty_error": "Please enter an email.",
+  "remove_friend_invalid_email": "Please enter a valid email address."
 }

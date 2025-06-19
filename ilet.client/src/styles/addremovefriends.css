@@ -1,0 +1,22 @@
+﻿/* custom.css */
+.remove-title-bar {
+    background-color: #2563eb;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: left;
+    padding: 1rem 2rem;
+    margin: 0;
+    box-shadow: inset 0 2px #2563eb, inset 0 -2px #2563eb;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+.remove-friend-container {
+    display: block !important; /* Flex'i geçersiz kılar */
+    padding: 0 !important;
+    margin: 0 !important;
+}
+

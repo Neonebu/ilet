@@ -15,6 +15,12 @@
   "Remove Friend": "Supprimer un ami",
   "forgot_password": "Mot de passe oublié ?",
   "add_friend_title": "Ajouter un ami",
-  "send_friend_request": "Envoyer une demande d'ami"
-
+  "send_friend_request": "Envoyer une demande d'ami",
+  "remove_friend_title": "Supprimer un ami",
+  "remove_friend_button": "Supprimer",
+  "remove_friend_success": "Ami supprimé.",
+  "remove_friend_error": "Une erreur s'est produite.",
+  "remove_friend_network_error": "Erreur réseau.",
+  "remove_friend_empty_error": "Veuillez saisir une adresse e-mail.",
+  "remove_friend_invalid_email": "Veuillez saisir une adresse e-mail valide."
 }

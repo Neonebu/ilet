@@ -1,5 +1,5 @@
+﻿# IDE ve editor klasörleri
 **/.classpath
-**/.dockerignore
 **/.env
 **/.git
 **/.gitignore
@@ -8,21 +8,27 @@
 **/.toolstarget
 **/.vs
 **/.vscode
-**/*.*proj.user
+
+# Proje artefact'ları
+**/*.csproj.user
 **/*.dbmdl
 **/*.jfm
-**/azds.yaml
 **/bin
-**/charts
-**/docker-compose*
-**/Dockerfile*
+**/obj
 **/node_modules
 **/npm-debug.log
-**/obj
+
+# Kubernetes / Azure Dev Spaces / Helm gibi şeyler varsa
+**/azds.yaml
+**/charts
 **/secrets.dev.yaml
 **/values.dev.yaml
+
+# Dokümantasyon
 LICENSE
 README.md
+
+# Git metadata'dan bazı parçaları içeri al
 !**/.gitignore
 !.git/HEAD
 !.git/config

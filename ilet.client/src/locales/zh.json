@@ -15,5 +15,12 @@
   "Remove Friend": "删除好友",
   "forgot_password": "忘记密码？",
   "add_friend_title": "添加好友",
-  "send_friend_request": "发送好友请求"
+  "send_friend_request": "发送好友请求",
+  "remove_friend_title": "移除好友",
+  "remove_friend_button": "移除",
+  "remove_friend_success": "好友已删除。",
+  "remove_friend_error": "发生错误。",
+  "remove_friend_network_error": "网络错误。",
+  "remove_friend_empty_error": "请输入电子邮件地址。",
+  "remove_friend_invalid_email": "请输入有效的电子邮件地址。"
 }
