@@ -3,7 +3,7 @@
     volumes:
       - ../:/app
     working_dir: /app
-    command: dotnet watch --project /app/ilet.server/ilet.server.csproj run --no-launch-profile
+    command: sh -c "dotnet restore /app/ilet.server/ilet.server.csproj && dotnet watch --project /app/ilet.server/ilet.server.csproj run --no-launch-profile"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:54550

@@ -1,6 +1,13 @@
 ﻿import { useEffect, useState } from "react";
 import { useWebSocket, StatusUpdatePayload } from "../context/WebSocketContext"; // kendi path'ine göre ayarla
 import '../styles/groupsSection.css';
+import config from "../config";
+type Friend = {
+    id: number;
+    nickname: string;
+    status: string;
+    email: string;
+};
 const GroupsSection = () => {
     const { onStatusUpdate } = useWebSocket(); // burada hook'u çekiyoruz
     const [onlineUsers, setOnlineUsers] = useState<{ id: number; nickname: string }[]>([]);
@@ -28,25 +35,37 @@ const GroupsSection = () => {
         // cleanup gerekiyorsa burada yapılabilir
     }, [onStatusUpdate]);
     useEffect(() => {
-        const userId = Number(localStorage.getItem("userId"));
-        const nickname = localStorage.getItem("nickname") ?? "";
-        const status = localStorage.getItem("status") ?? "offline";
-
-        const currentUser = { id: userId, nickname };
-        const isOnline = ["online", "busy", "away"].includes(status.toLowerCase());
-
-        if (isOnline) {
-            setOnlineUsers((prev) => {
-                if (!prev.some((u) => u.id === userId)) return [...prev, currentUser];
-                return prev;
+        const fetchFriends = async () => {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${config.API_URL}friend/all`, {
+                headers: { Authorization: `Bearer ${token}` }
             });
-        } else {
-            setOfflineUsers((prev) => {
-                if (!prev.some((u) => u.id === userId)) return [...prev, currentUser];
-                return prev;
-            });
-        }
+
+            if (!res.ok) {
+                console.error("Arkadaşlar alınamadı:", res.status);
+                return;
+            }
+
+            const data: Friend[] = await res.json();
+            const currentUserId = Number(localStorage.getItem("userId"));
+
+            // Kendini listeleme
+            const filtered = data.filter(u => u.id !== currentUserId);
+
+            const online = filtered.filter(f =>
+                ["online", "busy", "away"].includes((f.status || "").toLowerCase())
+            );
+            const offline = filtered.filter(f =>
+                !["online", "busy", "away"].includes((f.status || "").toLowerCase())
+            );
+
+            setOnlineUsers(online);
+            setOfflineUsers(offline);
+        };
+
+        fetchFriends();
     }, []);
+
     return (
         <div>
             <span className="group-label"><u>Online ({onlineUsers.length})</u></span>

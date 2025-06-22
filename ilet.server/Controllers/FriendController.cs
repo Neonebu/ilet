@@ -20,17 +20,22 @@ namespace ilet.server.Controllers
         {
             return Ok("Test");
         }
-        [HttpPost("add")]
+        [HttpPost("add-friend")]
         public async Task<IActionResult> AddFriend([FromBody] AddFriendDto dto)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var requesterId))
                 return Unauthorized();
-
-            await _friendService.AddFriendAsync(requesterId, dto.AddresseeId);
-            return Ok(new { message = "Arkadaşlık isteği gönderildi." });
+            try
+            {
+                await _friendService.AddFriendAsync(requesterId, dto.Identifier);
+                return Ok(new { message = "Friend request sent." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
-
         [HttpGet("requests")]
         public async Task<IActionResult> GetFriendRequests()
         {
@@ -41,7 +46,6 @@ namespace ilet.server.Controllers
             var result = await _friendService.GetFriendRequests(userId);
             return Ok(result);
         }
-
         [HttpPost("respond")]
         public async Task<IActionResult> RespondToFriendRequest([FromBody] RespondFriendRequestDto dto)
         {
@@ -78,5 +82,16 @@ namespace ilet.server.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllFriends()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized();
+
+            var friends = await _friendService.GetAllFriends(userId);
+            return Ok(friends);
+        }
+
     }
 }

@@ -15,25 +15,36 @@
             _userFriendshipRepo = userFriendshipRepo;
             _userRepo = userRepo;
         }
-
-        public async Task AddFriendAsync(int requesterId, int addresseeId)
+        public async Task AddFriendAsync(int requesterId, string identifier)
         {
-            var exists = await _userFriendshipRepo.AnyAsync(f => f.Requesterid == requesterId && f.Addresseeid == addresseeId);
+            var friendUser = await _userRepo.Query()
+                .FirstOrDefaultAsync(u => u.Email == identifier || u.Nickname == identifier);
 
-            if (!exists)
+            if (friendUser == null)
+                throw new Exception($"User with identifier '{identifier}' not found.");
+
+            if (string.IsNullOrWhiteSpace(identifier))
+                throw new Exception("Identifier (email or nickname) is required.");
+            // Allow self-add, but prevent duplicates
+            var alreadyExists = await _userFriendshipRepo.Query()
+                .AnyAsync(f =>
+                    f.Requesterid == requesterId &&
+                    f.Addresseeid == friendUser.Id);
+
+            if (alreadyExists)
+                throw new Exception("Friendship already exists or a request has already been sent.");
+
+            var friendship = new Userfriendship
             {
-                var friendship = new Userfriendship
-                {
-                    Requesterid = requesterId,
-                    Addresseeid = addresseeId,
-                    Status = 0 // Pending
-                };
+                Requesterid = requesterId,
+                Addresseeid = friendUser.Id,
+                Status = (requesterId == friendUser.Id) ? 1 : 0, // auto-accept if self
+                Createdat = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+            };
 
-                await _userFriendshipRepo.AddAsync(friendship);
-                await _userFriendshipRepo.SaveAsync();
-            }
+            await _userFriendshipRepo.AddAsync(friendship);
+            await _userFriendshipRepo.SaveAsync();
         }
-
         public async Task<List<object>> GetFriendRequests(int userId)
         {
             var requests = await _userFriendshipRepo
@@ -89,6 +100,31 @@
                 ? "Self-friendship removed."
                 : "Friend removed successfully.";
         }
+        public async Task<List<UserSummaryDto>> GetAllFriends(int userId)
+        {
+            var friendships = await _userFriendshipRepo.Query()
+                .Where(f =>
+                    f.Status == 1 &&
+                    (f.Requesterid == userId || f.Addresseeid == userId))
+                .ToListAsync();
 
+            var friendIds = friendships
+                .Select(f => f.Requesterid == userId ? f.Addresseeid : f.Requesterid)
+                .Distinct()
+                .ToList();
+
+            var users = await _userRepo.Query()
+                .Where(u => friendIds.Contains(u.Id))
+                .Select(u => new UserSummaryDto
+                {
+                    Id = u.Id,
+                    Nickname = u.Nickname,
+                    Status = u.Status,
+                    Email = u.Email // 🔧 bunu ekle
+                })
+                .ToListAsync();
+
+            return users;
+        }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class AddFriendDto
     {
-        public int AddresseeId { get; set; }
+        public required string Identifier { get; set; } // email or nickname
     }
 }

@@ -1,11 +1,13 @@
 ﻿import { useState } from "react";
 import config from "../config";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import '../styles/addremovefriends.css';
 
 export default function RemoveFriend() {
     const { t } = useTranslation();
     const [identifier, setIdentifier] = useState(""); // Email
+    const navigate = useNavigate();
     const [message, setMessage] = useState("");
 
     const handleRemoveFriend = async () => {
@@ -35,6 +37,7 @@ export default function RemoveFriend() {
             const result = await res.json();
             if (res.ok) {
                 setMessage("✅ " + t("remove_friend_success"));
+                navigate("/dashboard"); // ✅ yönlendirme
             } else {
                 setMessage("❌ " + (result.message || t("remove_friend_error")));
             }

@@ -146,7 +146,7 @@ namespace ilet.server.Controllers
 
             var pp = await _userService.GetProfilePictureAsync(userId);
             if (pp == null)
-                return NotFound(new { message = "Profil resmi bulunamadı." });
+                return NoContent();
 
             return File(pp.Image, pp.ContentType);
         }

@@ -41,7 +41,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchRequests = async () => {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${config.API_URL}friends/requests`, {
+            const res = await fetch(`${config.API_URL}friend/requests`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

@@ -18,13 +18,6 @@ const Friends = () => {
     const handleRedirectToRemoveFriend = () => {
         navigate("/remove-friend");
     };
-    const handleAddFriend = () => {
-        console.log("Adding friend:", email);
-        // WebSocket veya API call burada olabilir
-        setEmail("");
-        setShowModal(false);
-    };
-
     return (
         <>
             <div className="section-bar"> 
@@ -53,10 +46,6 @@ const Friends = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="friend-input"
                             />
-                            <div className="modal-buttons">
-                                <button className="friend-btn small" onClick={handleAddFriend}>Add</button>
-                                <button className="friend-btn small" onClick={handleCancel}>Cancel</button>
-                            </div>
                         </div>
                     </div>
                 </div>
