@@ -5,8 +5,9 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import { WebSocketProvider } from "./context/WebSocketContext";
 import { useEffect, useState } from 'react';
-import AddFriend from "./components/AddFriend"; // veya pages/AddFriend
-import RemoveFriend from "./components/RemoveFriend"; // veya pages/AddFriend
+import AddFriend from "./pages/AddFriend"; // veya pages/AddFriend
+import RemoveFriend from "./pages/RemoveFriend"; // veya pages/AddFriend
+import Requestlist from "./pages/Requestlist";
 export default function App() {
     const token = localStorage.getItem("token") || "";
     const userId = Number(localStorage.getItem("userId")) || 0;
@@ -31,6 +32,7 @@ export default function App() {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/add-friend" element={<AddFriend />} />
                         <Route path="/remove-friend" element={<RemoveFriend />} />
+                        <Route path="/requestlist" element={<Requestlist />} />
                     </Routes>
                 </Router>
             </WebSocketProvider>

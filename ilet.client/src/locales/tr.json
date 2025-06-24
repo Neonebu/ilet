@@ -22,5 +22,6 @@
   "remove_friend_error": "Bir hata oluştu.",
   "remove_friend_network_error": "Ağ hatası.",
   "remove_friend_empty_error": "Lütfen bir e-posta adresi girin.",
-  "remove_friend_invalid_email": "Lütfen geçerli bir e-posta adresi girin."
+  "remove_friend_invalid_email": "Lütfen geçerli bir e-posta adresi girin.",
+  "friend_request_success_alert": "Arkadaşlık isteği başarıyla gönderildi."
 }

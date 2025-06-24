@@ -104,8 +104,16 @@ export default function Dashboard() {
     return (
         <div className="dashboard-container">
             <div className="top-bar">
-                <SettingsMenu
-                />
+                <div className="top-bar-content">
+                    <SettingsMenu
+                    />
+                    <button
+                        className="settings-btn"
+                        onClick={() => navigate("/requestlist")}
+                    >
+                        Requests
+                    </button>
+                </div>
             </div>
             <div className="content-panel">
                 {userId !== null && (
@@ -116,7 +124,6 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
-                <FriendRequestsSection requests={requests} onRespond={handleRespond} />
                 <Friends /> {/* Yeni Friends bileşeni */}
                 <div className="groups-bar">
                     <GroupsSection />

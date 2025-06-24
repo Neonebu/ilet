@@ -3,7 +3,6 @@ import config from "../config";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import '../styles/addremovefriends.css';
-
 export default function RemoveFriend() {
     const { t } = useTranslation();
     const [identifier, setIdentifier] = useState(""); // Email

@@ -32,7 +32,6 @@ export default function SettingsMenu() {
         }
     };
     return (
-        <div className="top-bar-content">
             <div ref={dropdownRef} className={`settings-dropdown ${isDropdownOpen ? "open" : ""}`}>
                 <button
                     className="settings-btn"
@@ -59,6 +58,5 @@ export default function SettingsMenu() {
                     </div>
                 </div>
             </div>
-        </div>
     );
 }

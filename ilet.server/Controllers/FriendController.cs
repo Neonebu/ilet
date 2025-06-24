@@ -1,5 +1,6 @@
 ﻿using ilet.server.Dtos;
 using ilet.server.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -36,14 +37,15 @@ namespace ilet.server.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [Authorize]
         [HttpGet("requests")]
         public async Task<IActionResult> GetFriendRequests()
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
-
             var result = await _friendService.GetFriendRequests(userId);
+            Console.WriteLine($"Friend requests for user {userId}: {result.Count} requests found."+ " useridstr: "+userIdStr);
             return Ok(result);
         }
         [HttpPost("respond")]

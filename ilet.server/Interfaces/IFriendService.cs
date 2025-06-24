@@ -5,7 +5,7 @@ namespace ilet.server.Interfaces
     public interface IFriendService
     {
         Task AddFriendAsync(int requesterId, string identifier);
-        Task<List<object>> GetFriendRequests(int userId);
+        Task<List<FriendRequestDto>> GetFriendRequests(int userId);
         Task<string> RespondToFriendRequest(int userId, RespondFriendRequestDto dto);
 
         // Yeni: friendId veya identifier parametrelerinden biriyle silme

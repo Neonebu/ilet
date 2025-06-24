@@ -22,5 +22,6 @@
   "remove_friend_error": "发生错误。",
   "remove_friend_network_error": "网络错误。",
   "remove_friend_empty_error": "请输入电子邮件地址。",
-  "remove_friend_invalid_email": "请输入有效的电子邮件地址。"
+  "remove_friend_invalid_email": "请输入有效的电子邮件地址。",
+  "friend_request_success_alert": "好友请求已成功发送。"
 }

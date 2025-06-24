@@ -38,29 +38,29 @@
             {
                 Requesterid = requesterId,
                 Addresseeid = friendUser.Id,
-                Status = (requesterId == friendUser.Id) ? 1 : 0, // auto-accept if self
+                Status =  0, // always pending, even if self
                 Createdat = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
             };
 
             await _userFriendshipRepo.AddAsync(friendship);
             await _userFriendshipRepo.SaveAsync();
         }
-        public async Task<List<object>> GetFriendRequests(int userId)
+        public async Task<List<FriendRequestDto>> GetFriendRequests(int userId)
         {
             var requests = await _userFriendshipRepo
                 .Query()
-                .Include(f => f.Requester)
-                .Where(f => f.Addresseeid == userId && f.Status == 0)
-                .Select(f => new {
-                    f.Id,
+                //.Include(f => f.Requester)
+                .Where(f => f.Addresseeid == userId)
+                .Select(f => new FriendRequestDto
+                {
+                    Id = f.Id,
                     RequesterId = f.Requesterid,
-                    RequesterNickname = f.Requester.Nickname
+                    RequesterNickname = f.Requester != null ? f.Requester.Nickname : "(Unknown)",
+                    Status = f.Status // ← burada da ekle
                 })
                 .ToListAsync();
-
-            return requests.Cast<object>().ToList();
+            return requests;
         }
-
         public async Task<string> RespondToFriendRequest(int userId, RespondFriendRequestDto dto)
         {
             var friendship = await _userFriendshipRepo

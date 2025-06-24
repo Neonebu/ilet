@@ -22,5 +22,6 @@
   "remove_friend_error": "Une erreur s'est produite.",
   "remove_friend_network_error": "Erreur réseau.",
   "remove_friend_empty_error": "Veuillez saisir une adresse e-mail.",
-  "remove_friend_invalid_email": "Veuillez saisir une adresse e-mail valide."
+  "remove_friend_invalid_email": "Veuillez saisir une adresse e-mail valide.",
+  "friend_request_success_alert": "La demande d'ami a été envoyée avec succès."
 }

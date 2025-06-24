@@ -22,5 +22,12 @@
   "remove_friend_error": "An error occurred.",
   "remove_friend_network_error": "Network error.",
   "remove_friend_empty_error": "Please enter an email.",
-  "remove_friend_invalid_email": "Please enter a valid email address."
+  "remove_friend_invalid_email": "Please enter a valid email address.",
+  "request_title": "Friend Requests",
+  "friend_request_success_alert": "Friend request sent successfully.",
+  "add_friend_empty_error": "Please enter an email address.",
+  "add_friend_success": "Friend request sent successfully.",
+  "add_friend_error": "Failed to send friend request.",
+  "add_friend_network_error": "Network error. Please try again later.",
+  "add_friend_duplicate_error": "You cannot send a request to someone who is already your friend or has a pending request."
 }

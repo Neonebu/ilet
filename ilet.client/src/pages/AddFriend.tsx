@@ -1,14 +1,15 @@
-import { useState,useEffect } from "react";
+import { useState } from "react";
 import config from "../config";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import '../styles/addremovefriends.css'; // aynı css ile uyumlu
+import '../styles/addremovefriends.css';
 
 export default function AddFriend() {
     const { t } = useTranslation();
     const [identifier, setIdentifier] = useState(""); // Email veya nickname
-    const navigate = useNavigate();
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
+
     const handleAddFriend = async () => {
         setMessage("");
 
@@ -20,10 +21,6 @@ export default function AddFriend() {
         const token = localStorage.getItem("token");
 
         try {
-            console.log("📤 Sending request to:", `${config.API_URL}friend/add-friend`);
-            console.log("📦 Payload:", { identifier });
-            console.log("🔐 Token:", token);
-
             const res = await fetch(`${config.API_URL}friend/add-friend`, {
                 method: "POST",
                 headers: {
@@ -34,22 +31,37 @@ export default function AddFriend() {
             });
 
             const result = await res.json();
-            console.log("📥 Response:", result);
 
             if (res.ok) {
                 setMessage("✅ " + t("add_friend_success"));
+                alert(t("friend_request_success_alert"));
                 navigate("/dashboard");
             } else {
-                setMessage("❌ " + (result.message || t("add_friend_error")));
+                // özel mesaj kontrolü
+                const msg = result.message?.toLowerCase() || "";
+                if (msg.includes("zaten") || msg.includes("already") || msg.includes("existing")) {
+                    setMessage("❌ " + t("add_friend_duplicate_error"));
+                } else {
+                    setMessage("❌ " + (result.message || t("add_friend_error")));
+                }
             }
         } catch (error) {
             console.error("❌ Network error during add-friend:", error);
             setMessage("❌ " + t("add_friend_network_error"));
         }
     };
+
     return (
         <div className="remove-friend-container">
-            <h1 className="remove-title-bar">{t("add_friend_title")}</h1>
+            <div className="requestlist-header">
+                <h1>{t("add_friend_title")}</h1>
+                <button
+                    className="dashboard-button"
+                    onClick={() => window.location.href = "/dashboard"}
+                >
+                    ↩ Dashboard
+                </button>
+            </div>
             <input
                 type="text"
                 name="add-friend-identifier"
@@ -65,7 +77,12 @@ export default function AddFriend() {
             >
                 {t("send_friend_request")}
             </button>
-            {message && <p className="mt-4">{message}</p>}
+
+            {message && (
+                <p className="mt-4" style={{ color: message.startsWith("✅") ? "green" : "red" }}>
+                    {message}
+                </p>
+            )}
         </div>
     );
 }
