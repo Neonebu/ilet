@@ -54,7 +54,7 @@ export default function AddFriend() {
     return (
         <div className="remove-friend-container">
             <div className="requestlist-header">
-                <h1>{t("add_friend_title")}</h1>
+                <h3>{t("add_friend_title")}</h3>
                 <button
                     className="dashboard-button"
                     onClick={() => window.location.href = "/dashboard"}

@@ -54,7 +54,6 @@ const GroupsSection = () => {
             }
 
             const data: Friend[] = await res.json();
-            const currentUserId = Number(localStorage.getItem("userId"));
             const filtered = data;
 
             setFriends(filtered);

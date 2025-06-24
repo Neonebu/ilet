@@ -3,6 +3,7 @@ import config from "../config";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import '../styles/addremovefriends.css';
+
 export default function RemoveFriend() {
     const { t } = useTranslation();
     const [identifier, setIdentifier] = useState(""); // Email
@@ -13,12 +14,12 @@ export default function RemoveFriend() {
         setMessage("");
 
         if (!identifier.trim()) {
-            alert(t("remove_friend_empty_error")); // 🌐 Çoklu dil desteği
+            alert(t("remove_friend_empty_error"));
             return;
         }
 
         if (!identifier.includes("@")) {
-            alert(t("remove_friend_invalid_email")); // 🌐 Çoklu dil desteği
+            alert(t("remove_friend_invalid_email"));
             return;
         }
 
@@ -33,12 +34,21 @@ export default function RemoveFriend() {
                 },
                 body: JSON.stringify({ email: identifier }),
             });
+
             const result = await res.json();
+
             if (res.ok) {
                 setMessage("✅ " + t("remove_friend_success"));
-                navigate("/dashboard"); // ✅ yönlendirme
+                navigate("/dashboard");
             } else {
-                setMessage("❌ " + (result.message || t("remove_friend_error")));
+                const msg = result.message?.toLowerCase() || "";
+                if (msg.includes("not found") || msg.includes("bulunamadı")) {
+                    setMessage("❌ " + t("remove_friend_not_found"));
+                } else if (msg.includes("not your friend") || msg.includes("arkadaş değilsiniz")) {
+                    setMessage("❌ " + t("remove_friend_not_friend"));
+                } else {
+                    setMessage("❌ " + (result.message || t("remove_friend_error")));
+                }
             }
         } catch (error) {
             setMessage("❌ " + t("remove_friend_network_error"));
@@ -47,11 +57,19 @@ export default function RemoveFriend() {
 
     return (
         <div className="remove-friend-container">
-            <h1 className="remove-title-bar">{t("remove_friend_title")}</h1>
+            <div className="requestlist-header">
+                <h3>{t("remove_friend_title")}</h3>
+                <button
+                    className="dashboard-button"
+                    onClick={() => window.location.href = "/dashboard"}
+                >
+                    ↩ Dashboard
+                </button>
+            </div>
             <input
                 type="email"
                 name="remove-friend-email"
-                autoComplete="email" // 🌐 Tarayıcının tanıdığı keyword
+                autoComplete="email"
                 className="border p-2 rounded w-72"
                 placeholder={t("Mail")}
                 value={identifier}
@@ -63,7 +81,11 @@ export default function RemoveFriend() {
             >
                 {t("remove_friend_button")}
             </button>
-            {message && <p className="mt-4">{message}</p>}
+            {message && (
+                <p className="mt-4" style={{ color: message.startsWith("✅") ? "green" : "red" }}>
+                    {message}
+                </p>
+            )}
         </div>
     );
 }

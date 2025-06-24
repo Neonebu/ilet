@@ -4,14 +4,10 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from 'react-router-dom';
 
 const Friends = () => {
-    const [showModal, setShowModal] = useState(false);
+    const [showModal] = useState(false);
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const handleCancel = () => {
-        setEmail("");
-        setShowModal(false);
-    };
     const handleRedirectToAddFriend = () => {
         navigate("/add-friend");
     };

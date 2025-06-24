@@ -23,6 +23,8 @@
   "remove_friend_network_error": "Network error.",
   "remove_friend_empty_error": "Please enter an email.",
   "remove_friend_invalid_email": "Please enter a valid email address.",
+  "remove_friend_not_found": "The user you are trying to remove was not found.",
+  "remove_friend_not_friend": "This user is not in your friend list.",
   "request_title": "Friend Requests",
   "friend_request_success_alert": "Friend request sent successfully.",
   "add_friend_empty_error": "Please enter an email address.",
