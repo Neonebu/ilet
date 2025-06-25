@@ -14,7 +14,7 @@ export default function Dashboard() {
     const [nickname, setNickname] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
     const navigate = useNavigate();
-    const { i18n } = useTranslation();
+    const { t,i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -22,9 +22,6 @@ export default function Dashboard() {
             console.error("Token bulunamadı. Kullanıcı yönlendirilecek.");
             navigate('/');
             return;
-        }
-        else {
-            
         }
         const fetchUser = async () => {
             try {
@@ -46,7 +43,6 @@ export default function Dashboard() {
                 navigate('/');
             }
         };
-
         fetchUser();
     }, [navigate]);
 
@@ -74,7 +70,7 @@ export default function Dashboard() {
                         className="settings-btn"
                         onClick={() => navigate("/requestlist")}
                     >
-                        Requests
+                       {t("requests")}
                     </button>
                 </div>
             </div>

@@ -63,7 +63,7 @@ export default function RemoveFriend() {
                     className="dashboard-button"
                     onClick={() => window.location.href = "/dashboard"}
                 >
-                    ↩ Dashboard
+                    ↩ {t("dashboard")}
                 </button>
             </div>
             <input

@@ -23,5 +23,17 @@
   "remove_friend_network_error": "网络错误。",
   "remove_friend_empty_error": "请输入电子邮件地址。",
   "remove_friend_invalid_email": "请输入有效的电子邮件地址。",
-  "friend_request_success_alert": "好友请求已成功发送。"
+  "remove_friend_not_found": "未找到您要删除的用户。",
+  "remove_friend_not_friend": "此用户不在您的好友列表中。",
+  "request_title": "好友请求",
+  "friend_request_success_alert": "好友请求已成功发送。",
+  "add_friend_empty_error": "请输入电子邮件地址。",
+  "add_friend_success": "好友请求已成功发送。",
+  "add_friend_error": "发送好友请求失败。",
+  "add_friend_network_error": "网络错误，请稍后再试。",
+  "add_friend_duplicate_error": "你不能向已经是好友或已有请求的人再次发送请求。",
+  "requests": "请求",
+  "dashboard": "控制面板",
+  "online_users": "在线 ({{count}})",
+  "offline_users": "离线 ({{count}})"
 }

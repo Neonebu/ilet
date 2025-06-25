@@ -2,6 +2,7 @@
 import { useWebSocket, StatusUpdatePayload } from "../context/WebSocketContext";
 import '../styles/groupsSection.css';
 import config from "../config";
+import { useTranslation } from "react-i18next";
 
 type Friend = {
     id: number;
@@ -15,11 +16,11 @@ const GroupsSection = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [onlineUsers, setOnlineUsers] = useState<{ id: number; nickname: string }[]>([]);
     const [offlineUsers, setOfflineUsers] = useState<{ id: number; nickname: string }[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const handleStatusUpdate = (data: StatusUpdatePayload) => {
-            console.log("📡 Gelen status-update verisi:", data);
-
             const isFriend = friends.some(f => f.id === data.userId);
             if (!isFriend) return;
 
@@ -28,13 +29,15 @@ const GroupsSection = () => {
                 nickname: data.nickname,
             };
 
-            setOnlineUsers((prev) => prev.filter((u) => u.id !== data.userId));
-            setOfflineUsers((prev) => prev.filter((u) => u.id !== data.userId));
+            setOnlineUsers(prev => prev.filter(u => u.id !== data.userId));
+            setOfflineUsers(prev => prev.filter(u => u.id !== data.userId));
 
-            if (["online", "busy", "away"].includes(data.status.toLowerCase())) {
-                setOnlineUsers((prev) => [...prev, updatedUser]);
-            } else {
-                setOfflineUsers((prev) => [...prev, updatedUser]);
+            const status = data.status.toLowerCase();
+
+            if (["online", "busy", "away"].includes(status)) {
+                setOnlineUsers(prev => [...prev, updatedUser]);
+            } else if (["offline", "invisible"].includes(status)) {
+                setOfflineUsers(prev => [...prev, updatedUser]);
             }
         };
 
@@ -48,23 +51,13 @@ const GroupsSection = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (!res.ok) {
-                console.error("Arkadaşlar alınamadı:", res.status);
-                return;
-            }
+            if (!res.ok) return;
 
             const data: Friend[] = await res.json();
-            const filtered = data;
+            const online = data.filter(f => ["online", "busy", "away"].includes((f.status || "").toLowerCase()));
+            const offline = data.filter(f => ["offline", "invisible"].includes((f.status || "").toLowerCase()));
 
-            setFriends(filtered);
-
-            const online = filtered.filter(f =>
-                ["online", "busy", "away"].includes((f.status || "").toLowerCase())
-            );
-            const offline = filtered.filter(f =>
-                !["online", "busy", "away"].includes((f.status || "").toLowerCase())
-            );
-
+            setFriends(data);
             setOnlineUsers(online);
             setOfflineUsers(offline);
         };
@@ -72,16 +65,55 @@ const GroupsSection = () => {
         fetchFriends();
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest('.user-item')) {
+                setSelectedUserId(null);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
+    const handleUserClick = (user: { id: number; nickname: string }) => {
+        setSelectedUserId(user.id);
+        const width = 800;
+        const height = 400;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        const url = `/chat/${encodeURIComponent(user.nickname)}`;
+        localStorage.setItem("chatWithUserId", user.id.toString());
+        localStorage.setItem("chatWithNickname", user.nickname);
+        window.open(
+            url,
+            `chat_with_${user.id}`,
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    };
+
     return (
         <div>
-            <span className="group-label"><u>Online ({onlineUsers.length})</u></span>
+            <span className="group-label">
+                <u>{t("online_users", { count: onlineUsers.length })}</u>
+            </span>
             {onlineUsers.map(user => (
-                <div key={user.id}>🟢 {user.nickname}</div>
+                <div
+                    key={user.id}
+                    className="user-item"
+                    onClick={() => handleUserClick(user)}
+                    style={{
+                        cursor: 'pointer',
+                        backgroundColor: selectedUserId === user.id ? '#eef3ff' : 'transparent'
+                    }}
+                >
+                    🟢 {user.nickname}
+                </div>
             ))}
-
             <br />
-
-            <span className="group-label"><u>Offline ({offlineUsers.length})</u></span>
+            <span className="group-label">
+                <u>{t("offline_users", { count: offlineUsers.length })}</u>
+            </span>
             {offlineUsers.map(user => (
                 <div key={user.id}>⚫ {user.nickname}</div>
             ))}

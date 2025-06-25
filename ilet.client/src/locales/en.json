@@ -13,7 +13,7 @@
   "Mail": "Mail",
   "Add Friend": "Add Friend",
   "Remove Friend": "Remove Friend",
-  "forgot_password": "Şifremi unuttum?",
+  "forgot_password": "Forgot Password?",
   "add_friend_title": "Add Friend",
   "send_friend_request": "Send Friend Request",
   "remove_friend_title": "Remove Friend",
@@ -31,5 +31,14 @@
   "add_friend_success": "Friend request sent successfully.",
   "add_friend_error": "Failed to send friend request.",
   "add_friend_network_error": "Network error. Please try again later.",
-  "add_friend_duplicate_error": "You cannot send a request to someone who is already your friend or has a pending request."
+  "add_friend_duplicate_error": "You cannot send a request to someone who is already your friend or has a pending request.",
+  "requests": "Requests",
+  "dashboard": "Dashboard",
+  "online_users": "Online ({{count}})",
+  "offline_users": "Offline ({{count}})",
+  "conversation": "Conversation",
+  "font": "Font",
+  "background": "Background",
+  "nudge": "Nudge",
+  "send": "Send"
 }

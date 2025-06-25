@@ -97,7 +97,6 @@ namespace IletApi.Services
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
-
         public async Task<UserDto?> GetUser(int userId)
         {
             var user = await _userRepo.GetByIdAsync(userId);
@@ -215,7 +214,6 @@ namespace IletApi.Services
             _cache.Set("offline_users", offlineUsers);
             await WebSocketHandler.BroadcastStatusUpdate(userId, nickname, safeStatus, user.Email);
         }
-
         public async Task SendPasswordReminderEmailAsync(string email)
         {
             var user = await _userRepo.Query().FirstOrDefaultAsync(x => x.Email == email);
@@ -227,6 +225,10 @@ namespace IletApi.Services
                     $"Şifreniz: {user.Password}"
                 );
             }
+        }
+        public async Task<Users?> GetUserByNicknameAsync(string nickname)
+        {
+            return await _userRepo.FirstOrDefaultAsync(u => u.Nickname == nickname);
         }
     }
 }

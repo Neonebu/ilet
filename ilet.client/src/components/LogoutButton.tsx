@@ -1,8 +1,10 @@
 // LogoutButton.tsx
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function LogoutButton() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -11,7 +13,7 @@ export default function LogoutButton() {
 
     return (
         <div className="menu-item" onClick={handleLogout}>
-            Logout
+            {t("logout")}
         </div>
     );
 }

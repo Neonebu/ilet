@@ -1,31 +1,44 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import StatusDropdown from "./StatusDropdown";
 import config from "../config";
-
+import { useWebSocket } from "../context/WebSocketContext";
 interface Props {
     nickname: string;
     setNickname: (name: string) => void;
 }
-
 export default function NicknameEditor({ nickname, setNickname }: Props) {
     const [isEditingNickname, setIsEditingNickname] = useState(false);
     const [tempNickname, setTempNickname] = useState("");
     const [status, setStatus] = useState(localStorage.getItem("status") || "Online");
+
+    const { sendStatusUpdate } = useWebSocket();
+    const userId = Number(localStorage.getItem("userId"));
+
     const handleSaveNickname = async () => {
         const newNickname = tempNickname.trim();
+
         if (newNickname !== "" && newNickname !== nickname) {
             setNickname(newNickname);
 
-            const token = localStorage.getItem('token');
+            const email = localStorage.getItem("email");
+            const token = localStorage.getItem("token");
+
             await fetch(`${config.API_URL}user/update`, {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ nickname: newNickname })
+                body: JSON.stringify({
+                    email,
+                    nickname: newNickname
+                })
             });
+
+            // WebSocket ile güncel nickname ile yayın yap
+            sendStatusUpdate(status, userId, newNickname);
         }
+
         setIsEditingNickname(false);
     };
 
@@ -44,7 +57,15 @@ export default function NicknameEditor({ nickname, setNickname }: Props) {
                                 onBlur={handleSaveNickname}
                                 className="nickname-input"
                             />
-                            <StatusDropdown status={status} setStatus={setStatus} />
+                            <StatusDropdown
+                                status={status}
+                                setStatus={(newStatus) => {
+                                    setStatus(newStatus);
+                                    localStorage.setItem("status", newStatus);
+                                    sendStatusUpdate(newStatus, userId, nickname); // burada da props.nickname
+                                }}
+                                nickname={nickname}
+                            />
                         </div>
                         <span id="nickname-measure" className="ghost-span">{tempNickname || " "}</span>
                     </>
@@ -59,7 +80,15 @@ export default function NicknameEditor({ nickname, setNickname }: Props) {
                         >
                             {nickname || "Loading..."}
                         </h2>
-                        <StatusDropdown status={status} setStatus={setStatus} />
+                            <StatusDropdown
+                                status={status}
+                                setStatus={(newStatus) => {
+                                    setStatus(newStatus);
+                                    localStorage.setItem("status", newStatus);
+                                    sendStatusUpdate(newStatus, userId, nickname);
+                                }}
+                                nickname={nickname}
+                            />
                     </div>
                 )}
             </div>

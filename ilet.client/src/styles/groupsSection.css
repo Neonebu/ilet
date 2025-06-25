@@ -36,3 +36,16 @@ u {
     color: #0033cc;
     text-decoration: underline;
 }
+.user-item:hover {
+    background-color: #eef3ff;
+    transition: 0.2s;
+}
+
+.user-item:active {
+    transform: scale(0.98);
+}
+.user-item {
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}

@@ -33,8 +33,13 @@ export default function ProfilePictureUploader({ profilePicUrl, onUploadSuccess 
                 const newPP = await fetch(`${config.API_URL}user/getpp`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                const contentLength = newPP.headers.get("Content-Length");
+                const contentType = newPP.headers.get("Content-Type");
 
-                if (newPP.ok) {
+                if (newPP.status === 204 || contentLength === "0" || !contentType?.startsWith("image")) {
+                    // Profil resmi yok → fallback göster
+                    onUploadSuccess("");
+                } else {
                     const blob = await newPP.blob();
                     const url = URL.createObjectURL(blob);
                     onUploadSuccess(url);
@@ -48,7 +53,7 @@ export default function ProfilePictureUploader({ profilePicUrl, onUploadSuccess 
     return (
         <>
             <img
-                src={profilePicUrl || defaultProfilePic}
+                src={!profilePicUrl || profilePicUrl === "null" ? defaultProfilePic : profilePicUrl}
                 alt="profile"
                 className="profile-icon"
                 onClick={handleProfileClick}

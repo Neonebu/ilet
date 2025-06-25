@@ -23,5 +23,17 @@
   "remove_friend_network_error": "Erreur réseau.",
   "remove_friend_empty_error": "Veuillez saisir une adresse e-mail.",
   "remove_friend_invalid_email": "Veuillez saisir une adresse e-mail valide.",
-  "friend_request_success_alert": "La demande d'ami a été envoyée avec succès."
+  "remove_friend_not_found": "L'utilisateur que vous essayez de supprimer est introuvable.",
+  "remove_friend_not_friend": "Cet utilisateur ne figure pas dans votre liste d'amis.",
+  "request_title": "Demandes d'ami",
+  "friend_request_success_alert": "La demande d'ami a été envoyée avec succès.",
+  "add_friend_empty_error": "Veuillez saisir une adresse e-mail.",
+  "add_friend_success": "La demande d'ami a été envoyée avec succès.",
+  "add_friend_error": "Échec de l'envoi de la demande d'ami.",
+  "add_friend_network_error": "Erreur réseau. Veuillez réessayer plus tard.",
+  "add_friend_duplicate_error": "Vous ne pouvez pas envoyer une demande à quelqu’un qui est déjà votre ami ou qui a une demande en attente.",
+  "requests": "Demandes",
+  "dashboard": "Tableau de bord",
+  "online_users": "En ligne ({{count}})",
+  "offline_users": "Hors ligne ({{count}})"
 }

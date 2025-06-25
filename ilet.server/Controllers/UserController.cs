@@ -21,7 +21,6 @@ namespace ilet.server.Controllers
         private readonly IWebHostEnvironment _env = env;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<UserController> _logger = logger;
-
         [HttpGet("index")]
         public IActionResult Index()
         {
@@ -109,7 +108,6 @@ namespace ilet.server.Controllers
                 return StatusCode(500, new { message = "Sunucu hatası", error = ex.Message });
             }
         }
-
         [HttpPut("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
@@ -178,6 +176,20 @@ namespace ilet.server.Controllers
         {
             await _userService.SendPasswordReminderEmailAsync(input.Email);
             return Ok(new { message = "Eğer böyle bir hesap varsa şifre gönderildi." });
+        }
+        [AllowAnonymous]
+        [HttpGet("pp/{nickname}")]
+        public async Task<IActionResult> GetProfilePictureByNickname(string nickname)
+        {
+            var user = await _userService.GetUserByNicknameAsync(nickname);
+            if (user == null)
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
+
+            var pp = await _userService.GetProfilePictureAsync(user.Id);
+            if (pp == null)
+                return NoContent();
+
+            return File(pp.Image, pp.ContentType);
         }
     }
 }

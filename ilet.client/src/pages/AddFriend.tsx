@@ -59,7 +59,7 @@ export default function AddFriend() {
                     className="dashboard-button"
                     onClick={() => window.location.href = "/dashboard"}
                 >
-                    ↩ Dashboard
+                    ↩ {t("dashboard")}
                 </button>
             </div>
             <input

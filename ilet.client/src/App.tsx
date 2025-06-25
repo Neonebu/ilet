@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import AddFriend from "./pages/AddFriend"; // veya pages/AddFriend
 import RemoveFriend from "./pages/RemoveFriend"; // veya pages/AddFriend
 import Requestlist from "./pages/Requestlist";
+import ChatWindow from "./pages/ChatWindow";
+
 export default function App() {
     const token = localStorage.getItem("token") || "";
     const userId = Number(localStorage.getItem("userId")) || 0;
@@ -33,6 +35,8 @@ export default function App() {
                         <Route path="/add-friend" element={<AddFriend />} />
                         <Route path="/remove-friend" element={<RemoveFriend />} />
                         <Route path="/requestlist" element={<Requestlist />} />
+                        {/* App.tsx veya Routes.tsx içinde */}
+                        <Route path="/chat/:nickname" element={<ChatWindow />} />
                     </Routes>
                 </Router>
             </WebSocketProvider>

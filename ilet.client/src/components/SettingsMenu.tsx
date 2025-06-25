@@ -14,6 +14,7 @@ export default function SettingsMenu() {
         const newLang = e.target.value;
         i18n.changeLanguage(newLang);
         localStorage.setItem("language", newLang);
+        setIsDropdownOpen(false); // 👈 dropdown'ı kapat
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         const email = localStorage.getItem("email"); // veya girişte gelen user.Emai
