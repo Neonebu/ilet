@@ -1,96 +1,93 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../styles/chatwindow.css";
 import nudgeIcon from "../assets/nodge.png";
 import config from "../config";
 import { useWebSocket } from "../context/WebSocketContext";
+import { ChatMessagePayload } from "../context/WebSocketContext";
 
 export default function ChatWindow() {
     const { nickname } = useParams();
     const { t } = useTranslation();
     const { sendChatMessage, onChatMessage } = useWebSocket();
-
+    const chatHistoryRef = useRef<HTMLDivElement | null>(null);
     const [receiverPicUrl, setReceiverPicUrl] = useState("");
     const [userPicUrl, setUserPicUrl] = useState("");
     const [messageText, setMessageText] = useState("");
-    const [messages, setMessages] = useState<{ senderId: number; content: string }[]>([]);
+    const [messages, setMessages] = useState<ChatMessagePayload[]>(() => {
+        const saved = localStorage.getItem("chat_messages");
+        return saved ? JSON.parse(saved) : [];
+    });
     const senderId = Number(localStorage.getItem("userId"));
+    const senderNickname = localStorage.getItem("nickname") || "";
     const receiverId = Number(localStorage.getItem("chatWithUserId"));
-
-    console.log("👤 senderId:", senderId);
-    console.log("👤 receiverId:", receiverId);
     useEffect(() => {
         const clearChatData = () => {
             localStorage.removeItem("chatWithUserId");
             localStorage.removeItem("chatWithNickname");
         };
-
         window.addEventListener("beforeunload", clearChatData);
-
         return () => {
             window.removeEventListener("beforeunload", clearChatData);
-            clearChatData(); // unmount durumunda da temizle
         };
     }, []);
     useEffect(() => {
-        if (!nickname) return;
+        const id = localStorage.getItem("chatWithUserId");
+        if (!id) return;
 
-        fetch(`${config.API_URL}user/pp/${nickname}`)
+        fetch(`${config.API_URL}user/getppbyid?id=${id}`)
             .then(res => res.blob())
             .then(blob => setReceiverPicUrl(URL.createObjectURL(blob)))
             .catch(() => setReceiverPicUrl("/fallback-profile.png"));
-
-        fetch(`${config.API_URL}user/getpp`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        })
-            .then(res => res.blob())
-            .then(blob => setUserPicUrl(URL.createObjectURL(blob)))
-            .catch(() => setUserPicUrl("/fallback-profile.png"));
-    }, [nickname]);
-
+    }, []);
+    useEffect(() => {
+        const pic = localStorage.getItem("userPicUrl");
+        if (pic && pic.trim() !== "") {
+            setUserPicUrl(pic);
+        } else {
+            setUserPicUrl(""); // fallback'e yönlendirilecek
+        }
+    }, []);
     useEffect(() => {
         onChatMessage((data) => {
-            console.log("📥 onChatMessage received:", data);
-            setMessages((prev) => {
-                const updated = [...prev, { senderId: data.senderId, content: data.content }];
-                console.log("📚 Updated messages (after incoming):", updated);
-                return updated;
-            });
+            const updated = [...messages, data];
+            setMessages(updated);
+            localStorage.setItem("chat_messages", JSON.stringify(updated));
         });
-    }, [onChatMessage]);
+    }, [messages]);
+
+    // Gelen mesajları okundu olarak işaretle
+    useEffect(() => {
+        const updated = messages.map(msg =>
+            msg.receiverId === senderId && msg.status === "sent"
+                ? { ...msg, status: "read" as const }
+                : msg
+        );
+        setMessages(updated);
+        localStorage.setItem("chat_messages", JSON.stringify(updated));
+    }, []);
+    useEffect(() => {
+        if (chatHistoryRef.current) {
+            chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     const handleSendMessage = () => {
         const trimmed = messageText.trim();
-        if (!trimmed) {
-            console.warn("🚫 Message boş, gönderilmiyor.");
-            return;
-        }
-
-        if (!receiverId) {
-            console.warn("🚫 receiverId tanımsız veya geçersiz.");
-            return;
-        }
-
-        console.log("📤 Sending message:", {
-            senderId,
-            receiverId,
-            content: trimmed,
-        });
-
-        sendChatMessage({
+        if (!trimmed || !receiverId) return;
+        const msg: ChatMessagePayload = {
             type: "chat-message",
             senderId,
+            senderNickname,
             receiverId,
             content: trimmed,
-        });
-
-        setMessages((prev) => {
-            const updated = [...prev, { senderId, content: trimmed }];
-            console.log("📚 Updated messages (after send):", updated);
-            return updated;
-        });
-
+            status: "sent"
+        };
+        sendChatMessage(msg);
+        const updated = [...messages, msg];
+        setMessages(updated);
+        localStorage.setItem("chat_messages", JSON.stringify(updated));
         setMessageText("");
     };
 
@@ -104,11 +101,9 @@ export default function ChatWindow() {
     const handleNudge = () => {
         const audio = new Audio("/sounds/nudge.mp3");
         audio.play().catch(() => { });
-
         const originalX = window.screenX;
         const originalY = window.screenY;
         let i = 0;
-
         const interval = setInterval(() => {
             const offsetX = (Math.random() - 0.5) * 20;
             const offsetY = (Math.random() - 0.5) * 20;
@@ -131,44 +126,42 @@ export default function ChatWindow() {
             </div>
 
             <div className="chat-main">
-                <div className="chat-history">
+                <div className="chat-history" ref={chatHistoryRef}>
                     {messages.length === 0 && <div style={{ color: "#888" }}>📭 {t("no_messages")}</div>}
-
                     {messages.map((msg, idx) => (
                         <div key={idx} style={{ textAlign: msg.senderId === senderId ? "right" : "left" }}>
-                            <span>{msg.content}</span>
-                        </div>
-                    ))}
-
-                    <div className="chat-interaction-area">
-                        <div className="chat-toolbar">
-                            <select><option>Font</option></select>
-                            <span role="img">😊</span>
-                            <span role="img">🌸</span>
-                            <span>Background</span>
-                            <span>
-                                <img
-                                    src={nudgeIcon}
-                                    alt="Nudge"
-                                    className="nudge-icon"
-                                    onClick={handleNudge}
-                                />
+                            <strong>{msg.senderNickname}</strong>
+                            <div>{msg.content}</div>
+                            <span className="message-status">
+                                {msg.status === "read" ? t("message_read") : t("message_sent")}
                             </span>
                         </div>
-                        <div className="chat-input-area">
-                            <div className="chat-input-wrapper">
-                                <textarea
-                                    className="chat-input"
-                                    placeholder={t("type_message")}
-                                    value={messageText}
-                                    onChange={(e) => setMessageText(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                                <div className="chat-buttons-bottom">
-                                    <button className="btn-send" onClick={handleSendMessage}>
-                                        {t("send")}
-                                    </button>
-                                </div>
+                    ))}
+                </div>
+
+                <div className="chat-interaction-area">
+                    <div className="chat-toolbar">
+                        <select><option>{t("font")}</option></select>
+                        <span role="img">😊</span>
+                        <span role="img">🌸</span>
+                        <span>{t("background")}</span>
+                        <span>
+                            <img src={nudgeIcon} alt="Nudge" className="nudge-icon" onClick={handleNudge} />
+                        </span>
+                    </div>
+                    <div className="chat-input-area">
+                        <div className="chat-input-wrapper">
+                            <textarea
+                                className="chat-input"
+                                placeholder={t("type_message")}
+                                value={messageText}
+                                onChange={(e) => setMessageText(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <div className="chat-buttons-bottom">
+                                <button className="btn-send" onClick={handleSendMessage}>
+                                    {t("send")}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -178,7 +171,7 @@ export default function ChatWindow() {
                     <div className="chat-profile-stack">
                         <img className="chat-profile-pic" src={receiverPicUrl} alt="Receiver" />
                     </div>
-                    <img className="chat-profile-you" src={userPicUrl} alt="You" />
+                    <img className="chat-profile-you" src={userPicUrl || "/msn-logo-small.png"} alt="You" />
                 </div>
             </div>
         </div>

@@ -49,7 +49,24 @@
     padding: 8px;
     overflow-y: auto;
     margin-bottom: 150px; /* interaction area yüksekliği kadar boşluk bırak */
+    max-height: calc(100vh - 260px); /* pencereye göre sınırla (başlık + toolbar + input alanı) */
+    scrollbar-width: thin; /* Firefox için */
+    scrollbar-color: #ccc transparent; /* Firefox için */
 }
+
+    /* Chrome için scrollbar özelleştirme */
+    .chat-history::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-history::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-history::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
 
 
 .chat-profile-preview {

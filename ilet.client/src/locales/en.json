@@ -40,5 +40,6 @@
   "font": "Font",
   "background": "Background",
   "nudge": "Nudge",
-  "send": "Send"
+  "send": "Send",
+  "message_sent": "Sent"
 }

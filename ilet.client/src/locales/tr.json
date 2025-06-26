@@ -35,5 +35,13 @@
   "requests": "İstekler",
   "dashboard": "Kontrol Paneli",
   "online_users": "Çevrimiçi ({{count}})",
-  "offline_users": "Çevrimdışı ({{count}})"
+  "offline_users": "Çevrimdışı ({{count}})",
+  "conversation": "Konuşma",
+  "send": "Gönder",
+  "no_messages": "Henüz mesaj yok.",
+  "font": "Yazı tipi",
+  "background": "Arka Plan",
+  "message_sent": "Gönderildi",
+  "message_read": "Okundu"
+
 }

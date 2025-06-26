@@ -16,6 +16,10 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t,i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
+    const [showWorlds, setShowWorlds] = useState(() => {
+        const saved = localStorage.getItem("showWorlds");
+        return saved === "true"; // string olduğu için eşitlik kontrolü
+    });
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -45,7 +49,9 @@ export default function Dashboard() {
         };
         fetchUser();
     }, [navigate]);
-
+    useEffect(() => {
+        localStorage.setItem("showWorlds", String(showWorlds));
+    }, [showWorlds]);
     useEffect(() => {
         const handleBackButton = () => {
             // logout işlemi
@@ -64,16 +70,39 @@ export default function Dashboard() {
         <div className="dashboard-container">
             <div className="top-bar">
                 <div className="top-bar-content">
-                    <SettingsMenu
-                    />
+                    <SettingsMenu />
                     <button
                         className="settings-btn"
                         onClick={() => navigate("/requestlist")}
                     >
-                       {t("requests")}
+                        {t("requests")}
                     </button>
+
+                    {/* Tick kutusu ve yanına "Worlds" yazısı */}
+                    <label
+                        className="worlds-toggle"
+                        htmlFor="toggle-worlds"
+                        style={{
+                            marginLeft: "12px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                        }}
+                    >
+                        <input
+                            id="toggle-worlds"
+                            name="toggle-worlds"
+                            type="checkbox"
+                            checked={showWorlds}
+                            onChange={(e) => setShowWorlds(e.target.checked)}
+                        />
+                        <span className="settings-btn" style={{ fontWeight: "bold" }}>
+                            {t("Worlds")}
+                        </span>
+                    </label>
                 </div>
             </div>
+
             <div className="content-panel">
                 {userId !== null && (
                     <ProfileSection
@@ -83,13 +112,12 @@ export default function Dashboard() {
                         userId={userId}
                     />
                 )}
-                <Friends /> {/* Yeni Friends bileşeni */}
+                <Friends />
                 <div className="groups-bar">
-                    <GroupsSection />
+                    <GroupsSection showWorlds={showWorlds} />
                 </div>
             </div>
         </div>
     );
-
 
 }

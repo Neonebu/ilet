@@ -16,6 +16,6 @@ namespace ilet.server.Interfaces
         Task Logout(int userId);
         Task ChangeStatus(UserDto userDto);
         Task SendPasswordReminderEmailAsync(string email);
-        Task<Users?> GetUserByNicknameAsync(string nickname);
+        Task<UserProfilePictures?> GetProfilePictureByIdAsync(int userId);
     }
 }

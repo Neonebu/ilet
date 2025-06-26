@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import config from "../config";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,12 @@ export default function AddFriend() {
             setMessage("❌ " + t("add_friend_network_error"));
         }
     };
-
+    useEffect(() => {
+        const storedEmail = localStorage.getItem("selectedUserEmail");
+        if (storedEmail) {
+            setIdentifier(storedEmail);
+        }
+    }, []);
     return (
         <div className="remove-friend-container">
             <div className="requestlist-header">

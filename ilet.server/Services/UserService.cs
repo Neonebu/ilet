@@ -226,9 +226,10 @@ namespace IletApi.Services
                 );
             }
         }
-        public async Task<Users?> GetUserByNicknameAsync(string nickname)
+        public async Task<UserProfilePictures?> GetProfilePictureByIdAsync(int userId)
         {
-            return await _userRepo.FirstOrDefaultAsync(u => u.Nickname == nickname);
+            var user = await _userRepo.GetByIdAsync(userId);
+            return user?.UserProfilePictures;
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿.top-bar-content {
-    display: flex;
-    align-items: flex-start;
-}
-
-.settings-dropdown {
+﻿.settings-dropdown {
     position: relative;
 }
 

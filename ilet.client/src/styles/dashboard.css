@@ -16,13 +16,17 @@
     background-color: #007bff;
     height: 40px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     padding: 5px 16px 0 5px;
     color: white;
     position: relative;
     z-index: 100;
 }
 
+.top-bar-content {
+    display: flex;
+    align-items: center;
+}
 .content-panel {
     position: absolute;
     top: 30px;
@@ -35,5 +39,4 @@
     flex-direction: column;
     z-index: 1;
 }
-
 

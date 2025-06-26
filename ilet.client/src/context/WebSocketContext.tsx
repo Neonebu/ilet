@@ -3,10 +3,12 @@ import config from "../config";
 
 // Yeni mesaj türü
 export type ChatMessagePayload = {
-    type: "chat-message";
+    type: "chat-message"; // Burada sadece bu sabit string kabul edilecek
     senderId: number;
+    senderNickname: string;
     receiverId: number;
     content: string;
+    status: "sent" | "delivered" | "read";
 };
 
 export type StatusUpdatePayload = {

@@ -116,61 +116,76 @@ export default function Home() {
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <div style={{
-                background: '#ffffff',
-                border: '1px solid #cccccc',
-                borderRadius: '8px',
-                padding: '2rem',
-                width: '300px',
-                boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-                textAlign: 'center'
-            }}>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleLoginOrSignup();
+                }}
+                style={{
+                    background: '#ffffff',
+                    border: '1px solid #cccccc',
+                    borderRadius: '8px',
+                    padding: '2rem',
+                    width: '300px',
+                    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+                    textAlign: 'center'
+                }}
+            >
                 <img
                     src={logo}
                     alt="MSN Logo"
                     style={{ width: '80px', marginBottom: '1rem' }}
                 />
                 <h2 style={{ marginBottom: '1rem', fontSize: '18px' }}>ilet Messenger</h2>
-                <input
-                    type="text"
-                    placeholder="E-mail address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{
-                        width: '100%',
-                        marginBottom: '0.5rem',
-                        padding: '0.5rem',
-                        paddingRight: '2.5rem', // ✅ EKLENDİ (password ile eşit olsun)
-                        borderRadius: '4px',
-                        border: '1px solid #ccc',
-                        boxSizing: 'border-box' // ✅ EKLENDİ
-                    }}
-                />
-                <div style={{
-                    position: 'relative',
-                    marginBottom: '0.5rem',
-                    width: '100%'
-                }}>
+
+                {/* Email */}
+                <div style={{ marginBottom: '0.5rem', textAlign: 'left' }}>
+                    <label htmlFor="login-email" style={{ fontSize: '14px', display: 'block', marginBottom: '4px' }}>E-posta</label>
                     <input
+                        id="login-email"
+                        name="email"
+                        type="email"
+                        placeholder="E-mail address"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '0.5rem',
+                            paddingRight: '2.5rem',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                            boxSizing: 'border-box'
+                        }}
+                    />
+                </div>
+
+                {/* Password */}
+                <div style={{ position: 'relative', marginBottom: '0.5rem', textAlign: 'left' }}>
+                    <label htmlFor="login-password" style={{ fontSize: '14px', display: 'block', marginBottom: '4px' }}>Şifre</label>
+                    <input
+                        id="login-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
+                        autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={{
                             width: '100%',
                             padding: '0.5rem',
-                            paddingRight: '2.5rem', // 👍 yeterli sağ boşluk, px değil rem kullandım daha temiz
+                            paddingRight: '2.5rem',
                             borderRadius: '4px',
                             border: '1px solid #ccc',
-                            boxSizing: 'border-box' // ✅ en önemli düzeltme, padding genişliğe dahil olur
+                            boxSizing: 'border-box'
                         }}
                     />
                     <span
                         onClick={() => setShowPassword(!showPassword)}
                         style={{
                             position: "absolute",
-                            right: "0.75rem", // rem kullandım, px değil → responsive ve temiz
-                            top: "50%",
+                            right: "0.75rem",
+                            top: "calc(50% + 8px)",
                             transform: "translateY(-50%)",
                             cursor: "pointer",
                             userSelect: "none",
@@ -180,17 +195,22 @@ export default function Home() {
                         {showPassword ? "🙈" : "👁️"}
                     </span>
                 </div>
+
+                {/* Remember Me */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <input
+                        id="remember"
                         type="checkbox"
                         checked={remember}
                         onChange={() => setRemember(!remember)}
                         style={{ marginRight: '5px' }}
                     />
-                    <label style={{ fontSize: '14px' }}>Beni hatırla</label>
+                    <label htmlFor="remember" style={{ fontSize: '14px' }}>Beni hatırla</label>
                 </div>
+
+                {/* Submit Button */}
                 <button
-                    type="button"
+                    type="submit"
                     style={{
                         width: '100%',
                         padding: '0.5rem',
@@ -200,16 +220,11 @@ export default function Home() {
                         fontWeight: 'bold',
                         cursor: 'pointer',
                     }}
-                    onClick={handleLoginOrSignup}
                 >
                     {t("login_button")}
                 </button>
-                {/*<p style={{ marginTop: '1rem', fontSize: '13px' }}>*/}
-                {/*    <a href="#" onClick={handleForgotPassword} style={{ color: '#007bff', textDecoration: 'none' }}>*/}
-                {/*        {t("forgot_password")}*/}
-                {/*    </a>*/}
-                {/*</p>*/}
-            </div>
+            </form>
         </div>
     );
+
 }

@@ -178,15 +178,12 @@ namespace ilet.server.Controllers
             return Ok(new { message = "Eğer böyle bir hesap varsa şifre gönderildi." });
         }
         [AllowAnonymous]
-        [HttpGet("pp/{nickname}")]
-        public async Task<IActionResult> GetProfilePictureByNickname(string nickname)
+        [HttpGet("getppbyid")]
+        public async Task<IActionResult> GetProfilePictureById(int id)
         {
-            var user = await _userService.GetUserByNicknameAsync(nickname);
-            if (user == null)
-                return NotFound(new { message = "Kullanıcı bulunamadı." });
+            var pp = await _userService.GetProfilePictureByIdAsync(id);
 
-            var pp = await _userService.GetProfilePictureAsync(user.Id);
-            if (pp == null)
+            if (pp?.Image == null || string.IsNullOrEmpty(pp.ContentType))
                 return NoContent();
 
             return File(pp.Image, pp.ContentType);
