@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 import { env } from 'process';
-
+//vite.config.ts
 const target = env.ASPNETCORE_HTTPS_PORT
     ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
     : env.ASPNETCORE_URLS
