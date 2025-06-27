@@ -12,85 +12,96 @@ import Friends from "../components/Friends";
 import '../styles/removePopup.css'; // CSS dosyasını içe aktar
 
 export default function Dashboard() {
+    console.log("🚀 Dashboard component mount edildi");
+
     const [nickname, setNickname] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
     const navigate = useNavigate();
-    const { t,i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [selectedLang, setSelectedLang] = useState(i18n.language);
     const [showWorlds, setShowWorlds] = useState(() => {
         const saved = localStorage.getItem("showWorlds");
-        return saved === "true"; // string olduğu için eşitlik kontrolü
+        console.log("🌍 showWorlds localStorage'dan geldi:", saved);
+        return saved === "true";
     });
     const [showDeletePopup, setShowDeletePopup] = useState(false);
+
     useEffect(() => {
         const token = localStorage.getItem('token');
+        console.log("🎫 Token kontrolü:", token);
+
         if (!token) {
-            console.error("Token bulunamadı. Kullanıcı yönlendirilecek.");
+            console.error("❌ Token bulunamadı. navigate('/') yapılacak.");
             navigate('/');
             return;
         }
+
         const fetchUser = async () => {
+            console.log("📡 fetchUser başlatıldı");
+
             try {
                 const res = await fetch(`${config.API_URL}user/getUser`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                console.log("🌐 getUser yanıt kodu:", res.status);
+
                 if (!res.ok) {
-                    console.error("Kullanıcı alınamadı, yetkisiz:", res.status);
+                    console.error("❌ Kullanıcı alınamadı, status:", res.status);
                     navigate('/');
                     return;
                 }
+
                 const data = await res.json();
+                console.log("👤 getUser cevabı:", data);
+
                 setNickname(data.nickname);
                 setUserId(data.id);
                 setSelectedLang(data.language || 'en');
                 i18n.changeLanguage(data.language || 'en');
             } catch (err) {
-                console.error("fetchUser error:", err);
+                console.error("❌ fetchUser error:", err);
                 navigate('/');
             }
         };
+
         fetchUser();
     }, [navigate]);
+
     useEffect(() => {
+        console.log("💾 showWorlds güncellendi:", showWorlds);
         localStorage.setItem("showWorlds", String(showWorlds));
     }, [showWorlds]);
+
     useEffect(() => {
+        console.log("↩️ Geri tuşu event listener eklendi");
+
         const handleBackButton = () => {
-            // logout işlemi
+            console.warn("🔙 Geri tuşuna basıldı, kullanıcı çıkışı yapılacak");
             localStorage.removeItem('token');
             localStorage.removeItem('nickname');
-            navigate('/'); // anasayfa veya login route
+            navigate('/');
         };
 
         window.onpopstate = handleBackButton;
 
         return () => {
+            console.log("🧹 Geri tuşu event listener temizlendi");
             window.onpopstate = null;
         };
     }, [navigate]);
+
+    console.log("📌 Render aşamasında userId:", userId, "| nickname:", nickname);
+
     return (
         <div className="dashboard-container">
             <div className="top-bar">
                 <div className="top-bar-content">
                     <SettingsMenu />
-                    <button
-                        className="settings-btn"
-                        onClick={() => navigate("/requestlist")}
-                    >
+                    <button className="settings-btn" onClick={() => navigate("/requestlist")}>
                         {t("requests")}
                     </button>
-
-                    {/* Tick kutusu ve yanına "Worlds" yazısı */}
-                    <label
-                        className="worlds-toggle"
-                        htmlFor="toggle-worlds"
-                        style={{
-                            marginLeft: "12px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                        }}
-                    >
+                    <label className="worlds-toggle" htmlFor="toggle-worlds" style={{ marginLeft: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}>
                         <input
                             id="toggle-worlds"
                             name="toggle-worlds"
@@ -102,34 +113,31 @@ export default function Dashboard() {
                             {t("Worlds")}
                         </span>
                     </label>
-
-                    {/* ✅ Hesabı Sil butonu */}
-                    <button
-                        className="delete-account-btn"
-                        style={{ marginLeft: "12px" }}
-                        onClick={() => setShowDeletePopup(true)}
-                    >
+                    <button className="delete-account-btn" style={{ marginLeft: "12px" }} onClick={() => setShowDeletePopup(true)}>
                         Hesabı Sil
                     </button>
                 </div>
             </div>
 
             <div className="content-panel">
-                {userId !== null && (
-                    <ProfileSection
-                        key={`profile-${selectedLang}`}
-                        nickname={nickname}
-                        setNickname={setNickname}
-                        userId={userId}
-                    />
+                {userId !== null ? (
+                    <>
+                        <ProfileSection
+                            key={`profile-${selectedLang}`}
+                            nickname={nickname}
+                            setNickname={setNickname}
+                            userId={userId}
+                        />
+                        <Friends />
+                        <div className="groups-bar">
+                            <GroupsSection showWorlds={showWorlds} />
+                        </div>
+                    </>
+                ) : (
+                    <p style={{ color: 'red', padding: '2rem' }}>🔒 userId null, içerik gösterilmiyor</p>
                 )}
-                <Friends />
-                <div className="groups-bar">
-                    <GroupsSection showWorlds={showWorlds} />
-                </div>
             </div>
 
-            {/* ✅ Popup onay kutusu */}
             {showDeletePopup && (
                 <div className="popup-overlay">
                     <div className="popup-content">
@@ -170,9 +178,7 @@ export default function Dashboard() {
                     </div>
                 </div>
             )}
-
         </div>
     );
-
-
 }
+
