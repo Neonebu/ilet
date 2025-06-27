@@ -25,15 +25,18 @@ builder.WebHost.UseUrls("http://0.0.0.0:54550");
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 
-// ✅ CORS Policy
+// ✅ CORS Policy (hem render hem local)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://ilet.onrender.com")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins(
+            "https://ilet.onrender.com",
+            "http://localhost:5173"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -61,8 +64,10 @@ builder.Services.AddScoped<IUsersService, UserService>();
 builder.Services.AddScoped(typeof(IRepositoryDb<>), typeof(RepositoryDb<>));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddEndpointsApiExplorer();
 
+// Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "ilet.server", Version = "v1" });
@@ -91,26 +96,26 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddAutoMapper(typeof(Program));
-
-var loggerFactory = LoggerFactory.Create(builder =>
+// EF Core + Logging
+var loggerFactory = LoggerFactory.Create(logging =>
 {
-    builder
-        .AddConsole()
-        .AddDebug()
-        .SetMinimumLevel(LogLevel.Information);
+    logging.AddConsole();
+    logging.AddDebug();
+    logging.SetMinimumLevel(LogLevel.Information);
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
-        .UseLoggerFactory(loggerFactory)
-        .EnableSensitiveDataLogging()
+           .UseLoggerFactory(loggerFactory)
+           .EnableSensitiveDataLogging()
 );
 
 var app = builder.Build();
 
+// Error detail
 app.UseDeveloperExceptionPage();
 
+// Upload klasörü varsa yoksa oluştur
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -125,6 +130,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
+// WebSocket middleware aktif
 app.UseWebSockets();
 
 if (!app.Environment.IsDevelopment())
@@ -134,12 +140,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// ✅ Named CORS policy aktif ediliyor
+// ✅ CORS aktif edilmeli
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+// WebSocket token doğrulama katmanı
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == "OPTIONS")
@@ -177,7 +184,5 @@ app.Use(async (context, next) =>
 });
 
 app.MapControllers();
-
-var lifetime = app.Lifetime;
 
 app.Run();

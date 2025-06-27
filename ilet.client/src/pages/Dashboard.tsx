@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import config from "../config";
 import Friends from "../components/Friends";
 import '../styles/removePopup.css'; // CSS dosyasını içe aktar
+import { ErrorBoundary } from "../pages/ErrorBoundary"; // en üste ekle
 
 export default function Dashboard() {
     console.log("🚀 Dashboard component mount edildi");
@@ -122,22 +123,29 @@ export default function Dashboard() {
             <div className="content-panel">
                 {userId !== null ? (
                     <>
-                        <ProfileSection
-                            key={`profile-${selectedLang}`}
-                            nickname={nickname}
-                            setNickname={setNickname}
-                            userId={userId}
-                        />
-                        <Friends />
-                        <div className="groups-bar">
-                            <GroupsSection showWorlds={showWorlds} />
-                        </div>
+                        <ErrorBoundary>
+                            <ProfileSection
+                                key={`profile-${selectedLang}`}
+                                nickname={nickname}
+                                setNickname={setNickname}
+                                userId={userId}
+                            />
+                        </ErrorBoundary>
+
+                        <ErrorBoundary>
+                            <Friends />
+                        </ErrorBoundary>
+
+                        <ErrorBoundary>
+                            <div className="groups-bar">
+                                <GroupsSection showWorlds={showWorlds} />
+                            </div>
+                        </ErrorBoundary>
                     </>
                 ) : (
                     <p style={{ color: 'red', padding: '2rem' }}>🔒 userId null, içerik gösterilmiyor</p>
                 )}
             </div>
-
             {showDeletePopup && (
                 <div className="popup-overlay">
                     <div className="popup-content">
