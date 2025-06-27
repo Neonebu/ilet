@@ -11,18 +11,23 @@ type Friend = {
     status: string;
     email: string;
 };
+
 type GroupsSectionProps = {
     showWorlds: boolean;
 };
+
 const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
     const { onStatusUpdate } = useWebSocket();
     const [friends, setFriends] = useState<Friend[]>([]);
     const [onlineUsers, setOnlineUsers] = useState<Friend[]>([]);
     const [offlineUsers, setOfflineUsers] = useState<Friend[]>([]);
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [worldUsers, setWorldUsers] = useState<Friend[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [hoveredOnlineId, setHoveredOnlineId] = useState<number | null>(null);
+    const [hoveredOfflineId, setHoveredOfflineId] = useState<number | null>(null);
+    const [hoveredWorldId, setHoveredWorldId] = useState<number | null>(null);
     const { t } = useTranslation();
-    const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
+
     useEffect(() => {
         if (!showWorlds) {
             setWorldUsers([]);
@@ -37,6 +42,7 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
         }));
         setWorldUsers(fullFriends);
     }, [showWorlds, onlineUsers]);
+
     useEffect(() => {
         const handleStatusUpdate = (data: StatusUpdatePayload) => {
             const isFriend = friends.some(f => f.id === data.userId);
@@ -45,7 +51,7 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
             const updatedUser: Friend = {
                 id: data.userId,
                 nickname: data.nickname,
-                email: "", // bilinmiyor ama boş geç
+                email: "",
                 status: data.status
             };
 
@@ -105,13 +111,14 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
         const url = `/chat/${encodeURIComponent(user.nickname)}`;
         localStorage.setItem("chatWithUserId", user.id.toString());
         localStorage.setItem("chatWithNickname", user.nickname);
-        localStorage.setItem("selectedUserEmail", user.email); // ✅ email de eklendi
+        localStorage.setItem("selectedUserEmail", user.email);
         window.open(
             url,
             `chat_with_${user.id}`,
             `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
     };
+
     return (
         <div>
             {/* Çevrimiçi kullanıcılar */}
@@ -122,8 +129,8 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 <div
                     key={user.id}
                     className="user-item-wrapper"
-                    onMouseEnter={() => setHoveredUserId(user.id)}
-                    onMouseLeave={() => setHoveredUserId(null)}
+                    onMouseEnter={() => setHoveredOnlineId(user.id)}
+                    onMouseLeave={() => setHoveredOnlineId(null)}
                 >
                     <div
                         className="user-item"
@@ -135,7 +142,7 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                     >
                         🟢 {user.nickname}
                     </div>
-                    {hoveredUserId === user.id && (
+                    {hoveredOnlineId === user.id && (
                         <div className="user-hover-card">
                             <img
                                 src={`${config.API_URL}user/getppbyid?id=${user.id}`}
@@ -160,13 +167,13 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 <div
                     key={user.id}
                     className="user-item-wrapper"
-                    onMouseEnter={() => setHoveredUserId(user.id)}
-                    onMouseLeave={() => setHoveredUserId(null)}
+                    onMouseEnter={() => setHoveredOfflineId(user.id)}
+                    onMouseLeave={() => setHoveredOfflineId(null)}
                 >
                     <div className="user-item">
                         ⚫ {user.nickname}
                     </div>
-                    {hoveredUserId === user.id && (
+                    {hoveredOfflineId === user.id && (
                         <div className="user-hover-card">
                             <img
                                 src={`${config.API_URL}user/getppbyid?id=${user.id}`}
@@ -183,7 +190,7 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
 
             <br />
 
-            {/* Worlds bölümü */}
+            {/* Worlds kullanıcıları */}
             <span className="group-label">
                 <u>{t("Worlds")}</u>
             </span>
@@ -191,13 +198,13 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 <div
                     key={user.id}
                     className="user-item-wrapper"
-                    onMouseEnter={() => setHoveredUserId(user.id)}
-                    onMouseLeave={() => setHoveredUserId(null)}
+                    onMouseEnter={() => setHoveredWorldId(user.id)}
+                    onMouseLeave={() => setHoveredWorldId(null)}
                 >
                     <div className="user-item">
                         🌍 {user.nickname}
                     </div>
-                    {hoveredUserId === user.id && (
+                    {hoveredWorldId === user.id && (
                         <div className="user-hover-card">
                             <img
                                 src={`${config.API_URL}user/getppbyid?id=${user.id}`}
@@ -213,7 +220,6 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
             ))}
         </div>
     );
-
 };
 
 export default GroupsSection;

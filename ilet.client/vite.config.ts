@@ -26,7 +26,13 @@ export default defineConfig({
         host: true,
         port: 5173,
     },
+    build: {
+        outDir: 'dist',
+        rollupOptions: {
+            input: '/index.html'
+        }
+    },
     esbuild: {
-        drop: process.env.NODE_ENV === "production" ? ['console', 'debugger'] : []
+        drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
     }
 });
