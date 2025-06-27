@@ -18,10 +18,23 @@ export default function App() {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        i18n.on('initialized', () => {
+        console.log("🔁 i18n init durumu:", i18n.isInitialized);
+
+        if (i18n.isInitialized) {
+            console.log("✅ i18n zaten hazır");
             setReady(true);
-        });
+        } else {
+            console.log("⏳ i18n hazır değil, 'initialized' eventi beklenecek");
+            i18n.on('initialized', () => {
+                console.log("✅ i18n 'initialized' eventi geldi");
+                setReady(true);
+            });
+        }
     }, []);
+
+    useEffect(() => {
+        console.log("🎯 Uygulama ready durumu:", ready);
+    }, [ready]);
 
     if (!ready) return <div>Loading...</div>; // dil ayarlanana kadar beklet
 
