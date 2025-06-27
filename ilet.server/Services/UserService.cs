@@ -231,5 +231,29 @@ namespace IletApi.Services
             var user = await _userRepo.GetByIdAsync(userId);
             return user?.UserProfilePictures;
         }
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            // 1. UserFriendships sil
+            var friendships = await _userFriendshipRepo
+                .WhereAsync(f => f.Requesterid == userId || f.Addresseeid == userId);
+
+            await _userFriendshipRepo.DeleteRangeAsync(friendships);
+
+            // 2. Profil fotoğrafı sil
+            var profilePicture = await _ppRepo
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (profilePicture != null)
+                await _ppRepo.DeleteAsync(profilePicture);
+
+            // 3. Kullanıcı sil
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            await _userRepo.DeleteAsync(user);
+
+            return true;
+        }
     }
 }

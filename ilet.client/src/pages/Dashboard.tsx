@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import config from "../config";
 import Friends from "../components/Friends";
+import '../styles/removePopup.css'; // CSS dosyasını içe aktar
 
 export default function Dashboard() {
     const [nickname, setNickname] = useState("");
@@ -20,6 +21,7 @@ export default function Dashboard() {
         const saved = localStorage.getItem("showWorlds");
         return saved === "true"; // string olduğu için eşitlik kontrolü
     });
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -100,6 +102,15 @@ export default function Dashboard() {
                             {t("Worlds")}
                         </span>
                     </label>
+
+                    {/* ✅ Hesabı Sil butonu */}
+                    <button
+                        className="delete-account-btn"
+                        style={{ marginLeft: "12px" }}
+                        onClick={() => setShowDeletePopup(true)}
+                    >
+                        Hesabı Sil
+                    </button>
                 </div>
             </div>
 
@@ -117,7 +128,51 @@ export default function Dashboard() {
                     <GroupsSection showWorlds={showWorlds} />
                 </div>
             </div>
+
+            {/* ✅ Popup onay kutusu */}
+            {showDeletePopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <p>Hesabınızı silmek istiyor musunuz?</p>
+                        <div className="popup-buttons">
+                            <button
+                                onClick={async () => {
+                                    if (!userId) {
+                                        alert("Kullanıcı ID bulunamadı.");
+                                        return;
+                                    }
+
+                                    try {
+                                        const response = await fetch(`${config.API_URL}users/deleteUser?userId=${userId}`, {
+                                            method: "GET",
+                                        });
+
+                                        if (response.ok) {
+                                            alert("Hesabınız silindi.");
+                                            localStorage.clear();
+                                            navigate("/");
+                                        } else {
+                                            const error = await response.text();
+                                            alert("❌ Hata: " + error);
+                                        }
+                                    } catch (err) {
+                                        console.error("Hesap silme hatası:", err);
+                                        alert("Sunucu hatası.");
+                                    }
+
+                                    setShowDeletePopup(false);
+                                }}
+                            >
+                                Evet
+                            </button>
+                            <button onClick={() => setShowDeletePopup(false)}>Hayır</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
+
 
 }

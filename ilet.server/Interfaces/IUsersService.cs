@@ -17,5 +17,6 @@ namespace ilet.server.Interfaces
         Task ChangeStatus(UserDto userDto);
         Task SendPasswordReminderEmailAsync(string email);
         Task<UserProfilePictures?> GetProfilePictureByIdAsync(int userId);
+        Task<bool> DeleteUserAsync(int userId);
     }
 }

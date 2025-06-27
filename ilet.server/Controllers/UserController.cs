@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using ilet.server.Models;
-using ilet.server.Interfaces;
-using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using ilet.server.Dtos;
+using ilet.server.Interfaces;
+using ilet.server.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ilet.server.Controllers
 {
@@ -182,11 +183,18 @@ namespace ilet.server.Controllers
         public async Task<IActionResult> GetProfilePictureById(int id)
         {
             var pp = await _userService.GetProfilePictureByIdAsync(id);
-
             if (pp?.Image == null || string.IsNullOrEmpty(pp.ContentType))
                 return NoContent();
-
             return File(pp.Image, pp.ContentType);
+        }
+        [HttpGet("deleteUser")]
+        public async Task<IActionResult> DeleteUser([FromQuery] int userId)
+        {
+            var result = await _userService.DeleteUserAsync(userId);
+            if (!result)
+                return NotFound("User Not Found");
+
+            return Ok("User Deleted");
         }
     }
 }

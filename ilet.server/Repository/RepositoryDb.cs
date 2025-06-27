@@ -65,6 +65,17 @@ namespace IletApi.Repo
         {
             return await _dbSet.AnyAsync(predicate);
         }
+        public async Task DeleteAsync(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRangeAsync(IEnumerable<T> entities)
+        {
+            _context.Set<T>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+        }
 
     }
 
