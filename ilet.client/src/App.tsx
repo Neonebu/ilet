@@ -10,8 +10,8 @@ import RemoveFriend from "./pages/RemoveFriend";
 import Requestlist from "./pages/Requestlist";
 import ChatWindow from "./pages/ChatWindow";
 
-// 💡 Router dışında tanımlanmış olan RoutesWrapper ile çözüm uygulanıyor
-function RoutesWrapper({ token, userId, nickname }: { token: string; userId: number; nickname: string }) {
+// Wrapper component to access location.key for forcing re-mount
+function RoutesWrapper() {
     const location = useLocation();
 
     return (
@@ -52,13 +52,13 @@ export default function App() {
         console.log("🎯 Uygulama ready durumu:", ready);
     }, [ready]);
 
-    if (!ready) return <div>Loading...</div>; // dil ayarlanana kadar beklet
+    if (!ready) return <div>Loading...</div>; // wait until i18n is ready
 
     return (
         <I18nextProvider i18n={i18n}>
             <WebSocketProvider token={token} userId={userId} nickname={nickname}>
                 <Router>
-                    <RoutesWrapper token={token} userId={userId} nickname={nickname} />
+                    <RoutesWrapper />
                 </Router>
             </WebSocketProvider>
         </I18nextProvider>
