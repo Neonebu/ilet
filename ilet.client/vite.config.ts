@@ -10,6 +10,7 @@ const target = env.ASPNETCORE_HTTPS_PORT
         : 'https://localhost:7147';
 
 export default defineConfig({
+    base: '/', // 🛡️ Render SPA yönlendirmesi için gerekli
     plugins: [plugin()],
     resolve: {
         alias: {
@@ -29,10 +30,10 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         rollupOptions: {
-            input: '/index.html'
-        }
+            input: 'index.html',
+        },
     },
     esbuild: {
-        drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+        drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
     }
 });

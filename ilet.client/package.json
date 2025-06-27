@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && cp static.json dist/",
+    "build": "tsc -b && vite build && copy static.json dist\\",
     "lint": "eslint .",
     "preview": "vite preview"
   },
