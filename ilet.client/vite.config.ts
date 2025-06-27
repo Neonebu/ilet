@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 import { env } from 'process';
-//vite.config.ts
+
 const target = env.ASPNETCORE_HTTPS_PORT
     ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
     : env.ASPNETCORE_URLS
@@ -29,12 +29,10 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist',
-        rollupOptions: {
-            input: 'index.html',
-        },
+        // rollupOptions tamamen kaldırıldı ✅
     },
     esbuild: {
-    /*    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],*/
         drop: process.env.NODE_ENV === 'production' ? [] : [],
+        /*    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],*/
     }
 });
