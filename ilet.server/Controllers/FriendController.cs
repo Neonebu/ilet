@@ -45,7 +45,7 @@ namespace ilet.server.Controllers
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
             var result = await _friendService.GetFriendRequests(userId);
-            Console.WriteLine($"Friend requests for user {userId}: {result.Count} requests found."+ " useridstr: "+userIdStr);
+            Console.WriteLine($"Friend requests for user {userId}: received={result.Received.Count}, sent={result.Sent.Count}, userIdStr={userIdStr}");
             return Ok(result);
         }
         [HttpPost("respond")]
