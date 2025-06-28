@@ -1,9 +1,9 @@
-﻿import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+﻿import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
-import { WebSocketProvider } from "./context/WebSocketContext";
+import { WebSocketProvider, useWebSocket } from "./context/WebSocketContext";
 import { useEffect, useState } from 'react';
 import AddFriend from "./pages/AddFriend";
 import RemoveFriend from "./pages/RemoveFriend";
@@ -26,6 +26,33 @@ function RoutesWrapper() {
     );
 }
 
+// WebSocket listener logic
+function WebSocketChatHandler() {
+    const { onChatMessage } = useWebSocket();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        onChatMessage((payload) => {
+            if (payload.type !== "chat-message") return;
+
+            const myStatus = localStorage.getItem("status");
+            if (!["Online", "Busy", "Away"].includes(myStatus || "")) return;
+
+            const currentPath = location.pathname;
+            const currentOpen = currentPath.includes(`/chat/`);
+            const openedNickname = currentPath.split("/chat/")[1];
+
+            if (!currentOpen || openedNickname !== payload.senderNickname) {
+                console.log("💬 Gelen mesaj, chat penceresi açılıyor:", payload.senderNickname);
+                navigate(`/chat/${payload.senderNickname}`);
+            }
+        });
+    }, [onChatMessage, navigate, location]);
+
+    return null; // bu bileşen sadece side-effect için
+}
+
 export default function App() {
     const token = localStorage.getItem("token") || "";
     const userId = Number(localStorage.getItem("userId")) || 0;
@@ -34,30 +61,20 @@ export default function App() {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        console.log("🔁 i18n init durumu:", i18n.isInitialized);
-
         if (i18n.isInitialized) {
-            console.log("✅ i18n zaten hazır");
             setReady(true);
         } else {
-            console.log("⏳ i18n hazır değil, 'initialized' eventi beklenecek");
-            i18n.on('initialized', () => {
-                console.log("✅ i18n 'initialized' eventi geldi");
-                setReady(true);
-            });
+            i18n.on('initialized', () => setReady(true));
         }
     }, []);
 
-    useEffect(() => {
-        console.log("🎯 Uygulama ready durumu:", ready);
-    }, [ready]);
-
-    if (!ready) return <div>Loading...</div>; // wait until i18n is ready
+    if (!ready) return <div>Loading...</div>;
 
     return (
         <I18nextProvider i18n={i18n}>
             <WebSocketProvider token={token} userId={userId} nickname={nickname}>
                 <Router>
+                    <WebSocketChatHandler />
                     <RoutesWrapper />
                 </Router>
             </WebSocketProvider>
