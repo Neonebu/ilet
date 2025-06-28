@@ -30,18 +30,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-            "https://ilet.onrender.com",
-            "https://www.iletmsn.site",
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "https://iletapi.onrender.com"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy
+            .SetIsOriginAllowed(origin =>
+                origin == "https://www.iletmsn.site" ||
+                origin == "https://ilet.onrender.com" ||
+                origin == "http://localhost:5173" ||
+                origin == "http://localhost:3000" ||
+                origin == "https://iletapi.onrender.com"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
+
 
 // 🔐 JWT Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
