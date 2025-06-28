@@ -18,19 +18,18 @@
                 aesAlg.Key = Encoding.UTF8.GetBytes(Key);
                 aesAlg.IV = Encoding.UTF8.GetBytes(IV);
 
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream msEncrypt = new MemoryStream())
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                using (var msEncrypt = new MemoryStream())
+                using (var encryptor = aesAlg.CreateEncryptor())
+                using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                using (var swEncrypt = new StreamWriter(csEncrypt))
                 {
                     swEncrypt.Write(plainText);
-                    swEncrypt.Close();
+                    swEncrypt.Flush(); // ✅ flush et
+                    csEncrypt.FlushFinalBlock(); // ✅ block’u bitir
                     return Convert.ToBase64String(msEncrypt.ToArray());
                 }
             }
         }
-
         public static string Decrypt(string cipherText)
         {
             using (Aes aesAlg = Aes.Create())

@@ -30,8 +30,10 @@
                 .AnyAsync(f =>
                     f.Requesterid == requesterId &&
                     f.Addresseeid == friendUser.Id);
+            var alreadyExistsReverse = await _userFriendshipRepo.Query()
+            .AnyAsync(f => f.Requesterid == friendUser.Id && f.Addresseeid == requesterId);
 
-            if (alreadyExists)
+            if (alreadyExists || alreadyExistsReverse)
                 throw new Exception("Friendship already exists or a request has already been sent.");
 
             var friendship = new Userfriendship
@@ -70,8 +72,21 @@
                 throw new Exception("Friend request not found.");
 
             friendship.Status = dto.Accept ? 1 : 2;
-            await _userFriendshipRepo.SaveAsync();
+            if (dto.Accept)
+            {
+                // Eğer ters yönlü kayıt varsa, onu da güncelle
+                var reverse = await _userFriendshipRepo
+                    .FirstOrDefaultAsync(f =>
+                        f.Requesterid == userId &&
+                        f.Addresseeid == friendship.Requesterid &&
+                        f.Status == 0);
 
+                if (reverse != null)
+                {
+                    reverse.Status = 1;
+                }
+            }
+            await _userFriendshipRepo.SaveAsync();
             return dto.Accept ? "Friend request accepted." : "Friend request declined.";
         }
         public async Task<string> RemoveFriend(int requesterId, string email)
