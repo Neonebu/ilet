@@ -47,9 +47,8 @@
             await _userFriendshipRepo.AddAsync(friendship);
             await _userFriendshipRepo.SaveAsync();
         }
-        public async Task<object> GetFriendRequests(int userId)
+        public async Task<FriendRequestsResponseDto> GetFriendRequests(int userId)
         {
-            // Gelen istekler (başkaları sana istek atmış)
             var received = await _userFriendshipRepo.Query()
                 .Where(f => f.Addresseeid == userId && f.Status == 0)
                 .Include(f => f.Requester)
@@ -62,26 +61,24 @@
                 })
                 .ToListAsync();
 
-            // Gönderilen istekler (sen başkalarına istek atmışsın)
             var sent = await _userFriendshipRepo.Query()
                 .Where(f => f.Requesterid == userId && f.Status == 0)
                 .Include(f => f.Addressee)
                 .Select(f => new FriendRequestDto
                 {
                     Id = f.Id,
-                    RequesterId = f.Addresseeid, // Not: bu gönderdiğin kişi
+                    RequesterId = f.Addresseeid,
                     RequesterNickname = f.Addressee != null ? f.Addressee.Nickname : "(Unknown)",
                     Status = f.Status
                 })
                 .ToListAsync();
 
-            return new
+            return new FriendRequestsResponseDto
             {
-                received,
-                sent
+                Received = received,
+                Sent = sent
             };
         }
-
         public async Task<string> RespondToFriendRequest(int userId, RespondFriendRequestDto dto)
         {
             var friendship = await _userFriendshipRepo
