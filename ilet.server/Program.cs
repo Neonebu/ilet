@@ -34,7 +34,8 @@ builder.Services.AddCors(options =>
             "https://ilet.onrender.com",
             "https://www.iletmsn.site",
             "http://localhost:5173",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://iletapi.onrender.com"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()

@@ -42,6 +42,12 @@
   "font": "Yazı tipi",
   "background": "Arka Plan",
   "message_sent": "Gönderildi",
-  "message_read": "Okundu"
-
+  "message_read": "Okundu",
+  "incoming_requests": "Gelen İstekler",
+  "sent_requests": "Gönderilen İstekler",
+  "no_friend_requests": "Gelen istek yok.",
+  "no_sent_requests": "Gönderilen istek yok.",
+  "accept": "Kabul Et",
+  "reject": "Reddet",
+  "pending": "Bekliyor"
 }
