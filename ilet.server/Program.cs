@@ -25,13 +25,14 @@ builder.WebHost.UseUrls("http://0.0.0.0:54550");
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 
-// ✅ CORS Policy (hem render hem local)
+// ✅ CORS Policy (hem render hem local hem özel domain)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
             "https://ilet.onrender.com",
+            "https://www.iletmsn.site",
             "http://localhost:5173",
             "http://localhost:3000"
         )
