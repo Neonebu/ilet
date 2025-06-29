@@ -10,7 +10,7 @@ import RemoveFriend from "./pages/RemoveFriend";
 import Requestlist from "./pages/Requestlist";
 import ChatWindow from "./pages/ChatWindow";
 
-// Wrapper component to access location.key for forcing re-mount
+// 📌 Route tanımları (chat için nickname + id kullanılıyor)
 function RoutesWrapper() {
     const location = useLocation();
 
@@ -21,13 +21,12 @@ function RoutesWrapper() {
             <Route path="/add-friend" element={<AddFriend />} />
             <Route path="/remove-friend" element={<RemoveFriend />} />
             <Route path="/requestlist" element={<Requestlist />} />
-            {/* 🔧 updated route: includes nickname and userId */}
             <Route path="/chat/:nickname/:id" element={<ChatWindow />} />
         </Routes>
     );
 }
 
-// Yeni pencere açan WebSocket mesaj dinleyicisi
+// 📌 Mesaj geldiğinde yeni pencere açan dinleyici
 function WebSocketChatHandler() {
     const { onChatMessage } = useWebSocket();
     const location = useLocation();
@@ -39,19 +38,28 @@ function WebSocketChatHandler() {
             const myStatus = localStorage.getItem("status");
             if (!["Online", "Busy", "Away"].includes(myStatus || "")) return;
 
+            const senderId = payload.senderId;
+            const senderNickname = payload.senderNickname;
+
+            if (!senderId || !senderNickname) {
+                console.warn("⛔ senderId veya senderNickname eksik:", payload);
+                return;
+            }
+
             const currentPath = location.pathname;
             const currentOpen = currentPath.includes(`/chat/`);
             const openedNickname = decodeURIComponent(currentPath.split("/chat/")[1] || "");
 
-            if (!currentOpen || openedNickname !== payload.senderNickname) {
-                console.log("💬 Yeni mesaj geldi, pencere açılıyor:", payload.senderNickname);
-
-                // Yeni pencere için sohbet URL'si userId ile birlikte
-                const chatUrl = `/chat/${encodeURIComponent(payload.senderNickname)}/${payload.senderId}`;
-                const win = window.open(chatUrl, "_blank", "width=500,height=620");
+            const isSameChatOpen = currentOpen && openedNickname === senderNickname;
+            if (!isSameChatOpen) {
+                const chatUrl = `/chat/${encodeURIComponent(senderNickname)}/${senderId}`;
+                const windowName = `chat_${senderId}`;
+                const win = window.open(chatUrl, windowName, "width=500,height=620");
 
                 if (!win) {
                     console.warn("🧨 Pencere açılamadı. Tarayıcı popup engellemiş olabilir.");
+                } else {
+                    console.log(`💬 Yeni sohbet penceresi açıldı: ${chatUrl}`);
                 }
             }
         });
@@ -60,6 +68,7 @@ function WebSocketChatHandler() {
     return null;
 }
 
+// 📌 Ana uygulama bileşeni
 export default function App() {
     const token = localStorage.getItem("token") || "";
     const userId = Number(localStorage.getItem("userId")) || 0;
