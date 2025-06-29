@@ -9,6 +9,7 @@ import AddFriend from "./pages/AddFriend";
 import RemoveFriend from "./pages/RemoveFriend";
 import Requestlist from "./pages/Requestlist";
 import ChatWindow from "./pages/ChatWindow";
+import ToastManager from "./components/ToastManager";
 
 // 📌 Route tanımları (chat için nickname + id kullanılıyor)
 function RoutesWrapper() {
@@ -30,30 +31,27 @@ function RoutesWrapper() {
 function WebSocketChatHandler() {
     const { onChatMessage } = useWebSocket();
     const location = useLocation();
-
     useEffect(() => {
         onChatMessage((payload) => {
             if (payload.type !== "chat-message") return;
 
+            const myUserId = Number(localStorage.getItem("userId"));
+            if (payload.receiverId !== myUserId) return;
+
             const myStatus = localStorage.getItem("status");
             if (!["Online", "Busy", "Away"].includes(myStatus || "")) return;
 
-            const senderId = payload.senderId;
-            const senderNickname = payload.senderNickname;
-
-            if (!senderId || !senderNickname) {
-                console.warn("⛔ senderId veya senderNickname eksik:", payload);
-                return;
-            }
-
             const currentPath = location.pathname;
-            const currentOpen = currentPath.includes(`/chat/`);
-            const openedNickname = decodeURIComponent(currentPath.split("/chat/")[1] || "");
+            const isChatOpen = currentPath.includes(`/chat/`);
+            const openedId = currentPath.split("/").pop();
+            const isSameChatOpen = isChatOpen && openedId === String(payload.senderId);
 
-            const isSameChatOpen = currentOpen && openedNickname === senderNickname;
             if (!isSameChatOpen) {
-                const chatUrl = `/chat/${encodeURIComponent(senderNickname)}/${senderId}`;
-                const windowName = `chat_${senderId}`;
+                const shouldOpen = confirm(`${payload.senderNickname} size mesaj gönderdi. Yeni pencere açılsın mı?`);
+                if (!shouldOpen) return;
+
+                const chatUrl = `/chat/${encodeURIComponent(payload.senderNickname)}/${payload.senderId}`;
+                const windowName = `chat_${payload.senderId}`;
                 const win = window.open(chatUrl, windowName, "width=500,height=620");
 
                 if (!win) {
@@ -92,6 +90,7 @@ export default function App() {
                 <Router>
                     <WebSocketChatHandler />
                     <RoutesWrapper />
+                    <ToastManager />
                 </Router>
             </WebSocketProvider>
         </I18nextProvider>

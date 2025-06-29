@@ -52,27 +52,62 @@ namespace ilet.server.Services
                             else if (type == "chat-message")
                             {
                                 var receiverId = root.GetProperty("receiverId").GetInt32();
+                                var senderId = root.GetProperty("senderId").GetInt32();
+                                var senderNickname = root.GetProperty("senderNickname").GetString();
+                                var content = root.GetProperty("content").GetString();
+
+                                var payload = new
+                                {
+                                    type = "chat-message",
+                                    senderId = senderId,
+                                    senderNickname = senderNickname,
+                                    receiverId = receiverId,
+                                    content = content,
+                                    status = "sent"
+                                };
+
+                                var serializedPayload = JsonSerializer.Serialize(payload);
+                                Console.WriteLine($"📤 Gönderilen chat-message: {serializedPayload}");
 
                                 if (_sockets.TryGetValue(receiverId, out var targetSocket))
                                 {
                                     if (targetSocket.State == WebSocketState.Open)
                                     {
-                                        var json = JsonSerializer.Serialize(root);
-                                        var bytes = Encoding.UTF8.GetBytes(json);
+                                        var bytes = Encoding.UTF8.GetBytes(serializedPayload);
                                         var segment = new ArraySegment<byte>(bytes);
                                         await targetSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
                                     }
+                                    else
+                                    {
+                                        Console.WriteLine("⛔ Hedef socket açık değil.");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ Hedef kullanıcı {receiverId} çevrimiçi değil.");
                                 }
                             }
+
+
                             else if (type == "nudge")
                             {
                                 var receiverId = root.GetProperty("receiverId").GetInt32();
+                                var senderId = root.GetProperty("senderId").GetInt32();
+                                var senderNickname = root.GetProperty("senderNickname").GetString();
+
+                                var payload = new
+                                {
+                                    type = "nudge",
+                                    senderId,
+                                    senderNickname,
+                                    receiverId
+                                };
 
                                 if (_sockets.TryGetValue(receiverId, out var targetSocket))
                                 {
                                     if (targetSocket.State == WebSocketState.Open)
                                     {
-                                        var json = JsonSerializer.Serialize(root);
+                                        var json = JsonSerializer.Serialize(payload);
                                         var bytes = Encoding.UTF8.GetBytes(json);
                                         var segment = new ArraySegment<byte>(bytes);
                                         await targetSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -81,6 +116,7 @@ namespace ilet.server.Services
                                     }
                                 }
                             }
+
                         }
                     }
                     catch (JsonException ex)

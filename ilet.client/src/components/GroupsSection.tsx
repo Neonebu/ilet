@@ -1,9 +1,7 @@
-﻿// 📁 src/components/GroupsSection.tsx
-
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useWebSocket, StatusUpdatePayload } from "../context/WebSocketContext";
-import '../styles/groupsSection.css';
-import '../styles/userCard.css';
+import "../styles/groupsSection.css";
+import "../styles/userCard.css";
 import config from "../config";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +17,7 @@ type GroupsSectionProps = {
 };
 
 const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
-    const { onStatusUpdate } = useWebSocket();
+    const { onStatusUpdate, sendChatMessage } = useWebSocket();
     const [friends, setFriends] = useState<Friend[]>([]);
     const [onlineUsers, setOnlineUsers] = useState<Friend[]>([]);
     const [offlineUsers, setOfflineUsers] = useState<Friend[]>([]);
@@ -94,29 +92,40 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            if (!target.closest('.user-item')) {
+            if (!target.closest(".user-item")) {
                 setSelectedUserId(null);
             }
         };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
     const handleUserClick = (user: Friend) => {
         setSelectedUserId(user.id);
+
         const width = 800;
         const height = 400;
         const left = window.screenX + (window.outerWidth - width) / 2;
         const top = window.screenY + (window.outerHeight - height) / 2;
-        const url = `/chat/${encodeURIComponent(user.nickname)}`;
-        localStorage.setItem("chatWithUserId", user.id.toString());
-        localStorage.setItem("chatWithNickname", user.nickname);
-        localStorage.setItem("selectedUserEmail", user.email);
+
+        const url = `/chat/${encodeURIComponent(user.nickname)}/${user.id}`;
         window.open(
             url,
             `chat_with_${user.id}`,
             `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
+
+        const senderId = Number(localStorage.getItem("userId"));
+        const senderNickname = localStorage.getItem("nickname") || "";
+
+        sendChatMessage({
+            type: "chat-message",
+            senderId,
+            senderNickname,
+            receiverId: user.id,
+            content: "",
+            status: "sent"
+        });
     };
 
     return (
@@ -135,8 +144,8 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                         className="user-item"
                         onClick={() => handleUserClick(user)}
                         style={{
-                            cursor: 'pointer',
-                            backgroundColor: selectedUserId === user.id ? '#eef3ff' : 'transparent'
+                            cursor: "pointer",
+                            backgroundColor: selectedUserId === user.id ? "#eef3ff" : "transparent"
                         }}
                     >
                         🟢 {user.nickname}
@@ -186,9 +195,9 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 >
                     <div
                         className="user-item"
-                        onClick={() => setSelectedUserId(user.id)}
+                        onClick={() => handleUserClick(user)}
                         style={{
-                            backgroundColor: selectedUserId === user.id ? '#eef3ff' : 'transparent',
+                            backgroundColor: selectedUserId === user.id ? "#eef3ff" : "transparent",
                             cursor: "pointer"
                         }}
                     >

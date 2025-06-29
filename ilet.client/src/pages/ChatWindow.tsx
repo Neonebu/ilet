@@ -10,17 +10,10 @@ import { ChatMessagePayload } from "../context/WebSocketContext";
 export default function ChatWindow() {
     const { nickname, id } = useParams<{ nickname: string; id: string }>();
     const receiverId = Number(id);
-
     const { t } = useTranslation();
-    const {
-        sendChatMessage,
-        onChatMessage,
-        sendNudge,
-        onNudge,
-    } = useWebSocket();
+    const { sendChatMessage, onChatMessage, sendNudge, onNudge } = useWebSocket();
 
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
-
     const senderId = Number(localStorage.getItem("userId"));
     const senderNickname = localStorage.getItem("nickname") || "";
     const chatKey = `chat_with_${receiverId}`;
@@ -42,7 +35,7 @@ export default function ChatWindow() {
 
     useEffect(() => {
         const pic = localStorage.getItem("userPicUrl");
-        setUserPicUrl(pic && pic.trim() !== "" ? pic : "");
+        setUserPicUrl(pic?.trim() || "");
     }, []);
 
     useEffect(() => {
@@ -52,6 +45,8 @@ export default function ChatWindow() {
                 (data.senderId === senderId && data.receiverId === receiverId)
             ) {
                 setMessages(prev => {
+                    const alreadyExists = prev.some(m => m.content === data.content && m.senderId === data.senderId);
+                    if (alreadyExists) return prev;
                     const updated = [...prev, data];
                     localStorage.setItem(chatKey, JSON.stringify(updated));
                     return updated;
@@ -95,8 +90,8 @@ export default function ChatWindow() {
             content: trimmed,
             status: "sent"
         };
-        sendChatMessage(msg);
 
+        sendChatMessage(msg);
         const updated = [...messages, msg];
         setMessages(updated);
         localStorage.setItem(chatKey, JSON.stringify(updated));

@@ -48,6 +48,8 @@ export const WebSocketContext = createContext<WebSocketContextType>({
 export const WebSocketProvider = ({
     children,
     token,
+    userId,
+    nickname,
 }: {
     children: React.ReactNode;
     token: string;
@@ -57,7 +59,7 @@ export const WebSocketProvider = ({
     const wsRef = useRef<WebSocket | null>(null);
     const statusCallbacksRef = useRef<((data: StatusUpdatePayload) => void)[]>([]);
     const chatCallbacksRef = useRef<((data: ChatMessagePayload) => void)[]>([]);
-    const nudgeCallbacksRef = useRef<((data: NudgePayload) => void)[]>([]); // 🆕
+    const nudgeCallbacksRef = useRef<((data: NudgePayload) => void)[]>([]);
 
     useEffect(() => {
         const ws = new WebSocket(`${config.WS_BASE}?token=${token}`);
@@ -72,10 +74,27 @@ export const WebSocketProvider = ({
             console.log("📥 Gelen WS mesaj:", event.data);
             try {
                 const data = JSON.parse(event.data);
+
                 if (data.type === "status-update") {
                     statusCallbacksRef.current.forEach((cb) => cb(data));
                 } else if (data.type === "chat-message") {
                     chatCallbacksRef.current.forEach((cb) => cb(data));
+
+                    const currentPath = window.location.pathname;
+                    const openedChat = currentPath.includes(`/chat/`);
+                    const openedId = currentPath.split("/").pop();
+                    const isSameChatOpen = openedChat && openedId === String(data.senderId);
+
+                    if (!isSameChatOpen) {
+                        const toastEvent = new CustomEvent("new-toast", {
+                            detail: {
+                                message: `${data.senderNickname}: ${data.content}`,
+                                senderId: data.senderId,
+                                timestamp: new Date(),
+                            },
+                        });
+                        window.dispatchEvent(toastEvent);
+                    }
                 } else if (data.type === "nudge") {
                     nudgeCallbacksRef.current.forEach((cb) => cb(data));
                 }
@@ -100,8 +119,7 @@ export const WebSocketProvider = ({
     }, []);
 
     const sendStatusUpdate = (status: string, userId: number, nickname: string) => {
-        const readyState = wsRef.current?.readyState;
-        if (wsRef.current && readyState === WebSocket.OPEN) {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
             const payload: StatusUpdatePayload = {
                 type: "status-update",
                 userId,
