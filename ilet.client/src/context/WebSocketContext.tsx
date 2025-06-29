@@ -68,6 +68,8 @@ export const WebSocketProvider = ({
 
         ws.onopen = () => {
             console.log("✅ WebSocket bağlı");
+            // Kullanıcının online olduğunu bildiren status-update
+            sendStatusUpdate("online", userId, nickname);
         };
 
         ws.onmessage = (event: MessageEvent) => {
