@@ -1,4 +1,4 @@
-﻿import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+﻿import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import { I18nextProvider } from 'react-i18next';
@@ -21,15 +21,15 @@ function RoutesWrapper() {
             <Route path="/add-friend" element={<AddFriend />} />
             <Route path="/remove-friend" element={<RemoveFriend />} />
             <Route path="/requestlist" element={<Requestlist />} />
-            <Route path="/chat/:nickname" element={<ChatWindow />} />
+            {/* 🔧 updated route: includes nickname and userId */}
+            <Route path="/chat/:nickname/:id" element={<ChatWindow />} />
         </Routes>
     );
 }
 
-// WebSocket listener logic
+// Yeni pencere açan WebSocket mesaj dinleyicisi
 function WebSocketChatHandler() {
     const { onChatMessage } = useWebSocket();
-    const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
@@ -41,16 +41,23 @@ function WebSocketChatHandler() {
 
             const currentPath = location.pathname;
             const currentOpen = currentPath.includes(`/chat/`);
-            const openedNickname = currentPath.split("/chat/")[1];
+            const openedNickname = decodeURIComponent(currentPath.split("/chat/")[1] || "");
 
             if (!currentOpen || openedNickname !== payload.senderNickname) {
-                console.log("💬 Gelen mesaj, chat penceresi açılıyor:", payload.senderNickname);
-                navigate(`/chat/${payload.senderNickname}`);
+                console.log("💬 Yeni mesaj geldi, pencere açılıyor:", payload.senderNickname);
+
+                // Yeni pencere için sohbet URL'si userId ile birlikte
+                const chatUrl = `/chat/${encodeURIComponent(payload.senderNickname)}/${payload.senderId}`;
+                const win = window.open(chatUrl, "_blank", "width=500,height=620");
+
+                if (!win) {
+                    console.warn("🧨 Pencere açılamadı. Tarayıcı popup engellemiş olabilir.");
+                }
             }
         });
-    }, [onChatMessage, navigate, location]);
+    }, []);
 
-    return null; // bu bileşen sadece side-effect için
+    return null;
 }
 
 export default function App() {

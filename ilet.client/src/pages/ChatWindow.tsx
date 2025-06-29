@@ -8,7 +8,9 @@ import { useWebSocket } from "../context/WebSocketContext";
 import { ChatMessagePayload } from "../context/WebSocketContext";
 
 export default function ChatWindow() {
-    const { nickname } = useParams();
+    const { nickname, id } = useParams<{ nickname: string; id: string }>();
+    const receiverId = Number(id);
+
     const { t } = useTranslation();
     const {
         sendChatMessage,
@@ -21,7 +23,6 @@ export default function ChatWindow() {
 
     const senderId = Number(localStorage.getItem("userId"));
     const senderNickname = localStorage.getItem("nickname") || "";
-    const receiverId = Number(localStorage.getItem("chatWithUserId"));
     const chatKey = `chat_with_${receiverId}`;
 
     const [receiverPicUrl, setReceiverPicUrl] = useState("");
@@ -33,25 +34,11 @@ export default function ChatWindow() {
     });
 
     useEffect(() => {
-        const clearChatData = () => {
-            localStorage.removeItem("chatWithUserId");
-            localStorage.removeItem("chatWithNickname");
-        };
-        window.addEventListener("beforeunload", clearChatData);
-        return () => {
-            window.removeEventListener("beforeunload", clearChatData);
-        };
-    }, []);
-
-    useEffect(() => {
-        const id = localStorage.getItem("chatWithUserId");
-        if (!id) return;
-
-        fetch(`${config.API_URL}user/getppbyid?id=${id}`)
+        fetch(`${config.API_URL}user/getppbyid?id=${receiverId}`)
             .then(res => res.blob())
             .then(blob => setReceiverPicUrl(URL.createObjectURL(blob)))
             .catch(() => setReceiverPicUrl("/fallback-profile.png"));
-    }, []);
+    }, [receiverId]);
 
     useEffect(() => {
         const pic = localStorage.getItem("userPicUrl");
@@ -89,7 +76,6 @@ export default function ChatWindow() {
         }
     }, [messages]);
 
-    // Nudge geldiğinde titret
     useEffect(() => {
         onNudge((payload) => {
             if (payload.receiverId !== senderId) return;
@@ -143,7 +129,7 @@ export default function ChatWindow() {
     };
 
     const handleNudge = () => {
-        doShake(); // kendi penceremi titret
+        doShake();
         sendNudge({
             type: "nudge",
             senderId,
