@@ -17,6 +17,11 @@ export default function NicknameEditor({ nickname, setNickname }: Props) {
     const handleSaveNickname = async () => {
         const newNickname = tempNickname.trim();
 
+        if (newNickname.includes("@")) {
+            alert("Nickname '@' içeremez.");
+            return;
+        }
+
         if (newNickname !== "" && newNickname !== nickname) {
             setNickname(newNickname);
 
@@ -35,12 +40,12 @@ export default function NicknameEditor({ nickname, setNickname }: Props) {
                 })
             });
 
-            // WebSocket ile güncel nickname ile yayın yap
             sendStatusUpdate(status, userId, newNickname);
         }
 
         setIsEditingNickname(false);
     };
+
 
     return (
         <div className="nickname-line">
@@ -52,7 +57,12 @@ export default function NicknameEditor({ nickname, setNickname }: Props) {
                                 type="text"
                                 value={tempNickname}
                                 autoFocus
-                                onChange={(e) => setTempNickname(e.target.value)}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (!value.includes("@")) {
+                                        setTempNickname(value);
+                                    }
+                                }}
                                 onKeyDown={(e) => e.key === "Enter" && handleSaveNickname()}
                                 onBlur={handleSaveNickname}
                                 className="nickname-input"
