@@ -21,11 +21,17 @@ export default function ChatWindow() {
     const [receiverPicUrl, setReceiverPicUrl] = useState("");
     const [userPicUrl, setUserPicUrl] = useState("");
     const [messageText, setMessageText] = useState("");
-    const [messages, setMessages] = useState<ChatMessagePayload[]>(() => {
-        const saved = localStorage.getItem(chatKey);
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [messages, setMessages] = useState<ChatMessagePayload[]>([]);
 
+    // ✅ İlk mount olduğunda localStorage'dan geçmiş mesajları yükle
+    useEffect(() => {
+        const saved = localStorage.getItem(chatKey);
+        if (saved) {
+            setMessages(JSON.parse(saved));
+        }
+    }, [chatKey]);
+
+    // 📥 Karşı tarafın profil fotoğrafını çek
     useEffect(() => {
         fetch(`${config.API_URL}user/getppbyid?id=${receiverId}`)
             .then(res => res.blob())
@@ -33,28 +39,32 @@ export default function ChatWindow() {
             .catch(() => setReceiverPicUrl("/fallback-profile.png"));
     }, [receiverId]);
 
+    // 👤 Kendi profil fotoğrafını localStorage'dan al
     useEffect(() => {
         const pic = localStorage.getItem("userPicUrl");
         setUserPicUrl(pic?.trim() || "");
     }, []);
 
+    // 🧠 Yeni gelen WebSocket mesajlarını ekle
     useEffect(() => {
-        onChatMessage((data) => {
-            if (
+        const handler = (data: ChatMessagePayload) => {
+            const isRelevant =
                 (data.senderId === receiverId && data.receiverId === senderId) ||
-                (data.senderId === senderId && data.receiverId === receiverId)
-            ) {
+                (data.senderId === senderId && data.receiverId === receiverId);
+
+            if (isRelevant) {
                 setMessages(prev => {
-                    const alreadyExists = prev.some(m => m.content === data.content && m.senderId === data.senderId);
-                    if (alreadyExists) return prev;
                     const updated = [...prev, data];
                     localStorage.setItem(chatKey, JSON.stringify(updated));
                     return updated;
                 });
             }
-        });
+        };
+
+        onChatMessage(handler);
     }, [receiverId, senderId]);
 
+    // ✅ Açıldığında gelen mesajları read olarak güncelle
     useEffect(() => {
         const updated = messages.map(msg =>
             msg.receiverId === senderId && msg.status === "sent"
@@ -65,12 +75,14 @@ export default function ChatWindow() {
         localStorage.setItem(chatKey, JSON.stringify(updated));
     }, []);
 
+    // 📜 Scroll her mesajda alta kaysın
     useEffect(() => {
         if (chatHistoryRef.current) {
             chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
         }
     }, [messages]);
 
+    // 👊 Nudge gelince pencere titret
     useEffect(() => {
         onNudge((payload) => {
             if (payload.receiverId !== senderId) return;

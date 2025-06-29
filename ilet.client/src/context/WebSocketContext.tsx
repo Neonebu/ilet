@@ -27,10 +27,8 @@ type WebSocketContextType = {
     ws: WebSocket | null;
     sendStatusUpdate: (status: string, userId: number, nickname: string) => void;
     onStatusUpdate: (callback: (data: StatusUpdatePayload) => void) => void;
-
     sendChatMessage: (payload: ChatMessagePayload) => void;
     onChatMessage: (callback: (data: ChatMessagePayload) => void) => void;
-
     sendNudge: (payload: NudgePayload) => void;
     onNudge: (callback: (data: NudgePayload) => void) => void;
 };
@@ -68,7 +66,6 @@ export const WebSocketProvider = ({
 
         ws.onopen = () => {
             console.log("✅ WebSocket bağlı");
-            // Kullanıcının online olduğunu bildiren status-update
             sendStatusUpdate("online", userId, nickname);
         };
 
@@ -83,9 +80,14 @@ export const WebSocketProvider = ({
                     chatCallbacksRef.current.forEach((cb) => cb(data));
 
                     const currentPath = window.location.pathname;
-                    const openedChat = currentPath.includes(`/chat/`);
-                    const openedId = currentPath.split("/").pop();
-                    const isSameChatOpen = openedChat && openedId === String(data.senderId);
+                    const match = currentPath.match(/\/chat\/[^/]+\/(\d+)/);
+                    const openedChatId = match ? Number(match[1]) : null;
+                    const isChatOpen = currentPath.startsWith("/chat/");
+
+                    const isSameChatOpen =
+                        isChatOpen &&
+                        ((data.senderId === userId && data.receiverId === openedChatId) ||
+                            (data.receiverId === userId && data.senderId === openedChatId));
 
                     if (!isSameChatOpen) {
                         const toastEvent = new CustomEvent("new-toast", {
@@ -101,7 +103,7 @@ export const WebSocketProvider = ({
                     nudgeCallbacksRef.current.forEach((cb) => cb(data));
                 }
             } catch (e) {
-                console.error("WebSocket mesajı çözülemedi:", e);
+                console.error("❌ WebSocket mesajı çözülemedi:", e);
             }
         };
 
@@ -135,9 +137,8 @@ export const WebSocketProvider = ({
     };
 
     const onStatusUpdate = (callback: (data: StatusUpdatePayload) => void) => {
-        if (!statusCallbacksRef.current.includes(callback)) {
-            statusCallbacksRef.current.push(callback);
-        }
+        statusCallbacksRef.current = statusCallbacksRef.current.filter(cb => cb !== callback);
+        statusCallbacksRef.current.push(callback);
     };
 
     const sendChatMessage = (payload: ChatMessagePayload) => {
@@ -149,9 +150,8 @@ export const WebSocketProvider = ({
     };
 
     const onChatMessage = (callback: (data: ChatMessagePayload) => void) => {
-        if (!chatCallbacksRef.current.includes(callback)) {
-            chatCallbacksRef.current.push(callback);
-        }
+        chatCallbacksRef.current = chatCallbacksRef.current.filter(cb => cb !== callback);
+        chatCallbacksRef.current.push(callback);
     };
 
     const sendNudge = (payload: NudgePayload) => {
@@ -163,9 +163,8 @@ export const WebSocketProvider = ({
     };
 
     const onNudge = (callback: (data: NudgePayload) => void) => {
-        if (!nudgeCallbacksRef.current.includes(callback)) {
-            nudgeCallbacksRef.current.push(callback);
-        }
+        nudgeCallbacksRef.current = nudgeCallbacksRef.current.filter(cb => cb !== callback);
+        nudgeCallbacksRef.current.push(callback);
     };
 
     return (
