@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from "react";
+﻿// 📁 src/components/GroupsSection.tsx
+
+import { useEffect, useState } from "react";
 import { useWebSocket, StatusUpdatePayload } from "../context/WebSocketContext";
 import '../styles/groupsSection.css';
 import '../styles/userCard.css';
@@ -23,8 +25,6 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
     const [offlineUsers, setOfflineUsers] = useState<Friend[]>([]);
     const [worldUsers, setWorldUsers] = useState<Friend[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-    const [hoveredOnlineId, setHoveredOnlineId] = useState<number | null>(null);
-    const [hoveredOfflineId, setHoveredOfflineId] = useState<number | null>(null);
     const [hoveredWorldId, setHoveredWorldId] = useState<number | null>(null);
     const { t } = useTranslation();
 
@@ -121,7 +121,6 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
 
     return (
         <div>
-            {/* Çevrimiçi kullanıcılar */}
             <span className="group-label">
                 <u>{t("online_users", { count: onlineUsers.length })}</u>
             </span>
@@ -129,8 +128,8 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 <div
                     key={user.id}
                     className="user-item-wrapper"
-                    onMouseEnter={() => setHoveredOnlineId(user.id)}
-                    onMouseLeave={() => setHoveredOnlineId(null)}
+                    onMouseEnter={() => setHoveredWorldId(user.id)}
+                    onMouseLeave={() => setHoveredWorldId(null)}
                 >
                     <div
                         className="user-item"
@@ -142,7 +141,7 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                     >
                         🟢 {user.nickname}
                     </div>
-                    {hoveredOnlineId === user.id && (
+                    {hoveredWorldId === user.id && (
                         <div className="user-hover-card">
                             <img
                                 src={`${config.API_URL}user/getppbyid?id=${user.id}`}
@@ -159,7 +158,6 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
 
             <br />
 
-            {/* Çevrimdışı kullanıcılar */}
             <span className="group-label">
                 <u>{t("offline_users", { count: offlineUsers.length })}</u>
             </span>
@@ -167,30 +165,15 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                 <div
                     key={user.id}
                     className="user-item-wrapper"
-                    onMouseEnter={() => setHoveredOfflineId(user.id)}
-                    onMouseLeave={() => setHoveredOfflineId(null)}
                 >
                     <div className="user-item">
                         ⚫ {user.nickname}
                     </div>
-                    {hoveredOfflineId === user.id && (
-                        <div className="user-hover-card">
-                            <img
-                                src={`${config.API_URL}user/getppbyid?id=${user.id}`}
-                                alt="pp"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "/msn-logo-small.png";
-                                }}
-                            />
-                            <div className="user-hover-card-nick">{user.nickname}</div>
-                        </div>
-                    )}
                 </div>
             ))}
 
             <br />
 
-            {/* Worlds kullanıcıları */}
             <span className="group-label">
                 <u>{t("Worlds")}</u>
             </span>
@@ -201,7 +184,14 @@ const GroupsSection = ({ showWorlds }: GroupsSectionProps) => {
                     onMouseEnter={() => setHoveredWorldId(user.id)}
                     onMouseLeave={() => setHoveredWorldId(null)}
                 >
-                    <div className="user-item">
+                    <div
+                        className="user-item"
+                        onClick={() => setSelectedUserId(user.id)}
+                        style={{
+                            backgroundColor: selectedUserId === user.id ? '#eef3ff' : 'transparent',
+                            cursor: "pointer"
+                        }}
+                    >
                         🌍 {user.nickname}
                     </div>
                     {hoveredWorldId === user.id && (
