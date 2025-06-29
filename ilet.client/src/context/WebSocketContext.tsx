@@ -1,9 +1,8 @@
 ﻿import React, { createContext, useEffect, useRef, useContext } from "react";
 import config from "../config";
 
-// Yeni mesaj türü
 export type ChatMessagePayload = {
-    type: "chat-message"; // Burada sadece bu sabit string kabul edilecek
+    type: "chat-message";
     senderId: number;
     senderNickname: string;
     receiverId: number;
@@ -18,6 +17,12 @@ export type StatusUpdatePayload = {
     status: string;
 };
 
+export type NudgePayload = {
+    type: "nudge";
+    senderId: number;
+    receiverId: number;
+};
+
 type WebSocketContextType = {
     ws: WebSocket | null;
     sendStatusUpdate: (status: string, userId: number, nickname: string) => void;
@@ -25,6 +30,9 @@ type WebSocketContextType = {
 
     sendChatMessage: (payload: ChatMessagePayload) => void;
     onChatMessage: (callback: (data: ChatMessagePayload) => void) => void;
+
+    sendNudge: (payload: NudgePayload) => void;
+    onNudge: (callback: (data: NudgePayload) => void) => void;
 };
 
 export const WebSocketContext = createContext<WebSocketContextType>({
@@ -33,10 +41,13 @@ export const WebSocketContext = createContext<WebSocketContextType>({
     onStatusUpdate: () => { },
     sendChatMessage: () => { },
     onChatMessage: () => { },
+    sendNudge: () => { },
+    onNudge: () => { },
 });
 
 export const WebSocketProvider = ({
     children,
+    token,
 }: {
     children: React.ReactNode;
     token: string;
@@ -46,14 +57,9 @@ export const WebSocketProvider = ({
     const wsRef = useRef<WebSocket | null>(null);
     const statusCallbacksRef = useRef<((data: StatusUpdatePayload) => void)[]>([]);
     const chatCallbacksRef = useRef<((data: ChatMessagePayload) => void)[]>([]);
+    const nudgeCallbacksRef = useRef<((data: NudgePayload) => void)[]>([]); // 🆕
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const userIdStr = localStorage.getItem("userId");
-        const nickname = localStorage.getItem("nickname");
-
-        if (!token || !userIdStr || !nickname) return;
-
         const ws = new WebSocket(`${config.WS_BASE}?token=${token}`);
         wsRef.current = ws;
         (window as any).ws = ws;
@@ -63,13 +69,15 @@ export const WebSocketProvider = ({
         };
 
         ws.onmessage = (event: MessageEvent) => {
-            console.log("📥 Gelen mesaj:", event.data);
+            console.log("📥 Gelen WS mesaj:", event.data);
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === "status-update") {
                     statusCallbacksRef.current.forEach((cb) => cb(data));
                 } else if (data.type === "chat-message") {
                     chatCallbacksRef.current.forEach((cb) => cb(data));
+                } else if (data.type === "nudge") {
+                    nudgeCallbacksRef.current.forEach((cb) => cb(data));
                 }
             } catch (e) {
                 console.error("WebSocket mesajı çözülemedi:", e);
@@ -126,6 +134,20 @@ export const WebSocketProvider = ({
         }
     };
 
+    const sendNudge = (payload: NudgePayload) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify(payload));
+        } else {
+            console.warn("❌ WS açık değil, nudge gönderilemedi:", payload);
+        }
+    };
+
+    const onNudge = (callback: (data: NudgePayload) => void) => {
+        if (!nudgeCallbacksRef.current.includes(callback)) {
+            nudgeCallbacksRef.current.push(callback);
+        }
+    };
+
     return (
         <WebSocketContext.Provider
             value={{
@@ -134,6 +156,8 @@ export const WebSocketProvider = ({
                 onStatusUpdate,
                 sendChatMessage,
                 onChatMessage,
+                sendNudge,
+                onNudge,
             }}
         >
             {children}

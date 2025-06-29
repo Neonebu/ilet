@@ -64,6 +64,23 @@ namespace ilet.server.Services
                                     }
                                 }
                             }
+                            else if (type == "nudge")
+                            {
+                                var receiverId = root.GetProperty("receiverId").GetInt32();
+
+                                if (_sockets.TryGetValue(receiverId, out var targetSocket))
+                                {
+                                    if (targetSocket.State == WebSocketState.Open)
+                                    {
+                                        var json = JsonSerializer.Serialize(root);
+                                        var bytes = Encoding.UTF8.GetBytes(json);
+                                        var segment = new ArraySegment<byte>(bytes);
+                                        await targetSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+                                        Console.WriteLine($"🔔 Nudge gönderildi -> userId: {receiverId}");
+                                    }
+                                }
+                            }
                         }
                     }
                     catch (JsonException ex)

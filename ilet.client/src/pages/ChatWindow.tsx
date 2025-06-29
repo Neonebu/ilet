@@ -10,18 +10,28 @@ import { ChatMessagePayload } from "../context/WebSocketContext";
 export default function ChatWindow() {
     const { nickname } = useParams();
     const { t } = useTranslation();
-    const { sendChatMessage, onChatMessage } = useWebSocket();
+    const {
+        sendChatMessage,
+        onChatMessage,
+        sendNudge,
+        onNudge,
+    } = useWebSocket();
+
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
+
+    const senderId = Number(localStorage.getItem("userId"));
+    const senderNickname = localStorage.getItem("nickname") || "";
+    const receiverId = Number(localStorage.getItem("chatWithUserId"));
+    const chatKey = `chat_with_${receiverId}`;
+
     const [receiverPicUrl, setReceiverPicUrl] = useState("");
     const [userPicUrl, setUserPicUrl] = useState("");
     const [messageText, setMessageText] = useState("");
     const [messages, setMessages] = useState<ChatMessagePayload[]>(() => {
-        const saved = localStorage.getItem("chat_messages");
+        const saved = localStorage.getItem(chatKey);
         return saved ? JSON.parse(saved) : [];
     });
-    const senderId = Number(localStorage.getItem("userId"));
-    const senderNickname = localStorage.getItem("nickname") || "";
-    const receiverId = Number(localStorage.getItem("chatWithUserId"));
+
     useEffect(() => {
         const clearChatData = () => {
             localStorage.removeItem("chatWithUserId");
@@ -32,6 +42,7 @@ export default function ChatWindow() {
             window.removeEventListener("beforeunload", clearChatData);
         };
     }, []);
+
     useEffect(() => {
         const id = localStorage.getItem("chatWithUserId");
         if (!id) return;
@@ -41,26 +52,27 @@ export default function ChatWindow() {
             .then(blob => setReceiverPicUrl(URL.createObjectURL(blob)))
             .catch(() => setReceiverPicUrl("/fallback-profile.png"));
     }, []);
+
     useEffect(() => {
         const pic = localStorage.getItem("userPicUrl");
-        if (pic && pic.trim() !== "") {
-            setUserPicUrl(pic);
-        } else {
-            setUserPicUrl(""); // fallback'e yönlendirilecek
-        }
+        setUserPicUrl(pic && pic.trim() !== "" ? pic : "");
     }, []);
+
     useEffect(() => {
         onChatMessage((data) => {
-            console.log("📥 Alınan mesaj:", data);
-            setMessages(prev => {
-                const updated = [...prev, data];
-                localStorage.setItem("chat_messages", JSON.stringify(updated));
-                return updated;
-            });
+            if (
+                (data.senderId === receiverId && data.receiverId === senderId) ||
+                (data.senderId === senderId && data.receiverId === receiverId)
+            ) {
+                setMessages(prev => {
+                    const updated = [...prev, data];
+                    localStorage.setItem(chatKey, JSON.stringify(updated));
+                    return updated;
+                });
+            }
         });
-    }, [messages]);
+    }, [receiverId, senderId]);
 
-    // Gelen mesajları okundu olarak işaretle
     useEffect(() => {
         const updated = messages.map(msg =>
             msg.receiverId === senderId && msg.status === "sent"
@@ -68,17 +80,27 @@ export default function ChatWindow() {
                 : msg
         );
         setMessages(updated);
-        localStorage.setItem("chat_messages", JSON.stringify(updated));
+        localStorage.setItem(chatKey, JSON.stringify(updated));
     }, []);
+
     useEffect(() => {
         if (chatHistoryRef.current) {
             chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
         }
     }, [messages]);
 
+    // Nudge geldiğinde titret
+    useEffect(() => {
+        onNudge((payload) => {
+            if (payload.receiverId !== senderId) return;
+            doShake();
+        });
+    }, [senderId]);
+
     const handleSendMessage = () => {
         const trimmed = messageText.trim();
         if (!trimmed || !receiverId) return;
+
         const msg: ChatMessagePayload = {
             type: "chat-message",
             senderId,
@@ -88,9 +110,10 @@ export default function ChatWindow() {
             status: "sent"
         };
         sendChatMessage(msg);
+
         const updated = [...messages, msg];
         setMessages(updated);
-        localStorage.setItem("chat_messages", JSON.stringify(updated));
+        localStorage.setItem(chatKey, JSON.stringify(updated));
         setMessageText("");
     };
 
@@ -101,7 +124,7 @@ export default function ChatWindow() {
         }
     };
 
-    const handleNudge = () => {
+    const doShake = () => {
         const audio = new Audio("/sounds/nudge.mp3");
         audio.play().catch(() => { });
         const originalX = window.screenX;
@@ -117,6 +140,15 @@ export default function ChatWindow() {
                 window.moveTo(originalX, originalY);
             }
         }, 30);
+    };
+
+    const handleNudge = () => {
+        doShake(); // kendi penceremi titret
+        sendNudge({
+            type: "nudge",
+            senderId,
+            receiverId
+        });
     };
 
     return (
