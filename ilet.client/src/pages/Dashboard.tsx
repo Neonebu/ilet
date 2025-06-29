@@ -108,7 +108,31 @@ export default function Dashboard() {
                             name="toggle-worlds"
                             type="checkbox"
                             checked={showWorlds}
-                            onChange={(e) => setShowWorlds(e.target.checked)}
+                            onChange={async (e) => {
+                                const isVisible = e.target.checked;
+                                setShowWorlds(isVisible);
+
+                                const token = localStorage.getItem("token");
+                                try {
+                                    const response = await fetch(`${config.API_URL}user/update-world-visibility`, {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                        body: JSON.stringify({ isVisible }),
+                                    });
+
+                                    if (!response.ok) {
+                                        const data = await response.json();
+                                        console.error("❌ Görünürlük güncellenemedi:", data);
+                                        alert("Bir hata oluştu: " + (data.message || "Bilinmeyen hata"));
+                                    }
+                                } catch (error) {
+                                    console.error("❌ Ağ hatası:", error);
+                                    alert("Ağ hatası oluştu.");
+                                }
+                            }}
                         />
                         <span className="settings-btn" style={{ fontWeight: "bold" }}>
                             {t("Worlds")}

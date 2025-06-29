@@ -196,6 +196,13 @@ namespace ilet.server.Controllers
 
             return Ok("User Deleted");
         }
+        [HttpPut("update-world-visibility")]
+        public async Task<IActionResult> UpdateWorldVisibility([FromBody] WorldVisibilityDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _userService.UpdateWorldVisibilityAsync(userId, dto.IsVisible);
+            return Ok(new { message = "Görünürlük güncellendi." });
+        }
 
     }
 }

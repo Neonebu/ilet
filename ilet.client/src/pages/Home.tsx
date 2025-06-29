@@ -23,12 +23,11 @@ export default function Home() {
     }, []);
     const handleLoginOrSignup = async () => {
         console.log("Email:", email);
-        console.log("Password:", password);
-        console.log("Signup gönderilen veri:", JSON.stringify({ email, password }));
         if (!email || !password) {
             alert("Please fill all fields.");
             return;
         }
+
         try {
             const loginResponse = await fetch(`${config.API_URL}user/login`, {
                 method: "POST",
@@ -42,44 +41,63 @@ export default function Home() {
                 localStorage.setItem('userId', data.id);
                 localStorage.setItem('status', data.status);
                 handleSuccess(data);
-            } else {
-                const data = await loginResponse.json();
+                return;
+            }
 
-                if (data.message === "Kullanıcı bulunamadı.") {
-                    const signupResponse = await fetch(`${config.API_URL}user/signup`, {
+            // 👇 güvenli parse
+            let loginErrorText = await loginResponse.text();
+            let loginError: any = {};
+            try {
+                loginError = JSON.parse(loginErrorText);
+            } catch {
+                loginError.message = loginErrorText;
+            }
+
+            if (loginError.message === "Kullanıcı bulunamadı.") {
+                const signupResponse = await fetch(`${config.API_URL}user/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include',
+                });
+
+                if (signupResponse.ok) {
+                    const loginAfterSignup = await fetch(`${config.API_URL}user/login`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password }),
                         credentials: 'include',
                     });
 
-                    if (signupResponse.ok) {
-                        // ✅ Otomatik login
-                        const loginAfterSignup = await fetch(`${config.API_URL}user/login`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ email, password }),
-                            credentials: 'include',
-                        });
-
-                        if (loginAfterSignup.ok) {
-                            const loginData = await loginAfterSignup.json();
-                            handleSuccess(loginData);
-                        } else {
-                            alert("Signup başarılı ama login başarısız.");
-                        }
+                    if (loginAfterSignup.ok) {
+                        const loginData = await loginAfterSignup.json();
+                        localStorage.setItem('userId', loginData.id);
+                        localStorage.setItem('status', loginData.status);
+                        handleSuccess(loginData);
                     } else {
-                        const signupError = await signupResponse.json();
-                        alert(signupError.message || "Signup başarısız.");
+                        alert("Signup başarılı ama login başarısız.");
                     }
                 } else {
-                    alert(data.message || "Login başarısız.");
+                    const signupErrorText = await signupResponse.text();
+                    let signupError: any = {};
+                    try {
+                        signupError = JSON.parse(signupErrorText);
+                    } catch {
+                        signupError.message = signupErrorText;
+                    }
+                    alert(signupError.message || "Signup başarısız.");
                 }
+            } else {
+                alert(loginError.message || "Login başarısız.");
             }
+
         } catch (error: any) {
+            console.error("❌ Network error:", error);
             alert('Network error: ' + error.message);
         }
     };
+
+
     const handleSuccess = (data: any) => {
         const token = data.Token || data.token;
         const user = data.User || data.user;

@@ -18,5 +18,6 @@ namespace ilet.server.Interfaces
         Task SendPasswordReminderEmailAsync(string email);
         Task<UserProfilePictures?> GetProfilePictureByIdAsync(int userId);
         Task<bool> DeleteUserAsync(int userId);
+        Task UpdateWorldVisibilityAsync(int userId, bool isVisible);
     }
 }

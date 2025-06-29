@@ -51,6 +51,17 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Password).HasColumnName("password");
             entity.Property(e => e.Status).HasColumnName("status");
         });
+        modelBuilder.Entity<Userfriendship>()
+        .HasOne(uf => uf.Requester)
+        .WithMany(u => u.SentFriendRequests)
+        .HasForeignKey(uf => uf.Requesterid)
+        .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Userfriendship>()
+            .HasOne(uf => uf.Addressee)
+            .WithMany(u => u.ReceivedFriendRequests)
+            .HasForeignKey(uf => uf.Addresseeid)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<UserProfilePictures>(entity =>
         {

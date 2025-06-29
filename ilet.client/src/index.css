@@ -23,15 +23,6 @@ body {
     min-height: 100vh;
 }
 
-input,
-button,
-label,
-textarea {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border: 1px solid #ccc !important;
-}
-
 a {
     font-weight: 500;
     color: #646cff;
@@ -79,15 +70,6 @@ button {
     body {
         background-color: #ffffff !important;
         color: #000000 !important;
-    }
-
-    input,
-    button,
-    label,
-    textarea {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #ccc !important;
     }
 }
 

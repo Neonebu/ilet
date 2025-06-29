@@ -51,9 +51,12 @@ export default function ChatWindow() {
     }, []);
     useEffect(() => {
         onChatMessage((data) => {
-            const updated = [...messages, data];
-            setMessages(updated);
-            localStorage.setItem("chat_messages", JSON.stringify(updated));
+            console.log("📥 Alınan mesaj:", data);
+            setMessages(prev => {
+                const updated = [...prev, data];
+                localStorage.setItem("chat_messages", JSON.stringify(updated));
+                return updated;
+            });
         });
     }, [messages]);
 

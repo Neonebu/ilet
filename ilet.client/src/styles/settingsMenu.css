@@ -3,12 +3,21 @@
 }
 
 .settings-btn {
-    background: transparent;
+    background-color: #007bff; /* bar rengi */
     color: white;
     border: none;
     cursor: pointer;
     font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
 }
+
+.settings-btn:hover {
+    background-color: #0056b3; /* hover efekti */
+}
+
 
 .settings-menu {
     display: none;

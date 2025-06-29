@@ -17,5 +17,6 @@ namespace ilet.server.Interfaces
         // 🔧 Yeni eklenenler:
         Task DeleteAsync(T entity);
         Task DeleteRangeAsync(IEnumerable<T> entities);
+        Task UpdateAsync(T entity);
     }
 }

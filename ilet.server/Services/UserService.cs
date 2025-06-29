@@ -255,5 +255,14 @@ namespace IletApi.Services
 
             return true;
         }
+        public async Task UpdateWorldVisibilityAsync(int userId, bool isVisible)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null) throw new Exception("Kullanıcı bulunamadı.");
+
+            user.IsWorldVisible = isVisible;
+            await _userRepo.UpdateAsync(user);
+        }
+
     }
 }

@@ -76,6 +76,11 @@ namespace IletApi.Repo
             _context.Set<T>().RemoveRange(entities);
             await _context.SaveChangesAsync();
         }
+        public async Task UpdateAsync(T entity)
+        {
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
+        }
 
     }
 
