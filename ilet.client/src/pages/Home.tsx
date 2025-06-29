@@ -107,9 +107,15 @@ export default function Home() {
             return;
         }
 
+        // 👇 nickname '@' öncesi kısım olacak şekilde set ediliyor
+        const rawNickname = user.nickname || "";
+        const safeNickname = rawNickname.includes("@")
+            ? rawNickname.split("@")[0]
+            : rawNickname;
+
         localStorage.setItem('token', token);
         localStorage.setItem('userId', user.id);
-        localStorage.setItem('nickname', user.nickname);
+        localStorage.setItem('nickname', safeNickname);
         localStorage.setItem('status', user.status || '');
         localStorage.setItem('profilePictureUrl', user.profilePictureUrl || logo);
         localStorage.setItem('email', user.email);
@@ -117,6 +123,7 @@ export default function Home() {
             i18n.changeLanguage(user.language);
             localStorage.setItem("language", user.language);
         }
+
         if (remember) {
             localStorage.setItem('remembered_email', email);
             localStorage.setItem('remembered_password', password);

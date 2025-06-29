@@ -43,32 +43,36 @@ namespace IletApi.Services
             if (existingUser != null)
                 throw new Exception("Bu email zaten kayıtlı.");
 
+            // 👉 Nickname olarak email'in '@' öncesi kısmını al
+            var safeNickname = input.Email.Split('@')[0];
+
             var user = new Users
             {
                 Email = input.Email,
-                Password = AesEncryptionHelper.Encrypt(input.Password), // AES Şifreleme burada
-                Nickname = input.Email, // İlk nickname olarak email atanabilir
-                Status = "Online",  // Varsayılan bir durum
-                Language = input.Language // Eğer DTO'da varsa
+                Password = AesEncryptionHelper.Encrypt(input.Password),
+                Nickname = safeNickname,
+                Status = "Online",
+                Language = input.Language
             };
 
             await _userRepo.AddAsync(user);
             await _userRepo.SaveAsync();
 
-            // Add self-friendship (user is friends with themselves)
             var selfFriendship = new Userfriendship
             {
                 Requesterid = user.Id,
                 Addresseeid = user.Id,
-                Status = 1, // Status = 1 -> Accepted (you can define this as constant if needed)
+                Status = 1,
                 Createdat = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
             };
 
             await _userFriendshipRepo.AddAsync(selfFriendship);
             await _userFriendshipRepo.SaveAsync();
+
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
+
         public async Task<UserDto> Login(LoginRequestDto input)
         {
             var user = await _userRepo.Query().FirstOrDefaultAsync(u => u.Email == input.Email);
