@@ -159,8 +159,8 @@ export default function Dashboard() {
                                     }
 
                                     try {
-                                        const response = await fetch(`${config.API_URL}users/deleteUser?userId=${userId}`, {
-                                            method: "GET",
+                                        const response = await fetch(`${config.API_URL}user/deleteUser/${userId}`, {
+                                            method: "DELETE",
                                         });
 
                                         if (response.ok) {

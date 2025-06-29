@@ -187,8 +187,8 @@ namespace ilet.server.Controllers
                 return NoContent();
             return File(pp.Image, pp.ContentType);
         }
-        [HttpGet("deleteUser")]
-        public async Task<IActionResult> DeleteUser([FromQuery] int userId)
+        [HttpDelete("deleteUser/{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
         {
             var result = await _userService.DeleteUserAsync(userId);
             if (!result)
@@ -196,5 +196,6 @@ namespace ilet.server.Controllers
 
             return Ok("User Deleted");
         }
+
     }
 }

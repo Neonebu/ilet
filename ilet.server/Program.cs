@@ -25,6 +25,8 @@ builder.WebHost.UseUrls("http://0.0.0.0:54550");
 var config = builder.Configuration;
 var connectionString = config.GetConnectionString("DefaultConnection");
 
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+
 // ✅ CORS Policy (hem render hem local hem özel domain)
 builder.Services.AddCors(options =>
 {
@@ -156,9 +158,11 @@ app.Use(async (context, next) =>
 {
     if (context.Request.Method == "OPTIONS")
     {
-        await next();
+        context.Response.StatusCode = 200;
+        await context.Response.CompleteAsync(); // response'u bitir, CORS header'ı döndürülür
         return;
     }
+
 
     if (context.Request.Path.StartsWithSegments("/ws") && context.WebSockets.IsWebSocketRequest)
     {
